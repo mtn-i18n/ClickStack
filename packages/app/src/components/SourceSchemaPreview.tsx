@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'next-i18next/pages';
 import {
   MetricsDataType,
   TLogSource,
@@ -27,11 +28,12 @@ const SourceSchemaInfoIcon = ({
   iconStyles,
   variant = 'icon',
 }: SourceSchemaInfoIconProps) => {
+  const { t } = useTranslation('settings');
   const tooltipText = isEnabled
     ? tableCount > 1
-      ? `Show Table Schemas`
-      : 'Show Table Schema'
-    : 'Select a table to view its schema';
+      ? t('schemaPreview.showTableSchemas')
+      : t('schemaPreview.showTableSchema')
+    : t('schemaPreview.selectTable');
 
   return (
     <Tooltip
@@ -47,7 +49,7 @@ const SourceSchemaInfoIcon = ({
           className="text-success-hover"
           style={{ cursor: isEnabled ? 'pointer' : 'default', ...iconStyles }}
         >
-          Schema
+          {t('schemaPreview.schema')}
         </Text>
       ) : (
         <IconCode size={16} />
@@ -67,6 +69,7 @@ const TableSchemaPreview = ({
   tableName,
   connectionId,
 }: TableSchemaPreviewProps) => {
+  const { t } = useTranslation('settings');
   const { data, isLoading } = useTableMetadata({
     databaseName,
     tableName,
@@ -89,18 +92,20 @@ const TableSchemaPreview = ({
         <Stack gap="sm">
           {data?.create_local_table_query && (
             <Text size="xs" fw={600} c="dimmed">
-              Distributed Table
+              {t('schemaPreview.distributedTable')}
             </Text>
           )}
           <SQLPreview
-            data={data?.create_table_query ?? 'Schema is not available'}
+            data={
+              data?.create_table_query ?? t('schemaPreview.schemaUnavailable')
+            }
             enableCopy={!!data?.create_table_query}
             copyButtonSize="xs"
           />
           {data?.create_local_table_query && (
             <>
               <Text size="xs" fw={600} c="dimmed">
-                Local Table
+                {t('schemaPreview.localTable')}
               </Text>
               <SQLPreview
                 data={data.create_local_table_query}
@@ -212,6 +217,7 @@ const SourceSchemaPreview = ({
   open,
   onClose,
 }: SourceSchemaPreviewProps) => {
+  const { t } = useTranslation('settings');
   const [internalOpen, setInternalOpen] = useState(false);
   const isModalOpen = controlled ? !!open : internalOpen;
   const handleClose = () => {
@@ -241,7 +247,11 @@ const SourceSchemaPreview = ({
           opened={isModalOpen}
           onClose={handleClose}
           size="auto"
-          title={tables.length > 1 ? `Table Schemas` : `Table Schema`}
+          title={
+            tables.length > 1
+              ? t('schemaPreview.tableSchemas')
+              : t('schemaPreview.tableSchema')
+          }
         >
           <Tabs
             defaultValue={`${tables[0]?.databaseName}.${tables[0]?.tableName}.${tables[0]?.title}`}

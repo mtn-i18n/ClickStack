@@ -1,3 +1,4 @@
+import { useTranslation } from 'next-i18next/pages';
 import { DisplayType, NumberFormat } from '@hyperdx/common-utils/dist/types';
 import { Grid } from '@mantine/core';
 
@@ -22,6 +23,7 @@ const PERCENT_NUMBER_FORMAT: NumberFormat = {
  * content filtering trends).
  */
 export function EfficiencyCharts(props: LLMChartProps) {
+  const { t } = useTranslation('llm');
   const { source, expressions } = props;
   // Neither chart selects cost, so skip the ~70 KiB cost alias binding.
   const base = baseLLMChartConfig({ ...props, withCostAlias: false });
@@ -31,7 +33,7 @@ export function EfficiencyCharts(props: LLMChartProps) {
       <Grid.Col span={6}>
         <ChartCard style={{ height: CHART_HEIGHT }}>
           <DBTimeChart
-            title="Cache Hit Rate"
+            title={t('efficiency.cacheHitRate')}
             sourceId={source.id}
             hiddenSeries={['cached_tokens', 'input_tokens']}
             config={{
@@ -65,7 +67,7 @@ export function EfficiencyCharts(props: LLMChartProps) {
       <Grid.Col span={6}>
         <ChartCard style={{ height: CHART_HEIGHT }}>
           <DBTimeChart
-            title="Finish Reasons"
+            title={t('efficiency.finishReasons')}
             sourceId={source.id}
             config={{
               ...base,

@@ -1,3 +1,4 @@
+import { useTranslation } from 'next-i18next/pages';
 import { getFirstTimestampValueExpression } from '@hyperdx/common-utils/dist/core/utils';
 import {
   Filter,
@@ -21,6 +22,7 @@ const TILE_HEIGHT = 450;
  * clicks open the standard row side panel.
  */
 export function ErrorsTab(props: LLMChartProps) {
+  const { t } = useTranslation('llm');
   const {
     source,
     expressions,
@@ -109,7 +111,10 @@ export function ErrorsTab(props: LLMChartProps) {
     <Grid grow={false} w="100%" maw="100%">
       <Grid.Col span={12}>
         <ChartCard style={{ height: TILE_HEIGHT }}>
-          <ChartContainer title="Error trace spans" disableReactiveContainer>
+          <ChartContainer
+            title={t('errors.errorTraceSpans')}
+            disableReactiveContainer
+          >
             <DBSqlRowTableWithSideBar
               sourceId={source.id}
               config={traceConfig}
@@ -124,7 +129,10 @@ export function ErrorsTab(props: LLMChartProps) {
       {logConfig != null && (
         <Grid.Col span={12}>
           <ChartCard style={{ height: TILE_HEIGHT }}>
-            <ChartContainer title="Error log events" disableReactiveContainer>
+            <ChartContainer
+              title={t('errors.errorLogEvents')}
+              disableReactiveContainer
+            >
               <DBSqlRowTableWithSideBar
                 sourceId={logConfig.source}
                 config={logConfig}
@@ -140,7 +148,7 @@ export function ErrorsTab(props: LLMChartProps) {
       {logConfig == null && (
         <Grid.Col span={12}>
           <Text size="xs" c="dimmed">
-            Select a log source to also show correlated error log events.
+            {t('errors.selectLogSource')}
           </Text>
         </Grid.Col>
       )}

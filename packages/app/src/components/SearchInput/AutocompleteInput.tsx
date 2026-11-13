@@ -1,4 +1,5 @@
 import { useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'next-i18next/pages';
 import cx from 'classnames';
 import Fuse from 'fuse.js';
 import { Loader, Popover, Textarea, UnstyledButton } from '@mantine/core';
@@ -14,7 +15,7 @@ export default function AutocompleteInput({
   inputRef,
   value,
   onChange,
-  placeholder = 'Search your events for anything...',
+  placeholder,
   autocompleteOptions,
   variableOptions,
   isLoadingValues,
@@ -25,7 +26,7 @@ export default function AutocompleteInput({
   rightAdornment,
   validationState,
   showSuggestionsOnEmpty,
-  suggestionsHeader = 'Properties',
+  suggestionsHeader,
   zIndex = 999,
   onSubmit,
   queryHistoryType,
@@ -54,7 +55,11 @@ export default function AutocompleteInput({
   allowMultiline?: boolean;
   'data-testid'?: string;
 }) {
+  const { t } = useTranslation('search');
   const suggestionsLimit = 10;
+  const resolvedPlaceholder = placeholder ?? t('searchInput.placeholder');
+  const resolvedSuggestionsHeader =
+    suggestionsHeader ?? t('searchInput.properties');
   // Rows the query is shown across before the textarea starts scrolling.
   const maxVisibleRows = 4;
 
@@ -225,7 +230,7 @@ export default function AutocompleteInput({
         <Popover.Target>
           <Textarea
             ref={inputRef}
-            placeholder={placeholder}
+            placeholder={resolvedPlaceholder}
             className={cx(
               styles.textarea,
               isSearchInputFocused && styles.focused,
@@ -338,15 +343,15 @@ export default function AutocompleteInput({
                 <div className={styles.suggestionsHeaderRow}>
                   <div className={styles.suggestionsHeader}>
                     {suggestedVariables.length > 0
-                      ? 'Dashboard variables'
-                      : suggestionsHeader}
+                      ? t('searchInput.dashboardVariables')
+                      : resolvedSuggestionsHeader}
                     {isLoadingValues && (
                       <Loader size={12} ml={6} color="var(--color-text)" />
                     )}
                   </div>
                   {suggestions.length > suggestionsLimit && (
                     <div className={styles.suggestionsLimit}>
-                      (Showing Top {suggestionsLimit})
+                      {t('searchInput.showingTop', { limit: suggestionsLimit })}
                     </div>
                   )}
                 </div>
@@ -385,7 +390,9 @@ export default function AutocompleteInput({
           <div>
             {showSearchHistory && (
               <div className={styles.historySection}>
-                <div className={styles.historyTitle}>Search History:</div>
+                <div className={styles.historyTitle}>
+                  {t('searchInput.searchHistory')}
+                </div>
                 {queryHistoryList.map(({ value, label }, i) => {
                   return (
                     <UnstyledButton

@@ -1,3 +1,4 @@
+import { useTranslation } from 'next-i18next/pages';
 import { Button, Tooltip as MantineTooltip } from '@mantine/core';
 import { IconArrowsMaximize, IconZoomReset } from '@tabler/icons-react';
 
@@ -13,6 +14,8 @@ export function ChartOverlayControls({
   onClearSelection?: () => void;
   onResetZoom?: () => void;
 }) {
+  const { t } = useTranslation('charts');
+
   if (onClearSelection == null && onResetZoom == null) {
     return null;
   }
@@ -36,18 +39,18 @@ export function ChartOverlayControls({
           onClick={onClearSelection}
           data-testid="chart-clear-series-selection"
         >
-          Show All Series
+          {t('showAllSeries')}
         </Button>
       ) : null}
       {onResetZoom != null ? (
-        <MantineTooltip label="Reset to the range before zooming in" withArrow>
+        <MantineTooltip label={t('resetZoomTooltip')} withArrow>
           <Button
             variant="secondary"
             size="compact-xs"
             leftSection={<IconZoomReset size={14} />}
             onClick={onResetZoom}
           >
-            Reset zoom
+            {t('resetZoom')}
           </Button>
         </MantineTooltip>
       ) : null}

@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { useTranslation } from 'next-i18next/pages';
 import { UseControllerProps } from 'react-hook-form';
 import { IconServer } from '@tabler/icons-react';
 
@@ -9,6 +10,7 @@ export function ConnectionSelectControlled({
   size,
   ...props
 }: { size?: string } & UseControllerProps<any>) {
+  const { t } = useTranslation('settings');
   const { data } = useConnections();
 
   const values = useMemo(
@@ -28,7 +30,7 @@ export function ConnectionSelectControlled({
       // disabled={isDatabasesLoading}
       comboboxProps={{ withinPortal: true }}
       searchable
-      placeholder="Connection"
+      placeholder={t('connectionSelect.placeholder')}
       leftSection={<IconServer size={16} />}
       maxDropdownHeight={280}
       size={size}

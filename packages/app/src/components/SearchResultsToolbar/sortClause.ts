@@ -1,3 +1,4 @@
+import type { TFunction } from 'i18next';
 import { splitAndTrimWithBracket } from '@hyperdx/common-utils/dist/core/utils';
 import { findBalancedParens } from '@hyperdx/common-utils/dist/variables';
 
@@ -70,23 +71,34 @@ export function sameKeys(a: SortKey[], b: SortKey[]) {
   );
 }
 
-export function sortSummary(orderBy: string): {
+export function sortSummary(
+  orderBy: string,
+  t: TFunction,
+): {
   summary: string;
   count: number;
 } {
   const keys = parseSortKeys(orderBy);
   if (keys == null) {
-    const summary = orderBy.trim() || 'none';
+    const clause = orderBy.trim();
     // An expression the field list cannot split stays one value. A number
     // would invent a field count the user cannot see in the list.
-    return { summary, count: summary === 'none' ? 0 : 1 };
+    return {
+      summary: clause || t('toolbar.none'),
+      count: clause ? 1 : 0,
+    };
   }
-  if (keys.length === 0) return { summary: 'none', count: 0 };
+  if (keys.length === 0) return { summary: t('toolbar.none'), count: 0 };
   if (keys.length === 1) {
     return {
-      summary: `${keys[0].id} ${keys[0].desc ? 'desc' : 'asc'}`,
+      summary: `${keys[0].id} ${
+        keys[0].desc ? t('toolbar.desc') : t('toolbar.asc')
+      }`,
       count: 1,
     };
   }
-  return { summary: `${keys.length} fields`, count: keys.length };
+  return {
+    summary: t('toolbar.fieldCount', { count: keys.length }),
+    count: keys.length,
+  };
 }

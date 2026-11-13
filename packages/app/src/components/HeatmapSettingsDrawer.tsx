@@ -1,4 +1,5 @@
 import { useCallback, useEffect } from 'react';
+import { useTranslation } from 'next-i18next/pages';
 import { useForm, useWatch } from 'react-hook-form';
 import { z } from 'zod';
 import { Separator } from '@clickhouse/click-ui';
@@ -37,6 +38,7 @@ export default function HeatmapSettingsDrawer({
   defaultValues: HeatmapSettingsValues;
   onSubmit: (v: HeatmapSettingsValues) => void;
 }) {
+  const { t } = useTranslation('charts');
   const form = useForm({
     resolver: zodResolver(HeatmapSettingsSchema),
     defaultValues,
@@ -56,7 +58,7 @@ export default function HeatmapSettingsDrawer({
 
   return (
     <Drawer
-      title="Display Settings"
+      title={t('displaySettings')}
       opened={opened}
       onClose={handleClose}
       position="right"
@@ -80,10 +82,10 @@ export default function HeatmapSettingsDrawer({
             control={form.control}
             name="value"
             size="xs"
-            tooltipText="Controls the Y axis range and scale — defines the metric plotted vertically."
-            placeholder="SQL expression"
+            tooltipText={t('valueTooltip')}
+            placeholder={t('sqlExpression')}
             onSubmit={form.handleSubmit(onSubmit)}
-            label="Value"
+            label={t('axisValue')}
             error={form.formState.errors.value?.message}
             rules={{ required: true }}
             enableVariables
@@ -96,25 +98,25 @@ export default function HeatmapSettingsDrawer({
             dateRange={dateRange}
             control={form.control}
             name="count"
-            placeholder="SQL expression"
+            placeholder={t('sqlExpression')}
             size="xs"
-            tooltipText="Controls the color intensity (Z axis) — shows how frequently or strongly each value occurs."
+            tooltipText={t('countTooltip')}
             onSubmit={form.handleSubmit(onSubmit)}
-            label="Count"
+            label={t('count')}
             error={form.formState.errors.count?.message}
           />
 
           <Separator size="xs" />
           <Group gap="xs" justify="flex-end">
             <Button variant="secondary" onClick={handleClose}>
-              Cancel
+              {t('common:actions.cancel')}
             </Button>
             <Button
               variant="primary"
               type="submit"
               leftSection={<IconPlayerPlay size={16} />}
             >
-              Apply
+              {t('common:actions.apply')}
             </Button>
           </Group>
         </Stack>

@@ -1,3 +1,4 @@
+import { useTranslation } from 'next-i18next/pages';
 import type { CSSProperties } from 'react';
 import { ActionIcon, Tooltip } from '@mantine/core';
 import { IconArrowsLeftRight } from '@tabler/icons-react';
@@ -14,10 +15,6 @@ type FilterLinkToggleProps = {
   'data-testid'?: string;
 };
 
-/** Appended when a filter's dropdown values can be written against a variable. */
-const VARIABLE_NOTE =
-  ' This does not affect variable references ($__filter, $__conditionalAll, $variable) in filter definitions — those always apply, linked or not.';
-
 /**
  * Opt-in toggle that "links" a set of filter dropdowns so each one's selectable
  * values are narrowed by the others' current selections (faceted / filter-aware
@@ -30,11 +27,10 @@ export function FilterLinkToggle({
   showVariableNote = false,
   'data-testid': dataTestId = 'filter-link-toggle',
 }: FilterLinkToggleProps) {
+  const { t } = useTranslation('search');
   const label =
-    (linked
-      ? 'Filters are linked: each dropdown only shows values that match the other selections. Click to unlink.'
-      : 'Link filters: narrow each dropdown to values that match the other selections (filter-aware). May be slower on large datasets.') +
-    (showVariableNote ? VARIABLE_NOTE : '');
+    (linked ? t('filterLink.linked') : t('filterLink.unlinked')) +
+    (showVariableNote ? ` ${t('filterLink.variableNote')}` : '');
 
   return (
     <Tooltip withinPortal multiline w={400} label={label}>
@@ -53,7 +49,7 @@ export function FilterLinkToggle({
             : undefined
         }
         onClick={() => onChange(!linked)}
-        aria-label="Link filters"
+        aria-label={t('filterLink.ariaLabel')}
         aria-pressed={linked}
         data-testid={dataTestId}
       >

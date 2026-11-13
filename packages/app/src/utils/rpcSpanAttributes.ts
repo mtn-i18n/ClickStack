@@ -106,17 +106,17 @@ export function isRpcSpan(attributes: Attributes): boolean {
   );
 }
 
-/** Title of the overview's request panel; undefined when there is no panel. */
-export function getRequestPanelTitle(
+/** Translation key for the overview's request panel; undefined when there is no panel. */
+export function getRequestPanelTitleKey(
   attributes: Attributes,
-): string | undefined {
+): 'grpcCall' | 'rpcCall' | 'httpRequest' | undefined {
   if (isGrpcSpan(attributes)) {
-    return 'gRPC Call';
+    return 'grpcCall';
   }
   if (isRpcSpan(attributes)) {
-    return 'RPC Call';
+    return 'rpcCall';
   }
-  return isHttpSpan(attributes) ? 'HTTP Request' : undefined;
+  return isHttpSpan(attributes) ? 'httpRequest' : undefined;
 }
 
 export function getRpcSystemLabel(attributes: Attributes): string {

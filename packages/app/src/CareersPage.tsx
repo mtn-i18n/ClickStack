@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import Head from 'next/head';
+import { useTranslation } from 'next-i18next/pages';
 import {
   Anchor,
   Avatar,
@@ -14,6 +15,7 @@ import {
 import { useQuery } from '@tanstack/react-query';
 
 import { useBrandDisplayName, usePageTitle } from '@/brand';
+import { useLocale } from '@/i18n/useLocale';
 
 interface GreenhouseJob {
   id: number;
@@ -82,8 +84,11 @@ function useGreenhouseJobs() {
 }
 
 export default function CareersPage() {
+  const { t } = useTranslation('settings');
+  const { t: tNav } = useTranslation('nav');
+  const { locale } = useLocale();
   const brandName = useBrandDisplayName();
-  const title = usePageTitle('Careers');
+  const title = usePageTitle(tNav('pages.careers'));
   const { data: commitsData, isLoading: commitsLoading } = useRecentCommits();
   const { data, isLoading, isError } = useGreenhouseJobs();
 
@@ -98,30 +103,20 @@ export default function CareersPage() {
         <title>{title}</title>
       </Head>
       <Stack gap="lg">
-        <Title order={1}>
-          ClickHouse Careers: Help Build the Future of Observability
-        </Title>
+        <Title order={1}>{t('careers.title')}</Title>
         <Text c="dimmed">
-          Join us to build {brandName} at ClickHouse, scaling a high performance
-          observability platform that ingests and queries petabytes of telemetry
-          across metrics, logs, and traces.
+          {t('careers.intro', { brandName })}
           <br />
           <br />
-          Open positions are listed below.
+          {t('careers.openPositions')}
         </Text>
 
         {isLoading && <Loader />}
 
-        {isError && (
-          <Text c="red">
-            Unable to load job listings. Please try again later.
-          </Text>
-        )}
+        {isError && <Text c="red">{t('careers.loadError')}</Text>}
 
         {!isLoading && !isError && filteredJobs.length === 0 && (
-          <Text c="dimmed">
-            No open positions at the moment. Check back soon!
-          </Text>
+          <Text c="dimmed">{t('careers.empty')}</Text>
         )}
 
         {filteredJobs.map(job => (
@@ -150,11 +145,10 @@ export default function CareersPage() {
         ))}
 
         <Title order={3} mt="xl">
-          Recent Activity
+          {t('careers.recentActivity')}
         </Title>
         <Text c="dimmed" size="sm">
-          See what types of problems our team (and community) have been working
-          on lately.
+          {t('careers.recentActivityDescription')}
         </Text>
 
         {commitsLoading && <Loader size="sm" />}
@@ -179,7 +173,9 @@ export default function CareersPage() {
                       {commit.author?.login ?? commit.commit.author.name}
                     </Text>
                     <Text c="dimmed" size="xs">
-                      {new Date(commit.commit.author.date).toLocaleDateString()}
+                      {new Date(commit.commit.author.date).toLocaleDateString(
+                        locale,
+                      )}
                     </Text>
                   </Group>
                 </div>

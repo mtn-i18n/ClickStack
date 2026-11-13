@@ -1,4 +1,5 @@
 import { useCallback, useState } from 'react';
+import { useTranslation } from 'next-i18next/pages';
 import { ErrorBoundary } from 'react-error-boundary';
 import {
   DateRange,
@@ -56,11 +57,12 @@ export function MetricExplorerModal({
   language = 'sql',
   onApply,
 }: MetricExplorerModalProps) {
+  const { t } = useTranslation('charts');
   return (
     <Modal
       opened={opened}
       onClose={onClose}
-      title="Browse metrics"
+      title={t('metricExplorer.browseMetrics')}
       size={MODAL_WIDTH}
       data-testid="metric-explorer-modal"
     >
@@ -77,12 +79,12 @@ export function MetricExplorerModal({
         }}
         fallbackRender={() => (
           <Stack align="center" py="xl" gap="xs">
-            <Text size="sm">Something went wrong loading the explorer.</Text>
+            <Text size="sm">{t('metricExplorer.loadError')}</Text>
             <Text size="xs" style={{ color: 'var(--color-text-muted)' }}>
-              Close this dialog and pick a metric from the select instead.
+              {t('metricExplorer.closeDialogHint')}
             </Text>
             <Button variant="secondary" onClick={onClose} mt="sm">
-              Close
+              {t('metricExplorer.close')}
             </Button>
           </Stack>
         )}
@@ -114,6 +116,7 @@ function MetricExplorerModalBody({
   onClose,
   onApply,
 }: Omit<MetricExplorerModalProps, 'opened'>) {
+  const { t } = useTranslation('charts');
   const [selected, setSelected] = useState<MetricCatalogEntry | null>(() =>
     value?.metricName && value?.metricType
       ? { name: value.metricName, type: value.metricType }
@@ -177,10 +180,13 @@ function MetricExplorerModalBody({
         {staged.length > 0 && (
           <Group gap="xs" data-testid="metric-explorer-staged">
             <Text size="xs" style={{ color: 'var(--color-text-muted)' }}>
-              Applying with
+              {t('metricExplorer.applyingWith')}
             </Text>
             {staged.map(({ clause, kind }) => {
-              const label = kind === 'where' ? clause : `Group by ${clause}`;
+              const label =
+                kind === 'where'
+                  ? clause
+                  : t('metricExplorer.groupByClause', { clause });
               return (
                 <Pill
                   key={`${kind}:${clause}`}
@@ -194,7 +200,7 @@ function MetricExplorerModalBody({
                   removeButtonProps={{
                     'aria-hidden': false,
                     tabIndex: 0,
-                    'aria-label': `Remove ${label}`,
+                    'aria-label': t('metricExplorer.removeClause', { label }),
                   }}
                   onRemove={() =>
                     (kind === 'where' ? setWhere : setGroupBy)(prev =>
@@ -210,7 +216,7 @@ function MetricExplorerModalBody({
         )}
         <Group justify="flex-end">
           <Button variant="secondary" onClick={onClose}>
-            Cancel
+            {t('metricExplorer.cancel')}
           </Button>
           <Button
             variant="primary"
@@ -218,7 +224,7 @@ function MetricExplorerModalBody({
             onClick={() => selected && handleApply(selected)}
             data-testid="metric-explorer-apply"
           >
-            Use this metric
+            {t('metricExplorer.useMetric')}
           </Button>
         </Group>
       </Stack>

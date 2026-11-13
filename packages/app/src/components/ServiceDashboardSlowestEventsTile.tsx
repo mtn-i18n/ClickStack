@@ -1,3 +1,4 @@
+import { useTranslation } from 'next-i18next/pages';
 import { pick } from 'lodash';
 import {
   type Filter,
@@ -32,6 +33,7 @@ export default function SlowestEventsTile({
   enabled?: boolean;
   extraFilters?: Filter[];
 }) {
+  const { t } = useTranslation('services');
   const { expressions } = useServiceDashboardExpressions({ source });
 
   const { data, isLoading, isPlaceholderData, isError, error } =
@@ -74,7 +76,7 @@ export default function SlowestEventsTile({
         title={<Text size="sm">{title}</Text>}
         toolbarItems={[
           <Text key="slower-than" size="xs" style={{ whiteSpace: 'nowrap' }}>
-            (Slower than {roundedP95}ms)
+            {t('slowerThan', { ms: roundedP95 })}
           </Text>,
         ]}
       >

@@ -1,3 +1,4 @@
+import { useTranslation } from 'next-i18next/pages';
 import { UseFormHandleSubmit } from 'react-hook-form';
 import { SavedChartConfig } from '@hyperdx/common-utils/dist/types';
 import { Button, Group } from '@mantine/core';
@@ -20,6 +21,7 @@ export function ChartSaveActions({
   onClose?: () => void;
   isSaving?: boolean;
 }) {
+  const { t } = useTranslation('common');
   const showAlertErrors = useShowAlertErrors();
 
   if (onSave == null && onClose == null) return null;
@@ -33,7 +35,7 @@ export function ChartSaveActions({
           variant="primary"
           onClick={handleSubmit(handleSave, showAlertErrors)}
         >
-          Save
+          {t('actions.save')}
         </Button>
       )}
       {onClose != null && (
@@ -43,7 +45,7 @@ export function ChartSaveActions({
           onClick={onClose}
           disabled={isSaving}
         >
-          Cancel
+          {t('actions.cancel')}
         </Button>
       )}
     </Group>

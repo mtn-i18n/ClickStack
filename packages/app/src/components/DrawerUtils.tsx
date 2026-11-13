@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { useTranslation } from 'next-i18next/pages';
 import { useHotkeys } from 'react-hotkeys-hook';
 import {
   ActionIcon,
@@ -19,7 +20,10 @@ export const DrawerFullWidthToggle = React.memo<{
   isFullWidth?: boolean;
   onToggle: () => void;
 }>(({ isFullWidth, onToggle }) => {
-  const label = isFullWidth ? 'Collapse panel width' : 'Expand panel width';
+  const { t } = useTranslation('common');
+  const label = isFullWidth
+    ? t('drawer.collapseWidth')
+    : t('drawer.expandWidth');
   return (
     <Tooltip label={label} position="bottom">
       <ActionIcon
@@ -43,6 +47,7 @@ export const DrawerHeader = React.memo<{
   onClose?: () => void;
   closeEsc?: boolean;
 }>(({ header, onClose, closeEsc = true }) => {
+  const { t } = useTranslation('common');
   useHotkeys(['esc'], () => onClose?.(), { enabled: closeEsc });
 
   return (
@@ -51,7 +56,7 @@ export const DrawerHeader = React.memo<{
         <Text size="md">{header}</Text>
         <CloseButton
           onClick={onClose}
-          aria-label="Close modal"
+          aria-label={t('actions.close')}
           variant="subtle"
           size="md"
         />

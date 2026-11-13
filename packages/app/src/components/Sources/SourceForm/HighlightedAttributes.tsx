@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'next-i18next/pages';
 import { useFieldArray, useWatch } from 'react-hook-form';
 import { ActionIcon, Button, Flex, Grid, Text, Tooltip } from '@mantine/core';
 import {
@@ -40,6 +41,7 @@ function HighlightedAttributeRow({
   connectionId,
   removeHighlightedAttribute,
 }: HighlightedAttributeRowProps) {
+  const { t } = useTranslation('settings');
   const expressionInput = useWatch({
     control,
     name: `${name}.${index}.sqlExpression`,
@@ -91,11 +93,11 @@ function HighlightedAttributeRow({
           <SQLInlineEditorControlled
             control={control}
             name={`${name}.${index}.alias`}
-            placeholder="Optional Alias"
+            placeholder={t('sourceForm.optionalAliasPlaceholder')}
             disableKeywordAutocomplete
           />
           <Flex h={`${EDITOR_INPUT_HEIGHTS.sm}px`} align="center" gap="sm">
-            <Tooltip label="Validate expression">
+            <Tooltip label={t('sourceForm.validateExpression')}>
               <ActionIcon
                 size="xs"
                 variant="subtle"
@@ -123,12 +125,12 @@ function HighlightedAttributeRow({
         <Grid.Col span={5} pe={0} pt={0}>
           {isValid && (
             <Text c="green" size="xs">
-              Expression is valid.
+              {t('sourceForm.expressionValid')}
             </Text>
           )}
           {isInvalid && (
             <ErrorCollapse
-              summary="Expression is invalid"
+              summary={t('sourceForm.expressionInvalid')}
               details={error?.message}
             />
           )}
@@ -145,9 +147,7 @@ function HighlightedAttributeRow({
       <Grid.Col span={1} pe={0}>
         <Text me="sm" mt={6}>
           <Tooltip
-            label={
-              'An optional, Lucene version of the above expression. If provided, it is used when searching for this attribute value.'
-            }
+            label={t('sourceForm.luceneHelp')}
             color="dark"
             c="white"
             multiline
@@ -173,6 +173,7 @@ export function HighlightedAttributeExpressionsFormRow({
   label: string;
   helpText?: string;
 }) {
+  const { t } = useTranslation('settings');
   const databaseName = useWatch({
     control,
     name: 'from.databaseName',
@@ -226,7 +227,7 @@ export function HighlightedAttributeExpressionsFormRow({
         }}
       >
         <IconCirclePlus size={14} className="me-2" />
-        Add expression
+        {t('sourceForm.addExpression')}
       </Button>
     </FormRow>
   );

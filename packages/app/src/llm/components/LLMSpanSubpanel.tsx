@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { useTranslation } from 'next-i18next/pages';
 import { Badge } from '@clickhouse/click-ui';
 import { Group, Stack, Table, Text } from '@mantine/core';
 
@@ -14,6 +15,7 @@ import { TokenUsageDisplay } from './TokenUsageDisplay';
  * in the dedicated LLM tab.
  */
 export function LLMSpanSubpanel({ info }: { info: LLMSpanInfo }) {
+  const { t } = useTranslation('llm');
   const { costUsd, estimated } = useMemo(
     () =>
       IS_LLM_COST_ENABLED
@@ -62,7 +64,7 @@ export function LLMSpanSubpanel({ info }: { info: LLMSpanInfo }) {
               info.responseModel != null &&
               info.requestModel !== info.responseModel && (
                 <Table.Tr>
-                  <Table.Td c="dimmed">Requested model</Table.Td>
+                  <Table.Td c="dimmed">{t('span.requestedModel')}</Table.Td>
                   <Table.Td>{info.requestModel}</Table.Td>
                 </Table.Tr>
               )}
@@ -74,19 +76,19 @@ export function LLMSpanSubpanel({ info }: { info: LLMSpanInfo }) {
             ))}
             {info.finishReasons != null && (
               <Table.Tr>
-                <Table.Td c="dimmed">Finish reasons</Table.Td>
+                <Table.Td c="dimmed">{t('span.finishReasons')}</Table.Td>
                 <Table.Td>{info.finishReasons}</Table.Td>
               </Table.Tr>
             )}
             {info.timeToFirstTokenMs != null && (
               <Table.Tr>
-                <Table.Td c="dimmed">Time to first token</Table.Td>
+                <Table.Td c="dimmed">{t('span.timeToFirstToken')}</Table.Td>
                 <Table.Td>{Math.round(info.timeToFirstTokenMs)}ms</Table.Td>
               </Table.Tr>
             )}
             {info.conversationId != null && (
               <Table.Tr>
-                <Table.Td c="dimmed">Conversation</Table.Td>
+                <Table.Td c="dimmed">{t('span.conversation')}</Table.Td>
                 <Table.Td>
                   <Text span size="xs" ff="monospace">
                     {info.conversationId}

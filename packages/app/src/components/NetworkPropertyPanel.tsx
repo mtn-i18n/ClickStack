@@ -1,4 +1,6 @@
 import { ReactNode } from 'react';
+import { useTranslation } from 'next-i18next/pages';
+import type { TFunction } from 'i18next';
 import { Badge } from '@clickhouse/click-ui';
 import { Group, Stack } from '@mantine/core';
 
@@ -71,26 +73,37 @@ function userAgentValue(attributes: Attributes): ReactNode {
 function getDetailRows(
   attributes: Attributes,
   statusCode: number | undefined,
+  t: TFunction,
 ): RequestDetailRow[] {
   const errorType = firstSetString(attributes, ['error.type']);
   const resends = getHttpResendCount(attributes);
   return [
-    ['Route', getHttpRoute(attributes)],
+    [t('http.details.route'), getHttpRoute(attributes)],
     // Instrumentations set error.type to the status code, which the badge
     // already shows.
-    ['Error type', errorType !== String(statusCode) ? errorType : undefined],
-    ['Protocol', getHttpProtocol(attributes)],
-    ['Remote address', getNetworkPeerAddress(attributes)],
-    ['Client address', getClientAddress(attributes)],
-    ['Local address', getLocalAddress(attributes)],
-    ['User agent', userAgentValue(attributes)],
-    ['Request size', getHttpMessageSize(attributes, 'request')],
-    ['Response size', getHttpMessageSize(attributes, 'response')],
-    ['Resends', resends != null && resends > 0 ? resends : undefined],
+    [
+      t('http.details.errorType'),
+      errorType !== String(statusCode) ? errorType : undefined,
+    ],
+    [t('http.details.protocol'), getHttpProtocol(attributes)],
+    [t('http.details.remoteAddress'), getNetworkPeerAddress(attributes)],
+    [t('http.details.clientAddress'), getClientAddress(attributes)],
+    [t('http.details.localAddress'), getLocalAddress(attributes)],
+    [t('http.details.userAgent'), userAgentValue(attributes)],
+    [t('http.details.requestSize'), getHttpMessageSize(attributes, 'request')],
+    [
+      t('http.details.responseSize'),
+      getHttpMessageSize(attributes, 'response'),
+    ],
+    [
+      t('http.details.resends'),
+      resends != null && resends > 0 ? resends : undefined,
+    ],
   ];
 }
 
 function HttpRequestSubpanel({ attributes }: { attributes: Attributes }) {
+  const { t } = useTranslation('search');
   const url = getHttpUrl(attributes);
   const statusCode = getHttpStatusCode(attributes);
   const method = getHttpMethod(attributes);
@@ -105,6 +118,7 @@ function HttpRequestSubpanel({ attributes }: { attributes: Attributes }) {
             ? getHttpStatusBadge(
                 statusCode,
                 getHttpStatusText(attributes, statusCode),
+                t('requestStatus.noResponse'),
               )
             : undefined
         }
@@ -114,7 +128,7 @@ function HttpRequestSubpanel({ attributes }: { attributes: Attributes }) {
             : undefined
         }
       />
-      <RequestDetailsTable rows={getDetailRows(attributes, statusCode)} />
+      <RequestDetailsTable rows={getDetailRows(attributes, statusCode, t)} />
       <HttpMessageSections attributes={attributes} />
     </Stack>
   );

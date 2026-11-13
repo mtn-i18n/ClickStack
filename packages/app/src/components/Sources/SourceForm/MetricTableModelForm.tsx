@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import { useTranslation } from 'next-i18next/pages';
 import { useWatch } from 'react-hook-form';
 import { MetricsDataType, SourceKind } from '@hyperdx/common-utils/dist/types';
 import { Stack, Text } from '@mantine/core';
@@ -27,6 +28,7 @@ export function MetricTableModelForm({
   setValue,
   sourceId,
 }: TableModelProps) {
+  const { t } = useTranslation('settings');
   const brandName = useBrandDisplayName();
   const { data: team } = api.useTeam();
   const isMetricsSeriesTableEnabled = !!team?.isMetricsSeriesTableEnabled;
@@ -82,7 +84,10 @@ export function MetricTableModelForm({
               if (!isValid) {
                 notifications.show({
                   color: 'red',
-                  message: `${newValue} is not a valid OTel ${metricType} schema.`,
+                  message: t('sourceForm.metric.invalidSchema', {
+                    tableName: newValue,
+                    metricType,
+                  }),
                 });
               }
             }
@@ -97,7 +102,7 @@ export function MetricTableModelForm({
         });
       }
     })();
-  }, [metricTables, databaseName, connectionId, metadata]);
+  }, [metricTables, databaseName, connectionId, metadata, t]);
 
   useEffect(() => {
     (async () => {
@@ -117,7 +122,9 @@ export function MetricTableModelForm({
           if (!isValid) {
             notifications.show({
               color: 'red',
-              message: `${seriesTable} is not a valid OTel series schema.`,
+              message: t('sourceForm.metric.invalidSeriesSchema', {
+                tableName: seriesTable,
+              }),
             });
           }
         }
@@ -136,6 +143,7 @@ export function MetricTableModelForm({
     connectionId,
     metadata,
     isMetricsSeriesTableEnabled,
+    t,
   ]);
 
   // Auto-fill metric table dropdowns by matching table names to metric types.
@@ -242,7 +250,7 @@ export function MetricTableModelForm({
 
       notifications.show({
         color: 'green',
-        message: 'Auto-detected metric tables from database.',
+        message: t('sourceForm.metric.autoDetected'),
       });
     })();
 
@@ -260,6 +268,7 @@ export function MetricTableModelForm({
     savedSource,
     savedDatabaseName,
     wasSavedAsMetricSource,
+    t,
   ]);
 
   return (
@@ -268,12 +277,17 @@ export function MetricTableModelForm({
         {Object.values(MetricsDataType).map(metricType => (
           <FormRow
             key={metricType.toLowerCase()}
-            label={`${metricType} Table`}
+            label={t('sourceForm.metric.tableLabel', { metricType })}
             helpText={
               metricType === MetricsDataType.ExponentialHistogram ||
               metricType === MetricsDataType.Summary
-                ? `Table containing ${metricType.toLowerCase()} metrics data. Note: not yet fully supported by ${brandName}`
-                : `Table containing ${metricType.toLowerCase()} metrics data`
+                ? t('sourceForm.metric.helpUnsupported', {
+                    metricType: metricType.toLowerCase(),
+                    brandName,
+                  })
+                : t('sourceForm.metric.help', {
+                    metricType: metricType.toLowerCase(),
+                  })
             }
           >
             <DBTableSelectControlled
@@ -287,8 +301,8 @@ export function MetricTableModelForm({
         {isMetricsSeriesTableEnabled && (
           <FormRow
             key="series"
-            label="series Table"
-            helpText="Table containing unique metrics series, used to accelerate metrics queries. Optional"
+            label={t('sourceForm.metric.seriesTableLabel')}
+            helpText={t('sourceForm.metric.seriesTableHelp')}
           >
             <DBTableSelectControlled
               connectionId={connectionId}
@@ -298,26 +312,27 @@ export function MetricTableModelForm({
             />
             {metricsSeriesTableAvailability.status === 'invalid_series' && (
               <Text c="yellow" size="xs">
-                This table doesn&apos;t match the expected series table schema.
+                {t('sourceForm.metric.invalidSeriesTable')}
               </Text>
             )}
             {metricsSeriesTableAvailability.status ===
               'missing_series_hash' && (
               <Text c="yellow" size="xs">
-                The series table cannot be used to optimize queries for some
-                metric types because the required SeriesHash column is missing
-                from the following table(s):{' '}
-                {metricsSeriesTableAvailability.missingSeriesHashTables.join(
-                  ', ',
-                )}
-                .
+                {t('sourceForm.metric.missingSeriesHash', {
+                  tables:
+                    metricsSeriesTableAvailability.missingSeriesHashTables.join(
+                      ', ',
+                    ),
+                })}
               </Text>
             )}
           </FormRow>
         )}
         <FormRow
-          label={'Correlated Log Source'}
-          helpText={`${brandName} Source for logs associated with metrics. Optional`}
+          label={t('sourceForm.fields.correlatedLogSource')}
+          helpText={t('sourceForm.helpTexts.correlatedLogSourceMetrics', {
+            brandName,
+          })}
         >
           <SourceSelectControlled control={control} name="logSourceId" />
         </FormRow>

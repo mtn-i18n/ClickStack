@@ -1,3 +1,5 @@
+import { useTranslation } from 'next-i18next/pages';
+import type { TFunction } from 'i18next';
 import { Stack } from '@mantine/core';
 
 import {
@@ -32,14 +34,21 @@ import {
 } from './RequestLine';
 
 /** HTTP facts of gRPC over HTTP, e.g. `POST http://cart/x.Cart/Get · 200 OK`. */
-function getHttpSummary(attributes: Attributes): string | undefined {
+function getHttpSummary(
+  attributes: Attributes,
+  noResponseLabel: string,
+): string | undefined {
   const statusCode = getHttpStatusCode(attributes);
   const request = [getHttpMethod(attributes), getHttpUrl(attributes)]
     .filter(part => part != null)
     .join(' ');
   const status =
     statusCode != null
-      ? formatHttpStatus(statusCode, getHttpStatusText(attributes, statusCode))
+      ? formatHttpStatus(
+          statusCode,
+          getHttpStatusText(attributes, statusCode),
+          noResponseLabel,
+        )
       : '';
   return [request, status].filter(Boolean).join(' · ') || undefined;
 }
@@ -49,25 +58,32 @@ function getDetailRows(
   spanKind: string | undefined,
   method: string | undefined,
   status: RpcStatus | undefined,
+  t: TFunction,
 ): RequestDetailRow[] {
   const errorType = firstSetString(attributes, ['error.type']);
   const route = getHttpRoute(attributes);
   return [
-    ['Error message', firstSetString(attributes, ['grpc.error_message'])],
+    [
+      t('http.details.errorMessage'),
+      firstSetString(attributes, ['grpc.error_message']),
+    ],
     // Instrumentations set error.type to the status, which the badge shows.
     [
-      'Error type',
+      t('http.details.errorType'),
       errorType === status?.name || errorType === status?.code?.toString()
         ? undefined
         : errorType,
     ],
-    ['Server', getRpcServerAddress(attributes, spanKind)],
-    ['Remote address', getNetworkPeerAddress(attributes)],
-    ['Protocol', getHttpProtocol(attributes)],
-    ['HTTP', getHttpSummary(attributes)],
+    [t('http.details.server'), getRpcServerAddress(attributes, spanKind)],
+    [t('http.details.remoteAddress'), getNetworkPeerAddress(attributes)],
+    [t('http.details.protocol'), getHttpProtocol(attributes)],
+    [
+      t('http.details.http'),
+      getHttpSummary(attributes, t('requestStatus.noResponse')),
+    ],
     // ASP.NET Core sets the route of a gRPC call to the method path.
-    ['Route', route === `/${method}` ? undefined : route],
-    ['User agent', getUserAgent(attributes)],
+    [t('http.details.route'), route === `/${method}` ? undefined : route],
+    [t('http.details.userAgent'), getUserAgent(attributes)],
   ];
 }
 
@@ -79,6 +95,7 @@ export function RpcCallSubpanel({
   attributes: Attributes;
   spanKind?: string;
 }) {
+  const { t } = useTranslation('search');
   const method = getRpcMethod(attributes);
   const status = getRpcStatus(attributes);
   const hasError =
@@ -89,18 +106,18 @@ export function RpcCallSubpanel({
       <RequestLine
         label={getRpcSystemLabel(attributes)}
         target={method}
-        status={getRpcStatusBadge(status, hasError)}
+        status={getRpcStatusBadge(status, hasError, t('requestStatus.error'))}
       />
       <RequestDetailsTable
-        rows={getDetailRows(attributes, spanKind, method, status)}
+        rows={getDetailRows(attributes, spanKind, method, status, t)}
       />
       <HttpMessageSections attributes={attributes}>
         <HeaderSection
-          title="Request metadata"
+          title={t('http.requestMetadata')}
           headers={getRpcMetadata(attributes, 'request')}
         />
         <HeaderSection
-          title="Response metadata"
+          title={t('http.responseMetadata')}
           headers={getRpcMetadata(attributes, 'response')}
         />
       </HttpMessageSections>

@@ -1,5 +1,6 @@
 import { useCallback, useMemo, useState } from 'react';
 import Link from 'next/link';
+import { useTranslation } from 'next-i18next/pages';
 import cx from 'classnames';
 import { MAX_TABLE_ROWS } from '@hyperdx/common-utils/dist/core/utils';
 import {
@@ -112,6 +113,8 @@ export const Table = ({
   className?: string;
   onCellFilter?: CellFilterHandler;
 }) => {
+  const { t } = useTranslation('dashboards');
+  const { t: tCharts } = useTranslation('charts');
   const brandName = useBrandDisplayName();
   const MIN_COLUMN_WIDTH_PX = 100;
   //we need a reference to the scrolling element for logic down below
@@ -489,7 +492,7 @@ export const Table = ({
                               data={csvData}
                               filename={`${brandName}_table_results`}
                               className="fs-8 ms-2"
-                              title="Download table as CSV"
+                              title={t('chart.downloadCsv')}
                             >
                               <IconDownload size={14} />
                             </CsvExportButton>
@@ -624,7 +627,7 @@ export const Table = ({
       </table>
       {isTruncated && (
         <div className="p-2 text-center">
-          Showing the first {MAX_TABLE_ROWS} rows.
+          {tCharts('showingFirstRows', { count: MAX_TABLE_ROWS })}
         </div>
       )}
       {tableBottom}

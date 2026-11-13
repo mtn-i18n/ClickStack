@@ -1,4 +1,5 @@
 import React, { memo } from 'react';
+import { useTranslation } from 'next-i18next/pages';
 import { Checkbox } from '@mantine/core';
 
 import styles from '@styles/LogTable.module.scss';
@@ -27,31 +28,34 @@ export const RowSelectionCell = memo(
     rowId: string;
     isSelected: boolean;
     onToggle: (rowId: string, options: { extendRange: boolean }) => void;
-  }) => (
-    <td
-      className={styles.selectCell}
-      style={CELL_WIDTH_STYLE}
-      data-testid="row-select-cell"
-    >
-      <Checkbox
-        className={styles.selectCheckbox}
-        size={`${CHECKBOX_SIZE}px`}
-        checked={isSelected}
-        aria-label="Select row"
-        title="Select row, shift-click to select a range"
-        data-testid="row-select-checkbox"
-        // The row body is a single button that opens the side panel or expands
-        // the row, depending on the `rowClickAction` preference.
-        onClick={e => e.stopPropagation()}
-        onChange={e =>
-          onToggle(rowId, {
-            extendRange:
-              e.nativeEvent instanceof MouseEvent && e.nativeEvent.shiftKey,
-          })
-        }
-      />
-    </td>
-  ),
+  }) => {
+    const { t } = useTranslation('common');
+    return (
+      <td
+        className={styles.selectCell}
+        style={CELL_WIDTH_STYLE}
+        data-testid="row-select-cell"
+      >
+        <Checkbox
+          className={styles.selectCheckbox}
+          size={`${CHECKBOX_SIZE}px`}
+          checked={isSelected}
+          aria-label={t('table.selectRow')}
+          title={t('table.selectRowRange')}
+          data-testid="row-select-checkbox"
+          // The row body is a single button that opens the side panel or expands
+          // the row, depending on the `rowClickAction` preference.
+          onClick={e => e.stopPropagation()}
+          onChange={e =>
+            onToggle(rowId, {
+              extendRange:
+                e.nativeEvent instanceof MouseEvent && e.nativeEvent.shiftKey,
+            })
+          }
+        />
+      </td>
+    );
+  },
 );
 
 RowSelectionCell.displayName = 'RowSelectionCell';

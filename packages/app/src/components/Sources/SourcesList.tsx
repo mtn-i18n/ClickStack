@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/router';
+import { useTranslation } from 'next-i18next/pages';
 import { Badge, Separator } from '@clickhouse/click-ui';
 import { SourceKind } from '@hyperdx/common-utils/dist/types';
 import {
@@ -30,7 +31,6 @@ import { IS_LOCAL_MODE } from '@/config';
 import { useConnections } from '@/connection';
 import { useSources } from '@/source';
 
-import { SOURCE_KIND_LABELS } from './SourceForm/constants';
 import { TableSourceForm } from './SourceForm';
 
 import styles from './Sources.module.scss';
@@ -58,6 +58,15 @@ export function SourcesList({
   variant = 'compact',
   showEmptyState = true,
 }: SourcesListProps) {
+  const { t } = useTranslation('settings');
+  const sourceKindLabels: Record<SourceKind, string> = {
+    [SourceKind.Log]: t('sourceKinds.logs'),
+    [SourceKind.Trace]: t('sourceKinds.traces'),
+    [SourceKind.Metric]: t('sourceKinds.otelMetrics'),
+    [SourceKind.Session]: t('sourceKinds.sessions'),
+    [SourceKind.Promql]: t('sourceKinds.promql'),
+  };
+
   const {
     data: connections,
     isLoading: isLoadingConnections,
@@ -139,7 +148,7 @@ export function SourcesList({
         <Flex justify="center" align="center" py="xl">
           <Loader size="sm" />
           <Text size="sm" c="dimmed" ml="sm">
-            Loading sources...
+            {t('sourcesList.loading')}
           </Text>
         </Flex>
       </Wrapper>
@@ -151,14 +160,14 @@ export function SourcesList({
       <Wrapper {...wrapperProps}>
         <Alert
           icon={<IconAlertCircle size={16} />}
-          title="Failed to load sources"
+          title={t('sourcesList.loadFailedTitle')}
           color="red"
           variant="light"
         >
           <Text size="sm" mb="sm">
             {error instanceof Error
               ? error.message
-              : 'An error occurred while loading data sources.'}
+              : t('sourcesList.loadFailedFallback')}
           </Text>
           <Button
             size="xs"
@@ -166,7 +175,7 @@ export function SourcesList({
             leftSection={<IconRefresh size={14} />}
             onClick={handleRetry}
           >
-            Retry
+            {t('sourcesList.retry')}
           </Button>
         </Alert>
       </Wrapper>
@@ -182,10 +191,10 @@ export function SourcesList({
           <Flex direction="column" align="center" py="xl" gap="sm">
             <IconStack size={32} color="var(--color-text-muted)" />
             <Title size="sm" ta="center" c="var(--color-text-muted)">
-              No data sources configured yet.
+              {t('sourcesList.emptyTitle')}
             </Title>
             <Text size="xs" ta="center" c="var(--color-text-muted)">
-              Add a source to start querying your data.
+              {t('sourcesList.emptyDescription')}
             </Text>
           </Flex>
         )}
@@ -205,12 +214,16 @@ export function SourcesList({
                     {s.name}
                   </Text>
                   {s.disabled && (
-                    <Badge size="sm" text="Disabled" state="neutral" />
+                    <Badge
+                      size="sm"
+                      text={t('sourcesList.disabledBadge')}
+                      state="neutral"
+                    />
                   )}
                 </Group>
                 <Text size={subtextSize} c="dimmed" mt={4}>
                   <Group gap="xs">
-                    {SOURCE_KIND_LABELS[s.kind]}
+                    {sourceKindLabels[s.kind]}
                     {s.section && (
                       <Group gap={4}>
                         <IconFolder size={iconSize} />
@@ -285,7 +298,7 @@ export function SourcesList({
                 onAddSource?.();
               }}
             >
-              Add source
+              {t('addSource')}
             </Button>
           </Flex>
         )}

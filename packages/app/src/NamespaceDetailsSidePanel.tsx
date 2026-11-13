@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { useTranslation } from 'next-i18next/pages';
 import { parseAsString, useQueryState } from 'nuqs';
 import { Badge } from '@clickhouse/click-ui';
 import { tcFromSource } from '@hyperdx/common-utils/dist/core/metadata';
@@ -56,6 +57,7 @@ const NamespaceDetails = ({
   dateRange: [Date, Date];
   metricSource?: TMetricSource;
 }) => {
+  const { t } = useTranslation('k8s');
   const where = `${metricSource?.resourceAttributesExpression}.k8s.namespace.name:"${name}"`;
   const groupBy = ['k8s.namespace.name'];
 
@@ -97,15 +99,15 @@ const NamespaceDetails = ({
         className="p-2 gap-2 d-flex flex-wrap"
         data-testid="k8s-namespace-details-panel"
       >
-        <PodDetailsProperty label="Namespace" value={name} />
+        <PodDetailsProperty label={t('namespace')} value={name} />
         {properties.ready !== undefined && (
           <PodDetailsProperty
-            label="Status"
+            label={t('status')}
             value={
               properties.ready === 1 ? (
-                <Badge text="Ready" state="success" />
+                <Badge text={t('ready')} state="success" />
               ) : (
-                <Badge text="Not Ready" state="danger" />
+                <Badge text={t('notReady')} state="danger" />
               )
             }
           />
@@ -124,6 +126,7 @@ function NamespaceLogs({
   logSource: TLogSource;
   where: string;
 }) {
+  const { t } = useTranslation('k8s');
   const [resultType, setResultType] = React.useState<'all' | 'error'>('all');
 
   const _where = where + (resultType === 'error' ? ' Severity:err' : '');
@@ -132,7 +135,7 @@ function NamespaceLogs({
     <Card p="md">
       <Card.Section p="md" py="xs">
         <Flex justify="space-between" align="center">
-          Latest Namespace Logs & Spans
+          {t('latestNamespaceLogs')}
           <Flex gap="xs" align="center">
             <SegmentedControl
               size="xs"
@@ -143,8 +146,8 @@ function NamespaceLogs({
                 }
               }}
               data={[
-                { label: 'All', value: 'all' },
-                { label: 'Errors', value: 'error' },
+                { label: t('all'), value: 'all' },
+                { label: t('errors'), value: 'error' },
               ]}
             />
             {/* 
@@ -216,6 +219,7 @@ function NamespaceDetailsSidePanelInner({
   namespaceName: string;
   setNamespaceName: (value: string | null) => void;
 }) {
+  const { t } = useTranslation('k8s');
   const contextZIndex = useZIndex();
   const drawerZIndex = contextZIndex + 10;
 
@@ -316,7 +320,7 @@ function NamespaceDetailsSidePanelInner({
         <IsolatedChartSyncProvider>
           <div className={styles.panel}>
             <DrawerHeader
-              header={`Details for ${namespaceName}`}
+              header={t('detailsFor', { name: namespaceName })}
               onClose={handleClose}
             />
             <DrawerBody>
@@ -330,7 +334,7 @@ function NamespaceDetailsSidePanelInner({
                   <Card p="md" data-testid="namespace-details-cpu-usage-chart">
                     <Card.Section p="md" py="sm" h={CHART_HEIGHT}>
                       <DBTimeChart
-                        title="CPU Usage by Pod"
+                        title={t('cpuUsageByPod')}
                         config={convertV1ChartConfigToV2(
                           {
                             dateRange,
@@ -364,7 +368,7 @@ function NamespaceDetailsSidePanelInner({
                   >
                     <Card.Section p="md" py="sm" h={CHART_HEIGHT}>
                       <DBTimeChart
-                        title="Memory Usage by Pod"
+                        title={t('memoryUsageByPod')}
                         config={convertV1ChartConfigToV2(
                           {
                             dateRange,

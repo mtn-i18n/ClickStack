@@ -1,0 +1,22 @@
+{
+  "generic": "Something went wrong, please retry.",
+  "loadFailed": "Failed to load",
+  "saveFailed": "Failed to save",
+  "deleteFailed": "Failed to delete",
+  "notFound": "Page not found",
+  "unauthorized": "Your session expired. Please log in again.",
+  "network": "Network error. Check your connection.",
+  "permissionDenied": "You do not have permission to do that.",
+  "somethingWentWrong": "Something went wrong",
+  "knownColumnsTitle": "Failed to load row details from distributed or merge table",
+  "knownColumnsWithList": "To show every field for a row, {{brand}} loads the full row using the <b>Known Columns List</b> configured on this source (instead of a <code>SELECT *</code> query). This likely failed because the list references a column that doesn't exist in every target table of the Distributed or Merge table. Update the <b>Known Columns List</b> so it only includes columns present in all target tables.",
+  "knownColumnsWithoutList": "To show every field for this row, {{brand}} loads the full row with a <code>SELECT *</code> query. This failed because a column declared by the parent (distributed) table is missing from at least one target table. To fix this, set a <b>Known Columns List</b> on this source, specifying a list of columns that every target table has. When set, {{brand}} will select those columns instead of <code>SELECT *</code>.",
+  "editSourceSettings": "Edit source settings",
+  "materializedColumnsTitle": "Materialized and alias columns are on",
+  "materializedColumnsBody": "The row query includes MATERIALIZED and ALIAS columns. The whole row fails to load if the connection's user cannot change query settings (for example, a readonly user) or if one of these columns cannot be evaluated.",
+  "hideMaterializedColumns": "Hide materialized and alias columns",
+  "rowLoadError": "Error loading row data",
+  "errorMessage": "Error Message:",
+  "sentQuery": "Sent Query:",
+  "editSource": "Edit Source"
+}

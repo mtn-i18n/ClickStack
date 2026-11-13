@@ -1,4 +1,5 @@
 import Router from 'next/router';
+import { useTranslation } from 'next-i18next/pages';
 import { formatDistanceToNow } from 'date-fns';
 import { Badge } from '@clickhouse/click-ui';
 import { ActionIcon, Group, Menu, Table, Text, Tooltip } from '@mantine/core';
@@ -27,6 +28,7 @@ export function ListingRow({
   updatedBy?: string;
   createdBy?: string;
 }) {
+  const { t } = useTranslation('common');
   return (
     <Table.Tr
       style={{ cursor: 'pointer' }}
@@ -102,7 +104,7 @@ export function ListingRow({
                   onDelete(id);
                 }}
               >
-                Delete
+                {t('actions.delete')}
               </Menu.Item>
             </Menu.Dropdown>
           </Menu>

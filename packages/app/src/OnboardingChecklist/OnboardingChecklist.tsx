@@ -1,3 +1,4 @@
+import { useTranslation } from 'next-i18next/pages';
 import {
   ActionIcon,
   Anchor,
@@ -20,6 +21,7 @@ const OnboardingChecklist = ({
 }: {
   onAddDataClick?: () => void;
 }) => {
+  const { t } = useTranslation('settings');
   const [isCollapsed, setIsCollapsed] = useLocalStorage(
     'onboardingChecklistCollapsed',
     false,
@@ -58,7 +60,9 @@ const OnboardingChecklist = ({
           <ActionIcon
             variant="subtle"
             size="sm"
-            aria-label={isCollapsed ? 'Expand checklist' : 'Collapse checklist'}
+            aria-label={
+              isCollapsed ? t('onboarding.expand') : t('onboarding.collapse')
+            }
             onClick={() => setIsCollapsed(!isCollapsed)}
           >
             {isCollapsed ? (
@@ -89,7 +93,7 @@ const OnboardingChecklist = ({
               mt="xs"
               p="xs"
             >
-              🎉 You&apos;re all set!
+              {t('onboarding.allSet')}
             </Text>
           )}
         </Stack>
@@ -105,7 +109,7 @@ const OnboardingChecklist = ({
           onClick={() => dismiss()}
           disabled={isDismissing}
         >
-          Dismiss and don&apos;t show again
+          {t('onboarding.dismiss')}
         </Anchor>
       </Collapse>
     </Card>

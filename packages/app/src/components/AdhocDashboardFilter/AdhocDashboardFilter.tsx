@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { useTranslation } from 'next-i18next/pages';
 import {
   getDashboardVariableFilters,
   getPendingFilterValuesVariables,
@@ -61,6 +62,7 @@ export function AdhocDashboardFilter({
   variables,
   unsatisfiedRequiredFilters,
 }: AdhocDashboardFilterProps) {
+  const { t } = useTranslation('dashboards');
   const [isAdding, setIsAdding] = useState(false);
   const isAtLimit = conditions.length >= ADHOC_FILTER_MAX_CONDITIONS;
 
@@ -99,7 +101,7 @@ export function AdhocDashboardFilter({
   const toggleAdding = () => {
     if (isDisabled) return;
     if (isAtLimit) {
-      notifyAdhocFilterFull(filter);
+      notifyAdhocFilterFull(filter, t);
       return;
     }
     setIsAdding(!isAdding);
@@ -108,7 +110,7 @@ export function AdhocDashboardFilter({
   // lose the filter's others on reload. Keep the editor open to fix it instead.
   const isStorable = (condition: AdhocFilterCondition) => {
     if (AdhocFilterConditionSchema.safeParse(condition).success) return true;
-    notifyAdhocConditionTooLong(filter);
+    notifyAdhocConditionTooLong(filter, t);
     return false;
   };
   const replace = (index: number, condition: AdhocFilterCondition) =>
@@ -206,7 +208,9 @@ export function AdhocDashboardFilter({
           {conditions.length > 0 && (
             <CloseButton
               size="xs"
-              aria-label={`Clear ${filter.name} conditions`}
+              aria-label={t('filtersModal.adhoc.clearConditions', {
+                name: filter.name,
+              })}
               onClick={() => onChange([])}
               data-testid={`adhoc-filter-clear-${filter.name}`}
             />
@@ -233,7 +237,9 @@ export function AdhocDashboardFilter({
                 <ActionIcon
                   variant="subtle"
                   size="sm"
-                  aria-label={`Add ${filter.name} condition`}
+                  aria-label={t('filtersModal.adhoc.addCondition', {
+                    name: filter.name,
+                  })}
                   aria-disabled={isDisabled || isAtLimit}
                   data-disabled={isDisabled || isAtLimit || undefined}
                   onClick={toggleAdding}

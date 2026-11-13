@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { useTranslation } from 'next-i18next/pages';
 import {
   AlertEvaluation,
   AlertInterval,
@@ -33,6 +34,7 @@ export function AlertEvaluationsTable({
   isFetchingNextPage,
   onLoadMore,
 }: AlertEvaluationsTableProps) {
+  const { t } = useTranslation('alerts');
   if (isLoading) {
     return <Skeleton h={160} w="100%" />;
   }
@@ -41,7 +43,7 @@ export function AlertEvaluationsTable({
     return (
       <Center py="lg">
         <Text size="sm" c="red" data-testid="alert-evaluations-error">
-          Failed to load evaluations.
+          {t('evaluationsLoadFailed')}
         </Text>
       </Center>
     );
@@ -51,7 +53,7 @@ export function AlertEvaluationsTable({
     return (
       <Center py="lg">
         <Text size="sm" c="dimmed">
-          No evaluations in the selected time range.
+          {t('noEvaluations')}
         </Text>
       </Center>
     );
@@ -62,24 +64,24 @@ export function AlertEvaluationsTable({
       <Table highlightOnHover data-testid="alert-evaluations-table">
         <Table.Thead>
           <Table.Tr>
-            <Table.Th>Evaluation window</Table.Th>
-            <Table.Th>State</Table.Th>
-            <Table.Th>Latest value</Table.Th>
-            <Table.Th>Breaches</Table.Th>
-            <Table.Th>Backfilled buckets</Table.Th>
-            <Table.Th>Query duration</Table.Th>
+            <Table.Th>{t('evaluationWindow')}</Table.Th>
+            <Table.Th>{t('alertState')}</Table.Th>
+            <Table.Th>{t('latestValue')}</Table.Th>
+            <Table.Th>{t('breaches')}</Table.Th>
+            <Table.Th>{t('backfilledBuckets')}</Table.Th>
+            <Table.Th>{t('queryDuration')}</Table.Th>
             <Table.Th>
               <Tooltip
-                label="Wall time delivering this evaluation's notifications, including retries. Targets are dispatched concurrently, so the slowest one in each dispatch round sets this figure."
+                label={t('notificationDurationTooltip')}
                 multiline
                 maw={320}
                 withArrow
                 color="dark"
               >
-                <span>Notification duration</span>
+                <span>{t('notificationDuration')}</span>
               </Tooltip>
             </Table.Th>
-            <Table.Th>Errors</Table.Th>
+            <Table.Th>{t('errors')}</Table.Th>
           </Table.Tr>
         </Table.Thead>
         <Table.Tbody>
@@ -97,8 +99,8 @@ export function AlertEvaluationsTable({
         isFetchingNextPage={isFetchingNextPage}
         isFetchNextPageError={isError}
         onLoadMore={onLoadMore}
-        loadingLabel="Loading older evaluations…"
-        errorLabel="Failed to load older evaluations."
+        loadingLabel={t('loadingOlderEvaluations')}
+        errorLabel={t('olderEvaluationsFailed')}
         sentinelTestId="alert-evaluations-load-more"
         errorTestId="alert-evaluations-load-error"
       />

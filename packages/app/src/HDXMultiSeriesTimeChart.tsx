@@ -7,9 +7,11 @@ import {
   useRef,
   useState,
 } from 'react';
+import { useTranslation } from 'next-i18next/pages';
 import cx from 'classnames';
 import { add, isSameSecond, sub } from 'date-fns';
 import { withErrorBoundary } from 'react-error-boundary';
+import { Trans } from 'react-i18next';
 import {
   Area,
   AreaChart,
@@ -287,7 +289,11 @@ const HDXLineChartTooltip = withErrorBoundary(
                 style={{ opacity: 0.6, fontStyle: 'italic', paddingTop: 2 }}
                 data-testid="chart-tooltip-hidden-rows"
               >
-                +{hiddenRowCount.toLocaleString()} more
+                <Trans
+                  ns="dashboards"
+                  i18nKey="chart.moreHiddenRows"
+                  values={{ count: hiddenRowCount.toLocaleString() }}
+                />
               </div>
             )}
           </ChartTooltipContainer>
@@ -300,7 +306,7 @@ const HDXLineChartTooltip = withErrorBoundary(
     onError: console.error,
     fallback: (
       <div className="text-danger px-2 py-1 m-2 fs-8 font-monospace bg-danger-transparent">
-        An error occurred while rendering the tooltip.
+        <Trans ns="dashboards" i18nKey="chart.tooltipRenderError" />
       </div>
     ),
   },
@@ -319,6 +325,7 @@ function ExpandableLegendItem({
   isDisabled?: boolean;
   onToggle?: (isShiftKey: boolean) => void;
 }) {
+  const { t } = useTranslation('dashboards');
   const [_expanded, setExpanded] = useState(false);
   const isExpanded = _expanded || expanded;
 
@@ -339,11 +346,7 @@ function ExpandableLegendItem({
           setExpanded(v => !v);
         }
       }}
-      title={
-        isSelected
-          ? 'Click to show all (Shift+click to deselect)'
-          : 'Click to show only this (Shift+click for multi-select)'
-      }
+      title={isSelected ? t('chart.showAllHint') : t('chart.showOnlyHint')}
     >
       <div>
         <svg width="12" height="4">
@@ -377,6 +380,7 @@ const LegendRenderer = memo<{
   selectedSeries?: Set<string>;
   onToggleSeries?: (seriesName: string, isShiftKey?: boolean) => void;
 }>(props => {
+  const { t } = useTranslation('charts');
   const { payload, lineDataMap, allLineData, selectedSeries, onToggleSeries } =
     props;
 
@@ -441,7 +445,7 @@ const LegendRenderer = memo<{
         <Popover withinPortal withArrow closeOnEscape closeOnClickOutside>
           <Popover.Target>
             <div className={cx(styles.legendItem, styles.legendMoreLink)}>
-              +{restItems.length} more
+              {t('more', { total: restItems.length })}
             </div>
           </Popover.Target>
           <Popover.Dropdown p="xs">
@@ -1377,6 +1381,7 @@ export const MemoChart = memo(function MemoChart({
   /** Unset follows the display type's default (see getLineCurveType). */
   lineInterpolation?: LineInterpolation;
 }) {
+  const { t } = useTranslation('dashboards');
   const _id = useId();
   const id = _id.replace(/:/g, '');
 
@@ -2180,7 +2185,7 @@ export const MemoChart = memo(function MemoChart({
               x={logReferenceTimestamp}
               stroke="#ff5d5b"
               strokeDasharray="3 3"
-              label="Event"
+              label={t('chart.event')}
             />
           ) : null}
         </ChartComponent>

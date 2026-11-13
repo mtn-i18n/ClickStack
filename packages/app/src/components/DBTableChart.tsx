@@ -1,4 +1,5 @@
 import { useCallback, useMemo, useState } from 'react';
+import { useTranslation } from 'next-i18next/pages';
 import { inferNumericColumn } from '@hyperdx/common-utils/dist/clickhouse';
 import { isRatioChartConfig } from '@hyperdx/common-utils/dist/core/renderChartConfig';
 import {
@@ -74,6 +75,7 @@ export default function DBTableChart({
   /** When set, group-by cells offer filter / exclude actions for their value. */
   onFilter?: TileFilterHandler;
 }) {
+  const { t } = useTranslation('common');
   const [sort, setSort] = useState<SortingState>([]);
 
   const { data: source } = useSource({
@@ -367,7 +369,7 @@ export default function DBTableChart({
           tableBottom={
             hasNextPage && (
               <Text ref={fetchMoreRef} ta="center">
-                Loading...
+                {t('states.loading')}
               </Text>
             )
           }

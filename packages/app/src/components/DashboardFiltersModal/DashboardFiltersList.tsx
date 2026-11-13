@@ -1,3 +1,5 @@
+import { useTranslation } from 'next-i18next/pages';
+import type { TFunction } from 'i18next';
 import {
   getFilterBroadcastTarget,
   getFilterVariableName,
@@ -61,19 +63,20 @@ function getSourceNames(
 /** Where the dropdown's values come from: the queried source, or the authored list. */
 function getValuesAttribute(
   filter: DashboardFilter,
+  t: TFunction,
   sources?: { id: string; name: string }[],
 ): DashboardFilterAttribute {
   switch (filter.type) {
     case 'QUERY_EXPRESSION':
       return {
         icon: <IconSearch size={14} />,
-        tooltip: 'Source the dropdown values are queried from',
+        tooltip: t('filtersModal.list.sourceValuesTooltip'),
         label: sources?.find(s => s.id === filter.source)?.name ?? '',
       };
     case 'PROMETHEUS_LABEL':
       return {
         icon: <IconLabel size={14} />,
-        tooltip: 'PromQL source and label the dropdown values come from',
+        tooltip: t('filtersModal.list.promqlValuesTooltip'),
         label: [sources?.find(s => s.id === filter.source)?.name, filter.label]
           .filter(Boolean)
           .join(' · '),
@@ -82,13 +85,13 @@ function getValuesAttribute(
       const count = filter.options.length;
       return {
         icon: <IconList size={14} />,
-        label: `${count} custom option${count === 1 ? '' : 's'}`,
+        label: t('filtersModal.list.customOptions', { count }),
       };
     }
     case 'ADHOC':
       return {
         icon: <IconFilter size={14} />,
-        tooltip: 'Sources the condition keys and values come from',
+        tooltip: t('filtersModal.list.adhocValuesTooltip'),
         label: getSourceNames(filter.sources, sources),
       };
     default:
@@ -99,13 +102,14 @@ function getValuesAttribute(
 
 function getBroadcastTargetDisplay(
   filter: DashboardFilter,
+  t: TFunction,
   sources?: { id: string; name: string }[],
 ) {
   const broadcastTarget = getFilterBroadcastTarget(filter);
   if (!broadcastTarget) return undefined;
 
   if (!broadcastTarget?.appliesToSourceIds?.length) {
-    return 'All sources';
+    return t('filtersModal.list.allSources');
   }
 
   return getSourceNames(broadcastTarget.appliesToSourceIds, sources);
@@ -121,13 +125,18 @@ export const DashboardFiltersList = ({
   onClose,
   onAddNew,
 }: DashboardFiltersListProps) => {
+  const { t } = useTranslation('dashboards');
   const { data: sources } = useSources();
 
   return (
     <Modal
       opened
       onClose={onClose}
-      title={showVariableOptions ? 'Filters and Variables' : 'Filters'}
+      title={
+        showVariableOptions
+          ? t('filtersModal.filtersAndVariables')
+          : t('filtersModal.filters')
+      }
       size={MODAL_SIZE}
       className={styles.modal}
     >
@@ -137,13 +146,13 @@ export const DashboardFiltersList = ({
         data-testid="dashboard-filters-list"
       >
         {filters.map(filter => {
-          const attributes = [getValuesAttribute(filter, sources)];
+          const attributes = [getValuesAttribute(filter, t, sources)];
 
-          const broadcastTarget = getBroadcastTargetDisplay(filter, sources);
+          const broadcastTarget = getBroadcastTargetDisplay(filter, t, sources);
           if (!hideAppliesTo && broadcastTarget != null) {
             attributes.push({
               icon: <IconBuildingBroadcastTower size={14} />,
-              tooltip: 'Sources this filter broadcasts to',
+              tooltip: t('filtersModal.list.broadcastTargetTooltip'),
               label: broadcastTarget,
               testId: `dashboard-filter-applies-to-${filter.name}`,
             });
@@ -154,9 +163,9 @@ export const DashboardFiltersList = ({
             attributes.push({
               icon: <IconAsterisk size={14} />,
               tooltip: isGlobal
-                ? 'Every tile is blocked until this filter has a selection'
-                : 'The tiles that use this filter are blocked until it has a selection',
-              label: 'Required',
+                ? t('filtersModal.list.requiredGlobalTooltip')
+                : t('filtersModal.list.requiredTooltip'),
+              label: t('filtersModal.list.requiredLabel'),
               testId: `dashboard-filter-required-attr-${filter.name}`,
             });
           }
@@ -205,14 +214,14 @@ export const DashboardFiltersList = ({
           onClick={onClose}
           data-testid="close-filters-button"
         >
-          Close
+          {t('common:actions.close')}
         </Button>
         <Button
           variant="primary"
           onClick={onAddNew}
           data-testid="add-filter-button"
         >
-          Add new filter
+          {t('filtersModal.addNewFilter')}
         </Button>
       </Group>
     </Modal>

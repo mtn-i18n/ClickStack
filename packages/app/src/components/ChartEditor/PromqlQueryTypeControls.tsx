@@ -1,3 +1,4 @@
+import { useTranslation } from 'next-i18next/pages';
 import { Control, useController } from 'react-hook-form';
 import {
   DEFAULT_PROMQL_QUERY_TYPE,
@@ -15,13 +16,22 @@ import {
 
 import { ChartEditorFormState } from './types';
 
-const REDUCER_OPTIONS: { value: PromqlReducer; label: string }[] = [
-  { value: PromqlReducer.LastNotNull, label: 'Last' },
-  { value: PromqlReducer.Min, label: 'Min' },
-  { value: PromqlReducer.Max, label: 'Max' },
-  { value: PromqlReducer.Mean, label: 'Mean' },
-  { value: PromqlReducer.Sum, label: 'Sum' },
-  { value: PromqlReducer.Count, label: 'Count' },
+const REDUCER_OPTIONS: {
+  value: PromqlReducer;
+  labelKey:
+    | 'chartEditor.promql.last'
+    | 'chartEditor.promql.min'
+    | 'chartEditor.promql.max'
+    | 'chartEditor.promql.mean'
+    | 'chartEditor.promql.sum'
+    | 'chartEditor.promql.count';
+}[] = [
+  { value: PromqlReducer.LastNotNull, labelKey: 'chartEditor.promql.last' },
+  { value: PromqlReducer.Min, labelKey: 'chartEditor.promql.min' },
+  { value: PromqlReducer.Max, labelKey: 'chartEditor.promql.max' },
+  { value: PromqlReducer.Mean, labelKey: 'chartEditor.promql.mean' },
+  { value: PromqlReducer.Sum, labelKey: 'chartEditor.promql.sum' },
+  { value: PromqlReducer.Count, labelKey: 'chartEditor.promql.count' },
 ];
 
 export default function PromqlQueryTypeControls({
@@ -39,6 +49,7 @@ export default function PromqlQueryTypeControls({
   onToggle: () => void;
   onSubmit: (suppressErrorNotification?: boolean) => void;
 }) {
+  const { t } = useTranslation('dashboards');
   const { field: queryType } = useController({
     control,
     name: `promqlExpressions.${index}.queryType`,
@@ -49,11 +60,25 @@ export default function PromqlQueryTypeControls({
   });
   const queryTypeValue = queryType.value ?? DEFAULT_PROMQL_QUERY_TYPE;
   const reducerValue = reducer.value ?? DEFAULT_PROMQL_REDUCER;
-  const reducerLabel = REDUCER_OPTIONS.find(
+  const reducerOptions = REDUCER_OPTIONS.map(option => ({
+    value: option.value,
+    label: t(option.labelKey),
+  }));
+  const reducerLabel = reducerOptions.find(
     o => o.value === reducerValue,
   )?.label;
-  const queryTypeLabel = queryTypeValue === 'range' ? 'Range' : 'Instant';
-  const summary = `Settings: ${queryTypeLabel}${isReducerSupported ? ` / ${reducerLabel}` : ''}`;
+  const queryTypeLabel =
+    queryTypeValue === 'range'
+      ? t('chartEditor.promql.range')
+      : t('chartEditor.promql.instant');
+  const summary = isReducerSupported
+    ? t('chartEditor.promql.settingsWithReducer', {
+        queryType: queryTypeLabel,
+        reducer: reducerLabel,
+      })
+    : t('chartEditor.promql.settingsWithoutReducer', {
+        queryType: queryTypeLabel,
+      });
 
   return (
     <>
@@ -62,8 +87,11 @@ export default function PromqlQueryTypeControls({
           <SegmentedControl
             size="xs"
             data={[
-              { value: 'instant', label: 'Instant' },
-              { value: 'range', label: 'Range' },
+              {
+                value: 'instant',
+                label: t('chartEditor.promql.instant'),
+              },
+              { value: 'range', label: t('chartEditor.promql.range') },
             ]}
             value={queryTypeValue}
             onChange={next => {
@@ -75,16 +103,16 @@ export default function PromqlQueryTypeControls({
           {isReducerSupported && (
             <>
               <Text size="xxs" c="dimmed">
-                Reduced to
+                {t('chartEditor.promql.reducedTo')}
               </Text>
               <Select
                 size="xs"
                 w={110}
-                data={REDUCER_OPTIONS}
+                data={reducerOptions}
                 value={reducerValue}
                 allowDeselect={false}
                 comboboxProps={{ withinPortal: false }}
-                aria-label="PromQL reducer"
+                aria-label={t('chartEditor.promql.reducerAria')}
                 onChange={next => {
                   if (next == null) return;
                   reducer.onChange(next);
@@ -104,7 +132,7 @@ export default function PromqlQueryTypeControls({
         display="block"
         data-testid={`promql-query-type-control-${index}`}
       >
-        {isOpen ? 'Hide' : summary}
+        {isOpen ? t('chartEditor.promql.hide') : summary}
       </Anchor>
     </>
   );

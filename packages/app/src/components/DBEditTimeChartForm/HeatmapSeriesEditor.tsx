@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { useTranslation } from 'next-i18next/pages';
 import { noop } from 'lodash';
 import {
   Control,
@@ -59,6 +60,7 @@ export function HeatmapSeriesEditor({
   mode,
   onModeChange,
 }: HeatmapSeriesEditorProps) {
+  const { t } = useTranslation('dashboards');
   const connection = useMemo(() => tcFromSource(tableSource), [tableSource]);
 
   return (
@@ -100,8 +102,8 @@ export function HeatmapSeriesEditor({
             }}
           >
             <InlineLabel
-              label="Value"
-              tooltip="The y axis: the value each event is bucketed by."
+              label={t('chartEditor.value')}
+              tooltip={t('chartEditor.valueTooltip')}
             />
             <div data-testid="heatmap-value-input">
               <SQLInlineEditorControlled
@@ -111,7 +113,7 @@ export function HeatmapSeriesEditor({
                 dateRange={dateRange}
                 control={control}
                 name="series.0.valueExpression"
-                placeholder="SQL expression, e.g. Duration"
+                placeholder={t('chartEditor.heatmapValuePlaceholder')}
                 onSubmit={onSubmit}
                 error={
                   Array.isArray(errors.series)
@@ -122,8 +124,8 @@ export function HeatmapSeriesEditor({
               />
             </div>
             <InlineLabel
-              label="Count"
-              tooltip="The color intensity: how much each bucket holds."
+              label={t('chartEditor.count')}
+              tooltip={t('chartEditor.countTooltip')}
             />
             <div data-testid="heatmap-count-input">
               <SQLInlineEditorControlled
@@ -133,7 +135,7 @@ export function HeatmapSeriesEditor({
                 dateRange={dateRange}
                 control={control}
                 name="series.0.countExpression"
-                placeholder="SQL expression, e.g. count()"
+                placeholder={t('chartEditor.heatmapCountPlaceholder')}
                 onSubmit={onSubmit}
                 enableVariables
               />
@@ -161,7 +163,7 @@ export function HeatmapSeriesEditor({
           variant="secondary"
           data-testid="display-settings-button"
         >
-          Display Settings
+          {t('chartEditor.displaySettings')}
         </Button>
       </Flex>
     </Flex>

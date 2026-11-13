@@ -1,3 +1,4 @@
+import { Trans, useTranslation } from 'next-i18next/pages';
 import { QUERY_PARAM_EXAMPLES } from '@hyperdx/common-utils/dist/rawSqlParams';
 import { ChartVariable, DisplayType } from '@hyperdx/common-utils/dist/types';
 import {
@@ -22,7 +23,7 @@ import {
 import { useBrandDisplayName } from '@/brand';
 import { useLocalStorage } from '@/utils';
 
-import { DISPLAY_TYPE_INSTRUCTIONS } from './constants';
+import { getDisplayTypeInstructions } from './constants';
 import { RawSqlVariableInstructions } from './RawSqlVariableInstructions';
 
 const HELP_OPENED_KEY = 'hdx-raw-sql-chart-instructions-opened';
@@ -34,6 +35,7 @@ export function RawSqlChartInstructions({
   displayType: DisplayType;
   variables?: ChartVariable[];
 }) {
+  const { t } = useTranslation('dashboards');
   const brandName = useBrandDisplayName();
   const [helpOpened, setHelpOpened] = useLocalStorage<boolean>(
     HELP_OPENED_KEY,
@@ -63,37 +65,44 @@ export function RawSqlChartInstructions({
             <IconChevronRight size={12} />
           )}
           <Text size="xs" mt={1}>
-            SQL Chart Instructions
+            {t('chartEditor.sqlChartInstructions')}
           </Text>
         </Group>
         <Collapse expanded={helpOpened}>
           <Stack gap={6} pl="xs" pt="md">
-            {DISPLAY_TYPE_INSTRUCTIONS[displayType]}
+            {getDisplayTypeInstructions(t)[displayType]}
 
             <Text size="xs" fw="bold">
-              Query parameters and macros
+              {t('chartEditor.queryParamsMacros')}
             </Text>
             <Text size="xs">
-              This chart may use query parameters or macros to reference
-              dashboard context. Use editor autocomplete to see available
-              options, or see the{' '}
-              <Anchor
-                href="https://clickhouse.com/docs/use-cases/observability/clickstack/dashboards/sql-visualizations"
-                target="_blank"
-              >
-                {brandName} documentation
-              </Anchor>{' '}
-              for an exhaustive list.
+              <Trans
+                ns="dashboards"
+                i18nKey="chartEditor.queryParamsMacrosDescription"
+                values={{ brand: brandName }}
+                components={{
+                  link: (
+                    <Anchor
+                      href="https://clickhouse.com/docs/use-cases/observability/clickstack/dashboards/sql-visualizations"
+                      target="_blank"
+                    />
+                  ),
+                }}
+              />
             </Text>
 
             <RawSqlVariableInstructions variables={variables} />
 
             <Text size="xs" fw="bold">
-              Example:
+              {t('chartEditor.example')}
             </Text>
             <div style={{ position: 'relative' }}>
               <Tooltip
-                label={exampleClipboard.copied ? 'Copied!' : 'Copy'}
+                label={
+                  exampleClipboard.copied
+                    ? t('chartEditor.copied')
+                    : t('chartEditor.copy')
+                }
                 withArrow
               >
                 <ActionIcon

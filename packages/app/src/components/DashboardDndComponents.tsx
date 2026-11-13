@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'next-i18next/pages';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { Box, Button, Center } from '@mantine/core';
@@ -17,6 +18,7 @@ export function EmptyContainerPlaceholder({
   isEmpty?: boolean;
   onAddTile?: () => void;
 }) {
+  const { t } = useTranslation('dashboards');
   return (
     <Box
       data-testid={`container-placeholder-${containerId}`}
@@ -32,7 +34,7 @@ export function EmptyContainerPlaceholder({
             leftSection={<IconPlus size={16} />}
             onClick={onAddTile}
           >
-            Add
+            {t('dashboard.add')}
           </Button>
         </Center>
       )}

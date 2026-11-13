@@ -1,4 +1,5 @@
 import { useCallback } from 'react';
+import { useTranslation } from 'next-i18next/pages';
 import SqlString from 'sqlstring';
 import { Separator } from '@clickhouse/click-ui';
 import { TTraceSource } from '@hyperdx/common-utils/dist/types';
@@ -52,10 +53,16 @@ export default function ServiceMapTooltip({
   // immediate dependencies (or clears that scope when already focused).
   onFocus?: () => void;
 }) {
-  const requestText = `${isSingleTrace ? totalRequests : formatApproximateNumber(totalRequests)} incoming request${
-    totalRequests !== 1 ? 's' : ''
-  }`;
-  const errorsText = `${errorPercentage.toFixed(2)}% errors`;
+  const { t } = useTranslation('services');
+  const requestText = t('incomingRequests', {
+    count: totalRequests,
+    value: isSingleTrace
+      ? totalRequests
+      : formatApproximateNumber(totalRequests),
+  });
+  const errorsText = t('errorsPercent', {
+    percent: errorPercentage.toFixed(2),
+  });
   // Only alarm (red) once errors are non-trivial; a fraction of a percent reads
   // as amber and a clean service stays neutral-danger-free.
   const errorColor =
@@ -164,7 +171,7 @@ export default function ServiceMapTooltip({
               isFocused ? <IconTargetOff size={14} /> : <IconTarget size={14} />
             }
           >
-            {isFocused ? 'Clear focus' : 'Focus on this service'}
+            {isFocused ? t('clearFocus') : t('focusOnThisService')}
           </Button>
         </>
       ) : null}

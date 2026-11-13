@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'next-i18next/pages';
 import { Badge, Separator } from '@clickhouse/click-ui';
 import type { OrgApiKeyApiResponse } from '@hyperdx/common-utils/dist/types';
 import { Box, Button, Card, Group, Table, Text } from '@mantine/core';
@@ -35,6 +36,7 @@ function OrgApiKeyRow({
   apiKey: OrgApiKeyApiResponse;
   now: number;
 }) {
+  const { t } = useTranslation('settings');
   const updateKey = api.useUpdateOrgApiKey();
   const deleteKey = api.useDeleteOrgApiKey();
   const confirm = useConfirm();
@@ -45,8 +47,8 @@ function OrgApiKeyRow({
 
   const onRevoke = async () => {
     const confirmed = await confirm(
-      "Revoking this key immediately breaks anything still using it. This can't be undone.",
-      'Revoke',
+      t('orgApiKeys.revokeConfirm'),
+      t('orgApiKeys.revoke'),
       { variant: 'danger' },
     );
     if (!confirmed) {
@@ -65,15 +67,15 @@ function OrgApiKeyRow({
       <Table.Td>
         <InlineNameInput
           size="xs"
-          aria-label="API key description"
-          placeholder="Untitled API key"
+          aria-label={t('orgApiKeys.descriptionAria')}
+          placeholder={t('orgApiKeys.untitled')}
           value={apiKey.description}
           maxLength={100}
           onCommit={description =>
             updateKey.mutateAsync({ id: apiKey.id, description }).catch(e => {
               notifications.show({
                 color: 'red',
-                message: `Couldn't rename API key: ${e.message}`,
+                message: t('orgApiKeys.renameFailed', { message: e.message }),
               });
               throw e;
             })
@@ -83,24 +85,26 @@ function OrgApiKeyRow({
       <Table.Td>
         {apiKey.createdBy
           ? apiKey.createdBy.name || apiKey.createdBy.email
-          : 'Deleted user'}
+          : t('orgApiKeys.deletedUser')}
       </Table.Td>
       <Table.Td>{formatDate(apiKey.createdAt)}</Table.Td>
       <Table.Td>
-        {apiKey.lastUsedAt ? formatDate(apiKey.lastUsedAt) : 'Never'}
+        {apiKey.lastUsedAt
+          ? formatDate(apiKey.lastUsedAt)
+          : t('orgApiKeys.never')}
       </Table.Td>
       <Table.Td>
         {isExpired ? (
-          <Badge size="sm" text="Expired" state="danger" />
+          <Badge size="sm" text={t('orgApiKeys.expired')} state="danger" />
         ) : apiKey.expiresAt ? (
           formatDate(apiKey.expiresAt)
         ) : (
-          'Never'
+          t('orgApiKeys.never')
         )}
       </Table.Td>
       <Table.Td>
         <Button variant="danger" size="xs" onClick={onRevoke}>
-          Revoke
+          {t('orgApiKeys.revoke')}
         </Button>
       </Table.Td>
     </Table.Tr>
@@ -108,6 +112,7 @@ function OrgApiKeyRow({
 }
 
 export default function OrgApiKeysSection() {
+  const { t } = useTranslation('settings');
   const { data, isLoading, isError } = api.useOrgApiKeys();
   const now = useNow();
   const [isCreateOpen, setIsCreateOpen] = useState(false);
@@ -117,33 +122,32 @@ export default function OrgApiKeysSection() {
     <Box id="org_api_keys" data-testid="org-api-keys-section">
       <Group justify="space-between">
         <Box>
-          <Text size="md">Organization API keys</Text>
+          <Text size="md">{t('orgApiKeys.title')}</Text>
           <Text size="sm" c="dimmed">
-            Keys owned by the team. They keep working when the person who
-            created them leaves.
+            {t('orgApiKeys.description')}
           </Text>
         </Box>
         <Button variant="primary" onClick={() => setIsCreateOpen(true)}>
-          Create API key
+          {t('orgApiKeys.create')}
         </Button>
       </Group>
       <Separator size="lg" />
       {isError ? (
         <Text size="sm" variant="danger">
-          Couldn&apos;t load organization API keys
+          {t('orgApiKeys.loadError')}
         </Text>
       ) : !isLoading && keys.length === 0 ? (
-        <EmptyState variant="card" title="No organization API keys yet" />
+        <EmptyState variant="card" title={t('orgApiKeys.empty')} />
       ) : (
         <Card>
           <Table horizontalSpacing="md" verticalSpacing="xs">
             <Table.Thead>
               <Table.Tr>
-                <Table.Th>Description</Table.Th>
-                <Table.Th>Created by</Table.Th>
-                <Table.Th>Created</Table.Th>
-                <Table.Th>Last used</Table.Th>
-                <Table.Th>Expires</Table.Th>
+                <Table.Th>{t('orgApiKeys.descriptionColumn')}</Table.Th>
+                <Table.Th>{t('orgApiKeys.createdBy')}</Table.Th>
+                <Table.Th>{t('orgApiKeys.created')}</Table.Th>
+                <Table.Th>{t('orgApiKeys.lastUsed')}</Table.Th>
+                <Table.Th>{t('orgApiKeys.expires')}</Table.Th>
                 <Table.Th />
               </Table.Tr>
             </Table.Thead>

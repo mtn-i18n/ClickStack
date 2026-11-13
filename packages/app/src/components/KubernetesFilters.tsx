@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'next-i18next/pages';
 import { escapeRegExp } from 'lodash';
 import { useForm, useWatch } from 'react-hook-form';
 import { FilterState } from '@hyperdx/common-utils/dist/filters';
@@ -23,27 +24,27 @@ type KubernetesFiltersProps = {
 const K8S_FILTER_FIELDS = [
   {
     field: 'k8s.pod.name',
-    placeholder: 'Pod',
+    placeholder: 'pod',
     dataTestId: 'pod-filter-select',
   },
   {
     field: 'k8s.deployment.name',
-    placeholder: 'Deployment',
+    placeholder: 'deployment',
     dataTestId: 'deployment-filter-select',
   },
   {
     field: 'k8s.node.name',
-    placeholder: 'Node',
+    placeholder: 'node',
     dataTestId: 'node-filter-select',
   },
   {
     field: 'k8s.namespace.name',
-    placeholder: 'Namespace',
+    placeholder: 'namespace',
     dataTestId: 'namespace-filter-select',
   },
   {
     field: 'k8s.cluster.name',
-    placeholder: 'Cluster',
+    placeholder: 'cluster',
     dataTestId: 'cluster-filter-select',
   },
 ] as const;
@@ -81,6 +82,7 @@ const FilterSelect: React.FC<FilterSelectProps> = ({
   loading,
   dataTestId,
 }) => {
+  const { t } = useTranslation('k8s');
   const data = useMemo(() => {
     const opts = options
       .map(v => ({ value: v, label: v }))
@@ -95,7 +97,10 @@ const FilterSelect: React.FC<FilterSelectProps> = ({
 
   return (
     <Select
-      placeholder={placeholder + (loading ? ' (loading...)' : '')}
+      placeholder={t('filterPlaceholder', {
+        field: placeholder,
+        loading: loading ? t('loadingSuffix') : '',
+      })}
       data={data}
       value={value}
       onChange={onChange}
@@ -118,6 +123,7 @@ export const KubernetesFilters: React.FC<KubernetesFiltersProps> = ({
   searchQuery,
   setSearchQuery,
 }) => {
+  const { t } = useTranslation('k8s');
   // State for each filter
   const [podName, setPodName] = useState<string | null>(null);
   const [deploymentName, setDeploymentName] = useState<string | null>(null);
@@ -320,7 +326,7 @@ export const KubernetesFilters: React.FC<KubernetesFiltersProps> = ({
       {K8S_FILTER_FIELDS.map(({ field, placeholder, dataTestId }) => (
         <FilterSelect
           key={field}
-          placeholder={placeholder}
+          placeholder={t(placeholder)}
           value={valueByField[field]}
           onChange={value =>
             updateSearchQuery(field, value, setterByField[field])
@@ -340,7 +346,7 @@ export const KubernetesFilters: React.FC<KubernetesFiltersProps> = ({
           tableConnection={gaugeTableConnection}
           sourceId={metricSource.id}
           dateRange={dateRange}
-          placeholder="Search your events w/ Lucene ex. column:foo"
+          placeholder={t('searchEventsPlaceholder')}
           name="searchQuery"
           control={control}
           size="xs"

@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo } from 'react';
+import { useTranslation } from 'next-i18next/pages';
 import {
   Controller,
   useForm,
@@ -43,9 +44,8 @@ import {
   emptySearchOnClick,
 } from './utils';
 
-const TEMPLATE_HELP_TEXT = `Templates can reference column values from the clicked row using {{columnName}}.`;
-
 function SearchOnClickFields({ control }: { control: DrawerControl }) {
+  const { t } = useTranslation('dashboards');
   const { data: sources } = useSources();
 
   const sourceOptions = useMemo(() => {
@@ -58,7 +58,9 @@ function SearchOnClickFields({ control }: { control: DrawerControl }) {
   return (
     <Stack gap="xs">
       <Text size="xs" c="dimmed">
-        {TEMPLATE_HELP_TEXT}
+        {t('chartEditor.onClick.templateHelp', {
+          pattern: '{{columnName}}',
+        })}
       </Text>
 
       <OnClickTargetInputControlled
@@ -72,7 +74,7 @@ function SearchOnClickFields({ control }: { control: DrawerControl }) {
       <Box>
         <InputLabelWithTooltip
           label="WHERE"
-          tooltip="Handlebars template that determines the WHERE condition passed to the search page"
+          tooltip={t('chartEditor.onClick.whereSearchTooltip')}
         />
         <SearchWhereInput
           control={control}
@@ -96,6 +98,7 @@ function DashboardOnClickFields({
   setValue: UseFormSetValue<DrawerFormValues>;
   getValues: UseFormGetValues<DrawerFormValues>;
 }) {
+  const { t } = useTranslation('dashboards');
   const { data: dashboards } = useDashboards();
   const dashboardOptions = useMemo(() => {
     return dashboards?.map(dashboard => ({
@@ -139,7 +142,9 @@ function DashboardOnClickFields({
   return (
     <Stack gap="xs">
       <Text size="xs" c="dimmed">
-        {TEMPLATE_HELP_TEXT}
+        {t('chartEditor.onClick.templateHelp', {
+          pattern: '{{columnName}}',
+        })}
       </Text>
 
       <OnClickTargetInputControlled
@@ -154,7 +159,7 @@ function DashboardOnClickFields({
       <Box>
         <InputLabelWithTooltip
           label="WHERE"
-          tooltip="Handlebars template that determines the global WHERE condition passed to the dashboard"
+          tooltip={t('chartEditor.onClick.whereDashboardTooltip')}
         />
         <SearchWhereInput
           control={control}
@@ -170,21 +175,25 @@ function DashboardOnClickFields({
 }
 
 function ExternalOnClickFields({ control }: { control: DrawerControl }) {
+  const { t } = useTranslation('dashboards');
+
   return (
     <Stack gap="xs">
       <Text size="xs" c="dimmed">
-        {TEMPLATE_HELP_TEXT} The rendered value must be an absolute http(s) URL.
+        {t('chartEditor.onClick.templateHelp', {
+          pattern: '{{columnName}}',
+        })}{' '}
+        {t('chartEditor.onClick.externalHelp')}
         <br />
         <br />
-        <b>Caution:</b> this may navigate to an external site and include
-        information from your data. Make sure the template does not contain any
-        sensitive information, and that the external site is trusted.
+        <b>{t('chartEditor.onClick.caution')}</b>{' '}
+        {t('chartEditor.onClick.externalWarning')}
       </Text>
 
       <Box>
         <InputLabelWithTooltip
-          label="URL"
-          tooltip="Handlebars template that resolves to an external URL. It is opened in a new tab when a row is clicked."
+          label={t('chartEditor.onClick.url')}
+          tooltip={t('chartEditor.onClick.urlTooltip')}
         />
         <TextInputControlled
           control={control}
@@ -206,6 +215,7 @@ function ModeFields({
   setValue: UseFormSetValue<DrawerFormValues>;
   getValues: UseFormGetValues<DrawerFormValues>;
 }) {
+  const { t } = useTranslation('dashboards');
   const onClick = useWatch({ control, name: 'onClick' });
 
   if (onClick?.type === 'search') {
@@ -224,8 +234,7 @@ function ModeFields({
 
   return (
     <Text size="sm" c="dimmed">
-      Clicking a row opens the search page, filtered by the row&apos;s group-by
-      column values and selected time range.
+      {t('chartEditor.onClick.defaultDescription')}
     </Text>
   );
 }
@@ -243,6 +252,7 @@ export default function OnClickDrawer({
   onChange,
   onClose,
 }: OnClickDrawerProps) {
+  const { t } = useTranslation('dashboards');
   const appliedDefaults: DrawerFormValues = useMemo(
     () => ({ onClick: value }),
     [value],
@@ -291,8 +301,11 @@ export default function OnClickDrawer({
         }
       } catch (err) {
         notifications.show({
-          title: 'Invalid template',
-          message: err instanceof Error ? err.message : 'Unknown error',
+          title: t('chartEditor.onClick.invalidTemplate'),
+          message:
+            err instanceof Error
+              ? err.message
+              : t('chartEditor.onClick.unknownError'),
           color: 'red',
         });
         return;
@@ -301,7 +314,7 @@ export default function OnClickDrawer({
       onChange(values.onClick ?? undefined);
       onClose();
     })();
-  }, [handleSubmit, onChange, onClose]);
+  }, [handleSubmit, onChange, onClose, t]);
 
   const handleClose = useCallback(() => {
     reset(appliedDefaults);
@@ -310,7 +323,7 @@ export default function OnClickDrawer({
 
   return (
     <Drawer
-      title="Row Click Action"
+      title={t('chartEditor.onClick.drawerTitle')}
       opened={opened}
       onClose={handleClose}
       position="right"
@@ -318,7 +331,7 @@ export default function OnClickDrawer({
     >
       <Stack data-testid="onclick-drawer">
         <Text size="xs" c="dimmed">
-          Configure the action taken when clicking on a table row.
+          {t('chartEditor.onClick.drawerDescription')}
         </Text>
 
         <Controller
@@ -328,10 +341,22 @@ export default function OnClickDrawer({
             <SegmentedControl
               data-testid="onclick-mode-segmented"
               data={[
-                { label: 'Default', value: 'default' },
-                { label: 'Search', value: 'search' },
-                { label: 'Dashboard', value: 'dashboard' },
-                { label: 'External', value: 'external' },
+                {
+                  label: t('chartEditor.onClick.modeDefault'),
+                  value: 'default',
+                },
+                {
+                  label: t('chartEditor.onClick.modeSearch'),
+                  value: 'search',
+                },
+                {
+                  label: t('chartEditor.onClick.modeDashboard'),
+                  value: 'dashboard',
+                },
+                {
+                  label: t('chartEditor.onClick.modeExternal'),
+                  value: 'external',
+                },
               ]}
               value={onClickValue?.type ?? 'default'}
               onChange={value => {
@@ -359,7 +384,7 @@ export default function OnClickDrawer({
         <Separator size="xs" />
         <Group justify="space-between">
           <Button variant="subtle" onClick={handleClose}>
-            Cancel
+            {t('common:actions.cancel')}
           </Button>
           <Button
             variant="primary"
@@ -367,7 +392,7 @@ export default function OnClickDrawer({
             disabled={isTargetMissing}
             data-testid="onclick-apply-button"
           >
-            Apply
+            {t('common:actions.apply')}
           </Button>
         </Group>
       </Stack>

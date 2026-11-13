@@ -73,6 +73,8 @@ directory:
   (`InlineNameInput`). Read before adding or changing any name field
 - `agent_docs/observability.md` - Instrumentation standards (tracing, metrics,
   context) and the shared helpers (read when adding or changing a feature)
+- `agent_docs/i18n.md` - App i18n setup, locale conventions, and the string
+  migration plan (read before adding user-facing text)
 
 **Package-specific guides** (read when working on that package):
 

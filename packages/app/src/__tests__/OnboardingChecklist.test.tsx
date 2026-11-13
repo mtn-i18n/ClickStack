@@ -7,6 +7,7 @@ import userEvent from '@testing-library/user-event';
 import api from '@/api';
 import { useConnections } from '@/connection';
 import { useQueriedChartConfig } from '@/hooks/useChartConfig';
+import { testI18n } from '@/i18n/test-i18n';
 import OnboardingChecklist from '@/OnboardingChecklist';
 import { PRODUCT_TASKS } from '@/OnboardingChecklist/onboardingTasks';
 import { useSources } from '@/source';
@@ -311,7 +312,11 @@ describe('OnboardingChecklist', () => {
     renderChecklist();
 
     for (const id of ONBOARDING_TASK_IDS) {
-      expect(screen.getByText(PRODUCT_TASKS[id].title)).toBeInTheDocument();
+      expect(
+        screen.getByText(
+          testI18n.t(PRODUCT_TASKS[id].title, { ns: 'settings' }) as string,
+        ),
+      ).toBeInTheDocument();
     }
   });
 

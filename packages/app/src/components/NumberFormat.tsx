@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { useMemo } from 'react';
+import { useTranslation } from 'next-i18next/pages';
 import {
   Control,
   Controller,
@@ -50,66 +51,66 @@ export const DEFAULT_NUMBER_FORMAT: NumberFormat = {
   decimalBytes: false,
 };
 
-type UnitOption = { value: NumericUnit; label: string };
-type OutputOption = { value: NumberFormat['output']; label: string };
-type OutputGroup = { group: string; items: OutputOption[] };
+type UnitOption = { value: NumericUnit; labelKey: string };
+type OutputOption = { value: NumberFormat['output']; labelKey: string };
+type OutputGroup = { groupKey: string; items: OutputOption[] };
 
 const DATA_UNIT_OPTIONS: UnitOption[] = [
-  { value: NumericUnit.BytesIEC, label: 'bytes (IEC)' },
-  { value: NumericUnit.BytesSI, label: 'bytes (SI)' },
-  { value: NumericUnit.BitsIEC, label: 'bits (IEC)' },
-  { value: NumericUnit.BitsSI, label: 'bits (SI)' },
-  { value: NumericUnit.Kibibytes, label: 'kibibytes' },
-  { value: NumericUnit.Kilobytes, label: 'kilobytes' },
-  { value: NumericUnit.Mebibytes, label: 'mebibytes' },
-  { value: NumericUnit.Megabytes, label: 'megabytes' },
-  { value: NumericUnit.Gibibytes, label: 'gibibytes' },
-  { value: NumericUnit.Gigabytes, label: 'gigabytes' },
-  { value: NumericUnit.Tebibytes, label: 'tebibytes' },
-  { value: NumericUnit.Terabytes, label: 'terabytes' },
-  { value: NumericUnit.Pebibytes, label: 'pebibytes' },
-  { value: NumericUnit.Petabytes, label: 'petabytes' },
+  { value: NumericUnit.BytesIEC, labelKey: 'unitBytesIEC' },
+  { value: NumericUnit.BytesSI, labelKey: 'unitBytesSI' },
+  { value: NumericUnit.BitsIEC, labelKey: 'unitBitsIEC' },
+  { value: NumericUnit.BitsSI, labelKey: 'unitBitsSI' },
+  { value: NumericUnit.Kibibytes, labelKey: 'unitKibibytes' },
+  { value: NumericUnit.Kilobytes, labelKey: 'unitKilobytes' },
+  { value: NumericUnit.Mebibytes, labelKey: 'unitMebibytes' },
+  { value: NumericUnit.Megabytes, labelKey: 'unitMegabytes' },
+  { value: NumericUnit.Gibibytes, labelKey: 'unitGibibytes' },
+  { value: NumericUnit.Gigabytes, labelKey: 'unitGigabytes' },
+  { value: NumericUnit.Tebibytes, labelKey: 'unitTebibytes' },
+  { value: NumericUnit.Terabytes, labelKey: 'unitTerabytes' },
+  { value: NumericUnit.Pebibytes, labelKey: 'unitPebibytes' },
+  { value: NumericUnit.Petabytes, labelKey: 'unitPetabytes' },
 ];
 
 const DATA_RATE_UNIT_OPTIONS: UnitOption[] = [
-  { value: NumericUnit.PacketsSec, label: 'packets/sec' },
-  { value: NumericUnit.BytesSecIEC, label: 'bytes/sec (IEC)' },
-  { value: NumericUnit.BytesSecSI, label: 'bytes/sec (SI)' },
-  { value: NumericUnit.BitsSecIEC, label: 'bits/sec (IEC)' },
-  { value: NumericUnit.BitsSecSI, label: 'bits/sec (SI)' },
-  { value: NumericUnit.KibibytesSec, label: 'kibibytes/sec' },
-  { value: NumericUnit.KibibitsSec, label: 'kibibits/sec' },
-  { value: NumericUnit.KilobytesSec, label: 'kilobytes/sec' },
-  { value: NumericUnit.KilobitsSec, label: 'kilobits/sec' },
-  { value: NumericUnit.MebibytesSec, label: 'mebibytes/sec' },
-  { value: NumericUnit.MebibitsSec, label: 'mebibits/sec' },
-  { value: NumericUnit.MegabytesSec, label: 'megabytes/sec' },
-  { value: NumericUnit.MegabitsSec, label: 'megabits/sec' },
-  { value: NumericUnit.GibibytesSec, label: 'gibibytes/sec' },
-  { value: NumericUnit.GibibitsSec, label: 'gibibits/sec' },
-  { value: NumericUnit.GigabytesSec, label: 'gigabytes/sec' },
-  { value: NumericUnit.GigabitsSec, label: 'gigabits/sec' },
-  { value: NumericUnit.TebibytesSec, label: 'tebibytes/sec' },
-  { value: NumericUnit.TebibitsSec, label: 'tebibits/sec' },
-  { value: NumericUnit.TerabytesSec, label: 'terabytes/sec' },
-  { value: NumericUnit.TerabitsSec, label: 'terabits/sec' },
-  { value: NumericUnit.PebibytesSec, label: 'pebibytes/sec' },
-  { value: NumericUnit.PebibitsSec, label: 'pebibits/sec' },
-  { value: NumericUnit.PetabytesSec, label: 'petabytes/sec' },
-  { value: NumericUnit.PetabitsSec, label: 'petabits/sec' },
+  { value: NumericUnit.PacketsSec, labelKey: 'unitPacketsSec' },
+  { value: NumericUnit.BytesSecIEC, labelKey: 'unitBytesSecIEC' },
+  { value: NumericUnit.BytesSecSI, labelKey: 'unitBytesSecSI' },
+  { value: NumericUnit.BitsSecIEC, labelKey: 'unitBitsSecIEC' },
+  { value: NumericUnit.BitsSecSI, labelKey: 'unitBitsSecSI' },
+  { value: NumericUnit.KibibytesSec, labelKey: 'unitKibibytesSec' },
+  { value: NumericUnit.KibibitsSec, labelKey: 'unitKibibitsSec' },
+  { value: NumericUnit.KilobytesSec, labelKey: 'unitKilobytesSec' },
+  { value: NumericUnit.KilobitsSec, labelKey: 'unitKilobitsSec' },
+  { value: NumericUnit.MebibytesSec, labelKey: 'unitMebibytesSec' },
+  { value: NumericUnit.MebibitsSec, labelKey: 'unitMebibitsSec' },
+  { value: NumericUnit.MegabytesSec, labelKey: 'unitMegabytesSec' },
+  { value: NumericUnit.MegabitsSec, labelKey: 'unitMegabitsSec' },
+  { value: NumericUnit.GibibytesSec, labelKey: 'unitGibibytesSec' },
+  { value: NumericUnit.GibibitsSec, labelKey: 'unitGibibitsSec' },
+  { value: NumericUnit.GigabytesSec, labelKey: 'unitGigabytesSec' },
+  { value: NumericUnit.GigabitsSec, labelKey: 'unitGigabitsSec' },
+  { value: NumericUnit.TebibytesSec, labelKey: 'unitTebibytesSec' },
+  { value: NumericUnit.TebibitsSec, labelKey: 'unitTebibitsSec' },
+  { value: NumericUnit.TerabytesSec, labelKey: 'unitTerabytesSec' },
+  { value: NumericUnit.TerabitsSec, labelKey: 'unitTerabitsSec' },
+  { value: NumericUnit.PebibytesSec, labelKey: 'unitPebibytesSec' },
+  { value: NumericUnit.PebibitsSec, labelKey: 'unitPebibitsSec' },
+  { value: NumericUnit.PetabytesSec, labelKey: 'unitPetabytesSec' },
+  { value: NumericUnit.PetabitsSec, labelKey: 'unitPetabitsSec' },
 ];
 
 const THROUGHPUT_UNIT_OPTIONS: UnitOption[] = [
-  { value: NumericUnit.Cps, label: 'counts/sec (cps)' },
-  { value: NumericUnit.Ops, label: 'ops/sec (ops)' },
-  { value: NumericUnit.Rps, label: 'requests/sec (rps)' },
-  { value: NumericUnit.ReadsSec, label: 'reads/sec (rps)' },
-  { value: NumericUnit.Wps, label: 'writes/sec (wps)' },
-  { value: NumericUnit.Iops, label: 'I/O ops/sec (iops)' },
-  { value: NumericUnit.Cpm, label: 'counts/min (cpm)' },
-  { value: NumericUnit.Opm, label: 'ops/min (opm)' },
-  { value: NumericUnit.RpmReads, label: 'reads/min (rpm)' },
-  { value: NumericUnit.Wpm, label: 'writes/min (wpm)' },
+  { value: NumericUnit.Cps, labelKey: 'unitCps' },
+  { value: NumericUnit.Ops, labelKey: 'unitOps' },
+  { value: NumericUnit.Rps, labelKey: 'unitRps' },
+  { value: NumericUnit.ReadsSec, labelKey: 'unitReadsSec' },
+  { value: NumericUnit.Wps, labelKey: 'unitWps' },
+  { value: NumericUnit.Iops, labelKey: 'unitIops' },
+  { value: NumericUnit.Cpm, labelKey: 'unitCpm' },
+  { value: NumericUnit.Opm, labelKey: 'unitOpm' },
+  { value: NumericUnit.RpmReads, labelKey: 'unitRpmReads' },
+  { value: NumericUnit.Wpm, labelKey: 'unitWpm' },
 ];
 
 const UNIT_OPTIONS_BY_OUTPUT: Record<string, UnitOption[]> = {
@@ -128,24 +129,24 @@ const DEFAULT_NUMERIC_UNIT_BY_OUTPUT: Partial<
 
 const OUTPUT_CATEGORY_OPTIONS: OutputGroup[] = [
   {
-    group: 'Basic',
+    groupKey: 'outputGroupBasic',
     items: [
-      { value: 'number', label: 'Number' },
-      { value: 'currency', label: 'Currency' },
-      { value: 'percent', label: 'Percentage' },
-      { value: 'duration', label: 'Duration' },
-      { value: 'time', label: 'Time (clock)' },
+      { value: 'number', labelKey: 'outputNumber' },
+      { value: 'currency', labelKey: 'outputCurrency' },
+      { value: 'percent', labelKey: 'outputPercentage' },
+      { value: 'duration', labelKey: 'outputDuration' },
+      { value: 'time', labelKey: 'outputTimeClock' },
     ],
   },
   {
-    group: 'Data',
-    items: [{ value: 'byte', label: 'Data' }],
+    groupKey: 'outputGroupData',
+    items: [{ value: 'byte', labelKey: 'outputData' }],
   },
   {
-    group: 'Network',
+    groupKey: 'outputGroupNetwork',
     items: [
-      { value: 'data_rate', label: 'Data rate' },
-      { value: 'throughput', label: 'Throughput' },
+      { value: 'data_rate', labelKey: 'outputDataRate' },
+      { value: 'throughput', labelKey: 'outputThroughput' },
     ],
   },
 ];
@@ -158,6 +159,7 @@ export const NumberFormatForm: React.FC<{
   setValue: UseFormSetValue<Pick<ChartConfigDisplaySettings, 'numberFormat'>>;
   disclaimer?: React.ReactNode;
 }> = ({ control, setValue, disclaimer }) => {
+  const { t } = useTranslation('charts');
   const format =
     useWatch({ control, name: 'numberFormat' }) ?? DEFAULT_NUMBER_FORMAT;
 
@@ -165,6 +167,27 @@ export const NumberFormatForm: React.FC<{
     () =>
       format.output ? (UNIT_OPTIONS_BY_OUTPUT[format.output] ?? null) : null,
     [format.output],
+  );
+
+  const translatedUnitOptions = useMemo(
+    () =>
+      unitOptions?.map(option => ({
+        value: option.value,
+        label: t(option.labelKey),
+      })),
+    [unitOptions, t],
+  );
+
+  const translatedOutputOptions = useMemo(
+    () =>
+      OUTPUT_CATEGORY_OPTIONS.map(group => ({
+        group: t(group.groupKey),
+        items: group.items.map(item => ({
+          value: item.value,
+          label: t(item.labelKey),
+        })),
+      })),
+    [t],
   );
 
   return (
@@ -186,10 +209,10 @@ export const NumberFormatForm: React.FC<{
             render={({ field: { onChange, ...field } }) => (
               <NativeSelect
                 {...field}
-                label="Output format"
+                label={t('outputFormat')}
                 leftSection={format.output && FORMAT_ICONS[format.output]}
                 style={{ flex: 1 }}
-                data={OUTPUT_CATEGORY_OPTIONS}
+                data={translatedOutputOptions}
                 onChange={e => {
                   // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
                   const newOutput = e.target.value as NumberFormat['output'];
@@ -208,7 +231,12 @@ export const NumberFormatForm: React.FC<{
               key="numberFormat.currencySymbol"
               name="numberFormat.currencySymbol"
               render={({ field }) => (
-                <TextInput {...field} w={80} label="Symbol" placeholder="$" />
+                <TextInput
+                  {...field}
+                  w={80}
+                  label={t('symbol')}
+                  placeholder="$"
+                />
               )}
             />
           )}
@@ -222,12 +250,12 @@ export const NumberFormatForm: React.FC<{
             render={({ field: { value, onChange, ...field } }) => (
               <NativeSelect
                 {...field}
-                label="Unit"
+                label={t('unit')}
                 value={
                   value ?? DEFAULT_NUMERIC_UNIT_BY_OUTPUT[format.output ?? '']
                 }
                 onChange={e => onChange(e.target.value)}
-                data={unitOptions}
+                data={translatedUnitOptions}
               />
             )}
           />
@@ -240,7 +268,7 @@ export const NumberFormatForm: React.FC<{
                 fontSize: 11,
               }}
             >
-              Example
+              {t('example')}
             </div>
             {formatNumber(TEST_NUMBER || 0, {
               ...format,
@@ -255,7 +283,7 @@ export const NumberFormatForm: React.FC<{
 
         {format.output !== 'time' && format.output !== 'duration' && (
           <div>
-            <div className="fs-8 mt-2 fw-bold mb-1">Decimals</div>
+            <div className="fs-8 mt-2 fw-bold mb-1">{t('decimals')}</div>
             <Controller
               control={control}
               key="numberFormat.mantissa"
@@ -265,7 +293,7 @@ export const NumberFormatForm: React.FC<{
                   mb="xl"
                   min={0}
                   max={10}
-                  label={val => `Decimals: ${val}`}
+                  label={val => t('decimalsValue', { value: val })}
                   marks={[
                     { value: 0, label: '0' },
                     { value: 10, label: '10' },
@@ -289,8 +317,8 @@ export const NumberFormatForm: React.FC<{
                   <MCheckbox
                     {...field}
                     size="xs"
-                    label="Decimal base"
-                    description="Use 1KB = 1000 bytes"
+                    label={t('decimalBase')}
+                    description={t('decimalBaseDescription')}
                     checked={value}
                     onChange={onChange}
                   />
@@ -304,10 +332,10 @@ export const NumberFormatForm: React.FC<{
               name="numberFormat.factor"
               render={({ field: { value, onChange, ...field } }) => {
                 const options = [
-                  { value: '1', label: 'Seconds' },
-                  { value: '0.001', label: 'Milliseconds' },
-                  { value: '0.000001', label: 'Microseconds' },
-                  { value: '0.000000001', label: 'Nanoseconds' },
+                  { value: '1', label: t('seconds') },
+                  { value: '0.001', label: t('milliseconds') },
+                  { value: '0.000001', label: t('microseconds') },
+                  { value: '0.000000001', label: t('nanoseconds') },
                 ];
 
                 const stringValue =
@@ -318,7 +346,7 @@ export const NumberFormatForm: React.FC<{
                   <NativeSelect
                     {...field}
                     size="sm"
-                    label="Input unit"
+                    label={t('inputUnit')}
                     value={stringValue}
                     onChange={e => onChange(parseFloat(e.target.value))}
                     data={options}
@@ -336,8 +364,8 @@ export const NumberFormatForm: React.FC<{
                   <MCheckbox
                     {...field}
                     size="xs"
-                    label="Separate thousands"
-                    description="For example: 1,234,567"
+                    label={t('separateThousands')}
+                    description={t('separateThousandsDescription')}
                     checked={value}
                     onChange={onChange}
                   />
@@ -351,8 +379,8 @@ export const NumberFormatForm: React.FC<{
                   <MCheckbox
                     {...field}
                     size="xs"
-                    label="Large number format"
-                    description="For example: 1.2m"
+                    label={t('largeNumberFormat')}
+                    description={t('largeNumberFormatDescription')}
                     checked={value}
                     onChange={onChange}
                   />

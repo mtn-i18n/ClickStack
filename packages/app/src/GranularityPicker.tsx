@@ -1,4 +1,5 @@
 import { memo } from 'react';
+import { useTranslation } from 'next-i18next/pages';
 import { useController, UseControllerProps } from 'react-hook-form';
 import { Granularity } from '@hyperdx/common-utils/dist/core/utils';
 import { Select } from '@mantine/core';
@@ -12,6 +13,7 @@ export function GranularityPicker({
   onChange: (granularity: Granularity | 'auto' | undefined) => void;
   disabled?: boolean;
 }) {
+  const { t } = useTranslation('charts');
   return (
     <Select
       disabled={disabled}
@@ -19,47 +21,47 @@ export function GranularityPicker({
       data={[
         {
           value: 'auto' as const,
-          label: 'Auto Granularity',
+          label: t('granularity.auto'),
         },
         {
           value: Granularity.ThirtySecond,
-          label: '30 Seconds Granularity',
+          label: t('granularity.thirtySeconds'),
         },
         {
           value: Granularity.OneMinute,
-          label: '1 Minute Granularity',
+          label: t('granularity.oneMinute'),
         },
         {
           value: Granularity.FiveMinute,
-          label: '5 Minutes Granularity',
+          label: t('granularity.fiveMinutes'),
         },
         {
           value: Granularity.TenMinute,
-          label: '10 Minutes Granularity',
+          label: t('granularity.tenMinutes'),
         },
         {
           value: Granularity.FifteenMinute,
-          label: '15 Minutes Granularity',
+          label: t('granularity.fifteenMinutes'),
         },
         {
           value: Granularity.ThirtyMinute,
-          label: '30 Minutes Granularity',
+          label: t('granularity.thirtyMinutes'),
         },
         {
           value: Granularity.OneHour,
-          label: '1 Hour Granularity',
+          label: t('granularity.oneHour'),
         },
         {
           value: Granularity.TwelveHour,
-          label: '12 Hours Granularity',
+          label: t('granularity.twelveHours'),
         },
         {
           value: Granularity.OneDay,
-          label: '1 Day Granularity',
+          label: t('granularity.oneDay'),
         },
         {
           value: Granularity.SevenDay,
-          label: '7 Day Granularity',
+          label: t('granularity.sevenDays'),
         },
       ]}
       onChange={v =>

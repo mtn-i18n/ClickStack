@@ -7,6 +7,7 @@ import {
 } from 'react';
 import dynamic from 'next/dynamic';
 import Head from 'next/head';
+import { useTranslation } from 'next-i18next/pages';
 import {
   parseAsArrayOf,
   parseAsInteger,
@@ -89,8 +90,10 @@ const searchQueryStateMap = {
 };
 
 function DBServiceMapPage() {
+  const { t } = useTranslation('services');
+  const { t: tNav } = useTranslation('nav');
   const defaultTimeRange = useDefaultTimeRange(DEFAULT_INTERVAL);
-  const title = usePageTitle('Service Map');
+  const title = usePageTitle(tNav('pages.serviceMap'));
 
   const { data: sources } = useSources();
   // `?source=` accepts a source name as well as a source ID.
@@ -277,7 +280,7 @@ function DBServiceMapPage() {
   const headerActions = (
     <Group gap="sm" wrap="nowrap">
       <Text bg="inherit" size="sm" data-testid="service-map-sampling-label">
-        Sampling {samplingLabel}
+        {t('sampling', { label: samplingLabel })}
       </Text>
       <div style={{ minWidth: '200px' }}>
         <Slider
@@ -314,11 +317,11 @@ function DBServiceMapPage() {
                   size="xl"
                   opened={isCreateSourceModalOpen}
                   onClose={() => setIsCreateSourceModalOpen(false)}
-                  title="Configure New Trace Source"
+                  title={t('configureNewTraceSource')}
                 >
                   <TableSourceForm
                     isNew
-                    defaultName="My Trace Source"
+                    defaultName={t('myTraceSource')}
                     onCreate={() => setIsCreateSourceModalOpen(false)}
                   />
                 </Modal>
@@ -326,8 +329,8 @@ function DBServiceMapPage() {
               <EmptyState
                 style={{ flex: 1, margin: 'var(--mantine-spacing-sm)' }}
                 icon={<IconConnection size={32} />}
-                title="No trace sources configured"
-                description="The Service Map visualizes relationships between your services using trace data. Configure a trace source to get started."
+                title={t('noTraceSources')}
+                description={t('noTraceSourcesDescription')}
                 maw={600}
               >
                 {IS_LOCAL_MODE ? (
@@ -337,7 +340,7 @@ function DBServiceMapPage() {
                     mt="sm"
                     onClick={() => setIsCreateSourceModalOpen(true)}
                   >
-                    Create Trace Source
+                    {t('createTraceSource')}
                   </Button>
                 ) : (
                   <Button
@@ -347,7 +350,7 @@ function DBServiceMapPage() {
                     size="sm"
                     mt="sm"
                   >
-                    Go to Team Settings
+                    {t('goToTeamSettings')}
                   </Button>
                 )}
               </EmptyState>
@@ -378,7 +381,7 @@ function DBServiceMapPage() {
             >
               <MultiSelect
                 placeholder={
-                  selectedServices.length === 0 ? 'All Services' : undefined
+                  selectedServices.length === 0 ? t('allServices') : undefined
                 }
                 value={selectedServices}
                 data={serviceNameOptions}
@@ -406,8 +409,8 @@ function DBServiceMapPage() {
                 data-testid="service-map-search-input"
                 dateRange={searchedTimeRange}
                 sourceId={source?.id}
-                lucenePlaceholder="Filter spans w/ Lucene (ex. http.method:GET)"
-                sqlPlaceholder="SQL WHERE to filter spans (ex. Duration > 1000000)"
+                lucenePlaceholder={t('lucenePlaceholder')}
+                sqlPlaceholder={t('sqlPlaceholder')}
                 minWidth="min(500px, 100%)"
               />
             </Flex>

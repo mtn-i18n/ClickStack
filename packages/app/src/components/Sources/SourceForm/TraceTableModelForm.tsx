@@ -1,3 +1,4 @@
+import { useTranslation } from 'next-i18next/pages';
 import { Controller, useWatch } from 'react-hook-form';
 import { Separator } from '@clickhouse/click-ui';
 import { SourceKind } from '@hyperdx/common-utils/dist/types';
@@ -8,11 +9,7 @@ import { SourceSelectControlled } from '@/components/SourceSelect';
 import { SQLInlineEditorControlled } from '@/components/SQLEditor/SQLInlineEditor';
 import { useColumns } from '@/hooks/useMetadata';
 
-import {
-  DEFAULT_DATABASE,
-  KNOWN_COLUMNS_EXPRESSION_HELP_TEXT,
-  SERVICE_VERSION_EXPRESSION_HELP_TEXT,
-} from './constants';
+import { DEFAULT_DATABASE } from './constants';
 import { ExpressionFormRow } from './ExpressionFormRow';
 import { FormRow } from './FormRow';
 import { HighlightedAttributeExpressionsFormRow } from './HighlightedAttributes';
@@ -25,6 +22,7 @@ import { TableModelProps } from './types';
 import { UseTextIndexFormRow } from './UseTextIndexFormRow';
 
 export function TraceTableModelForm(props: TableModelProps) {
+  const { t } = useTranslation('settings');
   const { control, setValue } = props;
   const brandName = useBrandDisplayName();
   const databaseName = useWatch({
@@ -45,8 +43,8 @@ export function TraceTableModelForm(props: TableModelProps) {
   return (
     <Stack gap="sm">
       <FormRow
-        label={'Timestamp Column'}
-        helpText="DateTime column or expression defines the start of the span"
+        label={t('sourceForm.fields.timestampColumn')}
+        helpText={t('sourceForm.helpTexts.timestampColumnSpan')}
       >
         <SQLInlineEditorControlled
           tableConnection={{
@@ -61,8 +59,8 @@ export function TraceTableModelForm(props: TableModelProps) {
         />
       </FormRow>
       <FormRow
-        label={'Default Select'}
-        helpText="Default columns selected in search results (this can be customized per search later)"
+        label={t('sourceForm.fields.defaultSelect')}
+        helpText={t('sourceForm.helpTexts.defaultSelect')}
       >
         <SQLInlineEditorControlled
           tableConnection={{
@@ -76,7 +74,7 @@ export function TraceTableModelForm(props: TableModelProps) {
         />
       </FormRow>
       <Separator size="xs" />
-      <FormRow label={'Duration Expression'}>
+      <FormRow label={t('sourceForm.fields.durationExpression')}>
         <SQLInlineEditorControlled
           tableConnection={{
             databaseName,
@@ -85,10 +83,10 @@ export function TraceTableModelForm(props: TableModelProps) {
           }}
           control={control}
           name="durationExpression"
-          placeholder="Duration Column"
+          placeholder={t('sourceForm.durationColumnPlaceholder')}
         />
       </FormRow>
-      <FormRow label={'Duration Precision'}>
+      <FormRow label={t('sourceForm.fields.durationPrecision')}>
         <Box mx="xl">
           <Controller
             control={control}
@@ -101,10 +99,10 @@ export function TraceTableModelForm(props: TableModelProps) {
                   min={0}
                   max={9}
                   marks={[
-                    { value: 0, label: 'Seconds' },
-                    { value: 3, label: 'Millisecond' },
-                    { value: 6, label: 'Microsecond' },
-                    { value: 9, label: 'Nanosecond' },
+                    { value: 0, label: t('sourceForm.units.seconds') },
+                    { value: 3, label: t('sourceForm.units.millisecond') },
+                    { value: 6, label: t('sourceForm.units.microsecond') },
+                    { value: 9, label: t('sourceForm.units.nanosecond') },
                   ]}
                   value={value}
                   onChange={onChange}
@@ -171,7 +169,7 @@ export function TraceTableModelForm(props: TableModelProps) {
         control={control}
         setValue={setValue}
         name="traceIdExpression"
-        label="Trace Id Expression"
+        label={t('sourceForm.fields.traceIdExpression')}
         placeholder="TraceId"
         columns={columns}
         sourceKind={SourceKind.Trace}
@@ -181,13 +179,13 @@ export function TraceTableModelForm(props: TableModelProps) {
         control={control}
         setValue={setValue}
         name="spanIdExpression"
-        label="Span Id Expression"
+        label={t('sourceForm.fields.spanIdExpression')}
         placeholder="SpanId"
         columns={columns}
         sourceKind={SourceKind.Trace}
         tableConnection={tableConnection}
       />
-      <FormRow label={'Parent Span Id Expression'}>
+      <FormRow label={t('sourceForm.fields.parentSpanIdExpression')}>
         <SQLInlineEditorControlled
           tableConnection={{
             databaseName,
@@ -199,7 +197,7 @@ export function TraceTableModelForm(props: TableModelProps) {
           placeholder="ParentSpanId"
         />
       </FormRow>
-      <FormRow label={'Span Name Expression'}>
+      <FormRow label={t('sourceForm.fields.spanNameExpression')}>
         <SQLInlineEditorControlled
           tableConnection={{
             databaseName,
@@ -211,7 +209,7 @@ export function TraceTableModelForm(props: TableModelProps) {
           placeholder="SpanName"
         />
       </FormRow>
-      <FormRow label={'Span Kind Expression'}>
+      <FormRow label={t('sourceForm.fields.spanKindExpression')}>
         <SQLInlineEditorControlled
           tableConnection={{
             databaseName,
@@ -225,24 +223,30 @@ export function TraceTableModelForm(props: TableModelProps) {
       </FormRow>
       <Separator size="xs" />
       <FormRow
-        label={'Correlated Log Source'}
-        helpText={`${brandName} Source for logs associated with traces. Optional`}
+        label={t('sourceForm.fields.correlatedLogSource')}
+        helpText={t('sourceForm.helpTexts.correlatedLogSourceTraces', {
+          brandName,
+        })}
       >
         <SourceSelectControlled control={control} name="logSourceId" />
       </FormRow>
       <FormRow
-        label={'Correlated Session Source'}
-        helpText={`${brandName} Source for sessions associated with traces. Optional`}
+        label={t('sourceForm.fields.correlatedSessionSource')}
+        helpText={t('sourceForm.helpTexts.correlatedSessionSourceTraces', {
+          brandName,
+        })}
       >
         <SourceSelectControlled control={control} name="sessionSourceId" />
       </FormRow>
       <FormRow
-        label={'Correlated Metric Source'}
-        helpText={`${brandName} Source for metrics associated with traces. Optional`}
+        label={t('sourceForm.fields.correlatedMetricSource')}
+        helpText={t('sourceForm.helpTexts.correlatedMetricSourceTraces', {
+          brandName,
+        })}
       >
         <SourceSelectControlled control={control} name="metricSourceId" />
       </FormRow>
-      <FormRow label={'Status Code Expression'}>
+      <FormRow label={t('sourceForm.fields.statusCodeExpression')}>
         <SQLInlineEditorControlled
           tableConnection={{
             databaseName,
@@ -254,7 +258,7 @@ export function TraceTableModelForm(props: TableModelProps) {
           placeholder="StatusCode"
         />
       </FormRow>
-      <FormRow label={'Status Message Expression'}>
+      <FormRow label={t('sourceForm.fields.statusMessageExpression')}>
         <SQLInlineEditorControlled
           tableConnection={{
             databaseName,
@@ -270,7 +274,7 @@ export function TraceTableModelForm(props: TableModelProps) {
         control={control}
         setValue={setValue}
         name="serviceNameExpression"
-        label="Service Name Expression"
+        label={t('sourceForm.fields.serviceNameExpression')}
         placeholder="ServiceName"
         columns={columns}
         sourceKind={SourceKind.Trace}
@@ -280,9 +284,9 @@ export function TraceTableModelForm(props: TableModelProps) {
         control={control}
         setValue={setValue}
         name="serviceVersionExpression"
-        label="Service Version Expression"
+        label={t('sourceForm.fields.serviceVersionExpression')}
         placeholder="ResourceAttributes['service.version']"
-        helpText={SERVICE_VERSION_EXPRESSION_HELP_TEXT}
+        helpText={t('sourceForm.helpTexts.serviceVersion')}
         columns={columns}
         sourceKind={SourceKind.Trace}
         tableConnection={tableConnection}
@@ -291,7 +295,7 @@ export function TraceTableModelForm(props: TableModelProps) {
         control={control}
         setValue={setValue}
         name="resourceAttributesExpression"
-        label="Resource Attributes Expression"
+        label={t('sourceForm.fields.resourceAttributesExpression')}
         placeholder="ResourceAttributes"
         columns={columns}
         sourceKind={SourceKind.Trace}
@@ -301,15 +305,15 @@ export function TraceTableModelForm(props: TableModelProps) {
         control={control}
         setValue={setValue}
         name="eventAttributesExpression"
-        label="Event Attributes Expression"
+        label={t('sourceForm.fields.eventAttributesExpression')}
         placeholder="SpanAttributes"
         columns={columns}
         sourceKind={SourceKind.Trace}
         tableConnection={tableConnection}
       />
       <FormRow
-        label={'Sample Rate Expression'}
-        helpText="Column or expression for upstream sampling weight (1/N). When set, aggregations (count, avg, sum, quantile) are corrected for sampling. Percentiles use quantileTDigestWeighted, which is an approximation -- exact values may differ slightly. Leave empty if spans are not sampled."
+        label={t('sourceForm.fields.sampleRateExpression')}
+        helpText={t('sourceForm.helpTexts.sampleRate')}
       >
         <SQLInlineEditorControlled
           tableConnection={{
@@ -323,8 +327,8 @@ export function TraceTableModelForm(props: TableModelProps) {
         />
       </FormRow>
       <FormRow
-        label={'Span Events Expression'}
-        helpText="Expression to extract span events. Used to capture events associated with spans. Expected to be Nested ( Timestamp DateTime64(9), Name LowCardinality(String), Attributes Map(LowCardinality(String), String)"
+        label={t('sourceForm.fields.spanEventsExpression')}
+        helpText={t('sourceForm.helpTexts.spanEvents')}
       >
         <SQLInlineEditorControlled
           tableConnection={{
@@ -338,8 +342,8 @@ export function TraceTableModelForm(props: TableModelProps) {
         />
       </FormRow>
       <FormRow
-        label={'Span Links Expression'}
-        helpText="Expression to extract span links. Used to capture links from a span to spans in other traces. Expected to be Nested ( TraceId String, SpanId String, TraceState String, Attributes Map(LowCardinality(String), String) )"
+        label={t('sourceForm.fields.spanLinksExpression')}
+        helpText={t('sourceForm.helpTexts.spanLinks')}
       >
         <SQLInlineEditorControlled
           tableConnection={{
@@ -356,16 +360,16 @@ export function TraceTableModelForm(props: TableModelProps) {
         control={control}
         setValue={setValue}
         name="implicitColumnExpression"
-        label="Implicit Column Expression"
-        helpText="Column used for full text search if no property is specified in a Lucene-based search. Typically the message body of a log."
+        label={t('sourceForm.fields.implicitColumnExpression')}
+        helpText={t('sourceForm.helpTexts.implicitColumn')}
         placeholder="SpanName"
         columns={columns}
         sourceKind={SourceKind.Trace}
         tableConnection={tableConnection}
       />
       <FormRow
-        label={'Known Columns List'}
-        helpText={KNOWN_COLUMNS_EXPRESSION_HELP_TEXT}
+        label={t('sourceForm.fields.knownColumnsList')}
+        helpText={t('sourceForm.helpTexts.knownColumns')}
       >
         <SQLInlineEditorControlled
           tableConnection={{
@@ -381,8 +385,8 @@ export function TraceTableModelForm(props: TableModelProps) {
       </FormRow>
       <UseTextIndexFormRow control={control} />
       <FormRow
-        label={'Displayed Timestamp Column'}
-        helpText="This DateTime column is used to display and order search results."
+        label={t('sourceForm.fields.displayedTimestampColumn')}
+        helpText={t('sourceForm.helpTexts.displayedTimestamp')}
       >
         <SQLInlineEditorControlled
           tableConnection={{
@@ -399,14 +403,14 @@ export function TraceTableModelForm(props: TableModelProps) {
       <HighlightedAttributeExpressionsFormRow
         {...props}
         name="highlightedRowAttributeExpressions"
-        label="Highlighted Attributes"
-        helpText="Expressions defining row-level attributes which are displayed in the row side panel for the selected row"
+        label={t('sourceForm.fields.highlightedAttributes')}
+        helpText={t('sourceForm.helpTexts.highlightedRowAttributesTrace')}
       />
       <HighlightedAttributeExpressionsFormRow
         {...props}
         name="highlightedTraceAttributeExpressions"
-        label="Highlighted Trace Attributes"
-        helpText="Expressions defining trace-level attributes which are displayed in the trace view for the selected trace."
+        label={t('sourceForm.fields.highlightedTraceAttributes')}
+        helpText={t('sourceForm.helpTexts.highlightedTraceAttributes')}
       />
       <Separator size="xs" />
       <MaterializedViewsFormSection {...props} />

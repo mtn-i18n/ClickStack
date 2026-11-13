@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'next-i18next/pages';
 import {
   Controller,
   useFormState,
@@ -59,6 +60,7 @@ export const QueryExpressionFilterEditForm = ({
   otherFilters,
   showVariableOptions,
 }: QueryExpressionFilterEditFormProps) => {
+  const { t } = useTranslation('dashboards');
   const sourceId = useWatch({ control, name: 'source' });
   const { data: source } = useSource({ id: sourceId });
 
@@ -107,7 +109,7 @@ export const QueryExpressionFilterEditForm = ({
     if (!showVariableOptions) return true;
     return (
       hasFilterEffect({ isBroadcastEnabled, isVariableEnabled }) ||
-      'A filter must broadcast its value, be available as a variable, or both'
+      t('filtersModal.queryExpression.filterModesError')
     );
   };
 
@@ -123,8 +125,8 @@ export const QueryExpressionFilterEditForm = ({
   return (
     <>
       <CustomInputWrapper
-        label="Data source"
-        tooltipText="The data source that the filter values are queried from"
+        label={t('filtersModal.queryExpression.dataSource')}
+        tooltipText={t('filtersModal.queryExpression.dataSourceTooltip')}
         error={errors.source}
       >
         <SourceSelectControlled
@@ -147,8 +149,8 @@ export const QueryExpressionFilterEditForm = ({
       </CustomInputWrapper>
       {sourceIsMetric && (
         <CustomInputWrapper
-          label="Metric type"
-          tooltipText="The metric table that the filter values are queried from"
+          label={t('filtersModal.queryExpression.metricType')}
+          tooltipText={t('filtersModal.queryExpression.metricTypeTooltip')}
           error={errors.sourceMetricType}
         >
           <Controller
@@ -173,8 +175,8 @@ export const QueryExpressionFilterEditForm = ({
       )}
 
       <CustomInputWrapper
-        label="Filter expression"
-        tooltipText="The SQL column or expression to filter on"
+        label={t('filtersModal.queryExpression.filterExpression')}
+        tooltipText={t('filtersModal.queryExpression.filterExpressionTooltip')}
         error={errors.expression}
       >
         <SQLInlineEditorControlled
@@ -182,7 +184,7 @@ export const QueryExpressionFilterEditForm = ({
           sourceId={sourceId}
           control={control}
           name="expression"
-          placeholder="SQL column or expression"
+          placeholder={t('filtersModal.queryExpression.expressionPlaceholder')}
           enableHotkey
           rules={{ required: true }}
           parentRef={TOOLTIP_PORTAL_TARGET}
@@ -190,8 +192,8 @@ export const QueryExpressionFilterEditForm = ({
       </CustomInputWrapper>
 
       <CustomInputWrapper
-        label="Dropdown values filter"
-        tooltipText="Optional condition used to filter the rows from which available filter values are queried. May reference the dashboard's other variables."
+        label={t('filtersModal.queryExpression.dropdownValuesFilter')}
+        tooltipText={t('filtersModal.queryExpression.dropdownValuesTooltip')}
       >
         <SearchWhereInput
           tableConnection={tableConnection}
@@ -200,8 +202,12 @@ export const QueryExpressionFilterEditForm = ({
           name="where"
           languageName="whereLanguage"
           allowMultiline={true}
-          sqlPlaceholder="Filter for dropdown values"
-          lucenePlaceholder="Filter for dropdown values"
+          sqlPlaceholder={t(
+            'filtersModal.queryExpression.dropdownValuesPlaceholder',
+          )}
+          lucenePlaceholder={t(
+            'filtersModal.queryExpression.dropdownValuesPlaceholder',
+          )}
           enableVariables={showVariableOptions}
           parentRef={TOOLTIP_PORTAL_TARGET}
         />
@@ -214,8 +220,8 @@ export const QueryExpressionFilterEditForm = ({
             control={control}
             name="isBroadcastEnabled"
             size="xs"
-            label="Broadcast filter condition"
-            description="Automatically apply the selected value to every query builder tile, and to every Raw SQL tile that uses the $__filters macro. Optionally, narrow to tiles that use specific sources."
+            label={t('filtersModal.queryExpression.broadcast')}
+            description={t('filtersModal.queryExpression.broadcastDescription')}
             data-testid="filter-broadcast-checkbox"
           />
         </>
@@ -227,15 +233,15 @@ export const QueryExpressionFilterEditForm = ({
       {!presetSource && (!showVariableOptions || isBroadcastEnabled) && (
         <Box ml={showVariableOptions ? 'xl' : undefined}>
           <CustomInputWrapper
-            label="Applies to sources"
-            tooltipText="Which tiles the broadcast reaches. Leave empty to broadcast to all tiles. Selecting one or more sources restricts the broadcast to tiles using those sources."
+            label={t('filtersModal.queryExpression.appliesToSources')}
+            tooltipText={t('filtersModal.queryExpression.appliesToTooltip')}
           >
             <SourceMultiSelectControlled
               control={control}
               name="appliesToSourceIds"
               data-testid="applies-to-source-selector"
               comboboxProps={{ withinPortal: true }}
-              placeholder="All sources"
+              placeholder={t('filtersModal.queryExpression.allSources')}
               allowedSourceKinds={QUERY_EXPRESSION_FILTER_SOURCE_KINDS}
             />
           </CustomInputWrapper>
@@ -248,8 +254,10 @@ export const QueryExpressionFilterEditForm = ({
             control={control}
             name="isVariableEnabled"
             size="xs"
-            label="Available as variable"
-            description="Expose the selected value as a $variable. Selections only affect tiles that reference the variable explicitly, typically via the $__filter or $__conditionalAll macros."
+            label={t('filtersModal.queryExpression.availableAsVariable')}
+            description={t(
+              'filtersModal.queryExpression.availableAsVariableDescription',
+            )}
             data-testid="filter-variable-enabled-checkbox"
             rules={{ validate: validateFilterModes }}
           />
@@ -267,10 +275,7 @@ export const QueryExpressionFilterEditForm = ({
               icon={<IconAlertTriangle size={16} />}
               data-testid="filter-unscoped-broadcast-warning"
             >
-              Broadcast already applies this filter to every tile, including the
-              ones that reference the variable. Consider setting “Applies to
-              sources” to limit which tiles the broadcast reaches, or turn off
-              broadcast so only tiles that reference the variable are filtered.
+              {t('filtersModal.queryExpression.unscopedBroadcastWarning')}
             </Alert>
           )}
         </>

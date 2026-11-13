@@ -1,9 +1,11 @@
 import * as React from 'react';
+import { useTranslation } from 'next-i18next/pages';
 import { Badge } from '@clickhouse/click-ui';
 import { Divider, Group, Modal, Select, Stack, Text } from '@mantine/core';
 
 import { TimeZoneSelect, TimeZoneShortcuts } from './components/TimeZoneSelect';
 import { isContentFontSize, OPTIONS_CONTENT_FONT_SIZE } from './config/fonts';
+import { LOCALES, useLocale } from './i18n/useLocale';
 import {
   DEFAULT_ROW_CLICK_ACTION,
   RowClickAction,
@@ -12,16 +14,8 @@ import {
   useUserPreferences,
 } from './useUserPreferences';
 
-const OPTIONS_COLOR_MODE = [
-  { label: 'System', value: 'system' },
-  { label: 'Light', value: 'light' },
-  { label: 'Dark', value: 'dark' },
-];
-
-const OPTIONS_ROW_CLICK_ACTION: { label: string; value: RowClickAction }[] = [
-  { label: 'Open side panel', value: 'sidePanel' },
-  { label: 'Expand inline', value: 'expand' },
-];
+const OPTIONS_COLOR_MODE = ['system', 'light', 'dark'] as const;
+const OPTIONS_ROW_CLICK_ACTION: RowClickAction[] = ['sidePanel', 'expand'];
 
 const SettingContainer = ({
   label,
@@ -54,6 +48,8 @@ export const UserPreferencesModal = ({
   opened: boolean;
   onClose: () => void;
 }) => {
+  const { t } = useTranslation('preferences');
+  const { locale, setLocale } = useLocale();
   const { userPreferences, setUserPreference } = useUserPreferences();
   const { contentFontSize } = useContentFontSize();
 
@@ -61,9 +57,9 @@ export const UserPreferencesModal = ({
     <Modal
       title={
         <>
-          <span>Preferences</span>
+          <span>{t('title')}</span>
           <Text size="xs" mt={6}>
-            Customize your experience
+            {t('subtitle')}
           </Text>
         </>
       }
@@ -74,8 +70,25 @@ export const UserPreferencesModal = ({
       onClose={onClose}
     >
       <Stack gap="lg">
-        <Divider label="Date and Time" labelPosition="left" />
-        <SettingContainer label="Time format">
+        <Divider label={t('language')} labelPosition="left" />
+        <SettingContainer
+          label={t('language')}
+          description={t('languageDescription')}
+        >
+          <Select
+            data-testid="language-select"
+            value={locale}
+            onChange={value => value && setLocale(value as typeof locale)}
+            data={LOCALES.map(option => ({
+              value: option.value,
+              label: option.label,
+            }))}
+            allowDeselect={false}
+          />
+        </SettingContainer>
+
+        <Divider label={t('dateAndTime')} labelPosition="left" />
+        <SettingContainer label={t('timeFormat')}>
           <Select
             value={userPreferences.timeFormat}
             onChange={value =>
@@ -89,8 +102,8 @@ export const UserPreferencesModal = ({
           />
         </SettingContainer>
         <SettingContainer
-          label="Time zone"
-          description="Times are displayed and input in this zone."
+          label={t('timeZone')}
+          description={t('timeZoneDescription')}
         >
           <Stack gap={4}>
             <TimeZoneSelect
@@ -105,23 +118,24 @@ export const UserPreferencesModal = ({
           </Stack>
         </SettingContainer>
 
-        <Divider label="Search results" labelPosition="left" mt="sm" />
+        <Divider label={t('searchResults')} labelPosition="left" mt="sm" />
         <SettingContainer
-          label="Row click"
-          description="What clicking a result row does. The chevron always expands inline."
+          label={t('rowClick')}
+          description={t('rowClickDescription')}
         >
           <Select
             data-testid="row-click-action-select"
             value={userPreferences.rowClickAction ?? DEFAULT_ROW_CLICK_ACTION}
             onChange={value => {
-              const option = OPTIONS_ROW_CLICK_ACTION.find(
-                o => o.value === value,
-              );
+              const option = OPTIONS_ROW_CLICK_ACTION.find(o => o === value);
               if (option) {
-                setUserPreference({ rowClickAction: option.value });
+                setUserPreference({ rowClickAction: option });
               }
             }}
-            data={OPTIONS_ROW_CLICK_ACTION}
+            data={OPTIONS_ROW_CLICK_ACTION.map(value => ({
+              value,
+              label: t(value),
+            }))}
             allowDeselect={false}
           />
         </SettingContainer>
@@ -129,16 +143,16 @@ export const UserPreferencesModal = ({
         <Divider
           label={
             <Group align="center" gap="xs">
-              Appearance
-              <Badge size="sm" text="Experimental" state="info" />
+              {t('appearance')}
+              <Badge size="sm" text={t('experimental')} state="info" />
             </Group>
           }
           labelPosition="left"
           mt="sm"
         />
         <SettingContainer
-          label="Color Mode"
-          description="Use system setting, or choose light or dark"
+          label={t('colorMode')}
+          description={t('colorModeDescription')}
         >
           <Select
             value={userPreferences.colorMode}
@@ -148,14 +162,17 @@ export const UserPreferencesModal = ({
                 colorMode: value as UserPreferences['colorMode'],
               })
             }
-            data={OPTIONS_COLOR_MODE}
+            data={OPTIONS_COLOR_MODE.map(value => ({
+              value,
+              label: t(value),
+            }))}
             allowDeselect={false}
           />
         </SettingContainer>
 
         <SettingContainer
-          label="Content font size"
-          description="Text size for log tables, data tables, and charts"
+          label={t('contentFontSize')}
+          description={t('contentFontSizeDescription')}
         >
           <Select
             data-testid="content-font-size-select"
@@ -165,7 +182,10 @@ export const UserPreferencesModal = ({
               isContentFontSize(value) &&
               setUserPreference({ contentFontSize: value })
             }
-            data={OPTIONS_CONTENT_FONT_SIZE}
+            data={OPTIONS_CONTENT_FONT_SIZE.map(option => ({
+              ...option,
+              label: t(`fontSizes.${option.value}`),
+            }))}
             allowDeselect={false}
           />
         </SettingContainer>

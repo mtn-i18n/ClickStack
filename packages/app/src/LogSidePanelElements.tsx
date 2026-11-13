@@ -1,4 +1,6 @@
 import * as React from 'react';
+import { useTranslation } from 'next-i18next/pages';
+import type { TFunction } from 'i18next';
 import { JSONTree } from 'react-json-tree';
 import { Group, Kbd, Modal, Stack, Text } from '@mantine/core';
 import { IconChevronDown, IconChevronRight } from '@tabler/icons-react';
@@ -52,10 +54,10 @@ export const SectionWrapper: React.FC<
 /**
  * Request / Response Headers elements
  */
-export const headerColumns: ColumnDef<HttpHeader>[] = [
+export const getHeaderColumns = (t: TFunction): ColumnDef<HttpHeader>[] => [
   {
     accessorKey: 'name',
-    header: 'Header',
+    header: t('http.headerName'),
     size: 260,
     cell: ({ row }) => (
       <div className="text-truncate" title={row.original.attributeKey}>
@@ -66,7 +68,7 @@ export const headerColumns: ColumnDef<HttpHeader>[] = [
   {
     size: UNDEFINED_WIDTH,
     accessorKey: 'value',
-    header: 'Value',
+    header: t('http.headerValue'),
   },
 ];
 
@@ -151,11 +153,14 @@ export const NetworkBody = ({
  * Keyboard shortcuts
  */
 const SHORTCUTS = [
-  { keys: ['esc'], label: 'Close panel' },
-  { keys: ['←', '→'], label: 'Navigate between events' },
-  { keys: ['↑', '↓'], label: 'Navigate between events' },
-  { keys: ['k', 'j'], label: 'Navigate between events' },
-  { keys: ['⌘/Ctrl', 'scroll'], label: 'Zoom trace timeline' },
+  { keys: ['esc'], labelKey: 'sidePanel.shortcuts.closePanel' },
+  { keys: ['←', '→'], labelKey: 'sidePanel.shortcuts.navigateEvents' },
+  { keys: ['↑', '↓'], labelKey: 'sidePanel.shortcuts.navigateEvents' },
+  { keys: ['k', 'j'], labelKey: 'sidePanel.shortcuts.navigateEvents' },
+  {
+    keys: ['⌘/Ctrl', 'scroll'],
+    labelKey: 'nav:shortcuts.zoomTraceTimeline',
+  },
 ] as const;
 
 export const KeyboardShortcutsModal = ({
@@ -165,17 +170,19 @@ export const KeyboardShortcutsModal = ({
   opened: boolean;
   onClose: () => void;
 }) => {
+  const { t } = useTranslation('search');
+
   return (
     <Modal
       opened={opened}
       onClose={onClose}
-      title="Keyboard Shortcuts"
+      title={t('nav:keyboardShortcuts')}
       size="sm"
       centered
     >
       <Stack gap="sm">
-        {SHORTCUTS.map(({ keys, label }) => (
-          <Group key={label} justify="space-between">
+        {SHORTCUTS.map(({ keys, labelKey }) => (
+          <Group key={labelKey} justify="space-between">
             <Group gap={4}>
               {keys.map((key, i) => (
                 <React.Fragment key={key}>
@@ -188,7 +195,7 @@ export const KeyboardShortcutsModal = ({
                 </React.Fragment>
               ))}
             </Group>
-            <Text size="sm">{label}</Text>
+            <Text size="sm">{t(labelKey)}</Text>
           </Group>
         ))}
       </Stack>

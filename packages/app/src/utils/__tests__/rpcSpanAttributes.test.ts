@@ -1,5 +1,5 @@
 import {
-  getRequestPanelTitle,
+  getRequestPanelTitleKey,
   getRpcMetadata,
   getRpcMethod,
   getRpcServerAddress,
@@ -8,11 +8,15 @@ import {
 } from '@/utils/rpcSpanAttributes';
 
 it.each([
-  [getRequestPanelTitle, { 'rpc.system': 'grpc' }, 'gRPC Call'],
-  [getRequestPanelTitle, { 'grpc.method': 'x', 'url.full': 'x' }, 'gRPC Call'],
-  [getRequestPanelTitle, { 'rpc.method': 'x', 'url.full': 'x' }, 'RPC Call'],
-  [getRequestPanelTitle, { 'url.full': 'x' }, 'HTTP Request'],
-  [getRequestPanelTitle, { 'db.system': 'x' }, undefined],
+  [getRequestPanelTitleKey, { 'rpc.system': 'grpc' }, 'grpcCall'],
+  [
+    getRequestPanelTitleKey,
+    { 'grpc.method': 'x', 'url.full': 'x' },
+    'grpcCall',
+  ],
+  [getRequestPanelTitleKey, { 'rpc.method': 'x', 'url.full': 'x' }, 'rpcCall'],
+  [getRequestPanelTitleKey, { 'url.full': 'x' }, 'httpRequest'],
+  [getRequestPanelTitleKey, { 'db.system': 'x' }, undefined],
   [getRpcSystemLabel, { 'grpc.method': 'x' }, 'gRPC'],
   [getRpcSystemLabel, { 'rpc.system': 'aws-api' }, 'aws-api'],
   [getRpcSystemLabel, { 'rpc.method': 'x' }, 'RPC'],

@@ -1,4 +1,5 @@
 import { ReactNode, useEffect, useMemo } from 'react';
+import { useTranslation } from 'next-i18next/pages';
 import { useForm, useWatch } from 'react-hook-form';
 import { SourceKind } from '@hyperdx/common-utils/dist/types';
 import { Box, Drawer, Flex, Group, Text } from '@mantine/core';
@@ -33,6 +34,7 @@ export default function DirectTraceSidePanel({
   closeOnClickOutside = true,
   keepOpenSelector,
 }: DirectTraceSidePanelProps) {
+  const { t } = useTranslation('search');
   useCloseOnClickOutside({
     enabled: closeOnClickOutside && opened,
     keepOpenSelector,
@@ -67,21 +69,18 @@ export default function DirectTraceSidePanel({
   });
 
   const emptyState = useMemo<ReactNode>(() => {
-    let title = 'Select a trace source';
-    let description =
-      'Choose a trace source to open this trace in the sidebar.';
+    let title = t('directTrace.selectTitle');
+    let description = t('directTrace.selectDescription');
 
     if (traceSourceError) {
-      title = 'Unable to load trace source';
-      description =
-        'There was a problem loading the selected trace source. Try again or choose a different source.';
+      title = t('directTrace.unableTitle');
+      description = t('directTrace.unableDescription');
     } else if (selectedSourceId && isTraceSourceLoading) {
-      title = 'Loading trace source';
-      description = 'Resolving the selected trace source.';
+      title = t('directTrace.loadingTitle');
+      description = t('directTrace.loadingDescription');
     } else if (selectedSourceId && !traceSource) {
-      title = 'Trace source not found';
-      description =
-        'The requested source could not be loaded. Choose another trace source to continue.';
+      title = t('directTrace.notFoundTitle');
+      description = t('directTrace.notFoundDescription');
     }
 
     return (
@@ -94,7 +93,13 @@ export default function DirectTraceSidePanel({
         mt="md"
       />
     );
-  }, [isTraceSourceLoading, selectedSourceId, traceSource, traceSourceError]);
+  }, [
+    isTraceSourceLoading,
+    selectedSourceId,
+    traceSource,
+    traceSourceError,
+    t,
+  ]);
 
   const shouldRenderTracePanel =
     opened && traceId.length > 0 && traceSource?.kind === SourceKind.Trace;
@@ -111,7 +116,7 @@ export default function DirectTraceSidePanel({
       title={
         <Group gap="xs">
           <IconConnection size={16} />
-          <Text fw={600}>Trace</Text>
+          <Text fw={600}>{t('common:trace')}</Text>
         </Group>
       }
       styles={{
@@ -123,7 +128,7 @@ export default function DirectTraceSidePanel({
     >
       <Flex justify="flex-end" mb="sm">
         <Group gap="sm" align="center">
-          <Text size="sm">Trace Source</Text>
+          <Text size="sm">{t('directTrace.traceSource')}</Text>
           <SourceSelectControlled
             control={control}
             name="source"
@@ -144,8 +149,8 @@ export default function DirectTraceSidePanel({
               emptyState={
                 <EmptyState
                   icon={<IconConnection size={24} />}
-                  title="Trace not found"
-                  description="No matching spans or correlated logs were found for this trace in the selected source and time range."
+                  title={t('directTrace.traceNotFoundTitle')}
+                  description={t('directTrace.traceNotFoundDescription')}
                   variant="card"
                   fullWidth
                   mt="md"

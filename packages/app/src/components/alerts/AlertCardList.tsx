@@ -1,4 +1,5 @@
 import { useCallback, useLayoutEffect, useRef, useState } from 'react';
+import { useTranslation } from 'next-i18next/pages';
 
 import { AlertDetails } from '@/components/alerts/AlertDetails';
 import { InfiniteScrollFooter } from '@/components/InfiniteScrollFooter';
@@ -75,6 +76,7 @@ export function AlertCardList({
   isFetchNextPageError,
   onLoadMore,
 }: AlertCardListProps) {
+  const { t } = useTranslation('alerts');
   const listRef = useRef<HTMLDivElement>(null);
   const scrollMargin = useScrollMargin(listRef);
 
@@ -111,8 +113,8 @@ export function AlertCardList({
         isFetchingNextPage={isFetchingNextPage}
         isFetchNextPageError={isFetchNextPageError}
         onLoadMore={onLoadMore}
-        loadingLabel="Loading more alerts…"
-        errorLabel="Failed to load more alerts."
+        loadingLabel={t('loadingMoreAlerts')}
+        errorLabel={t('loadMoreAlertsFailed')}
         sentinelTestId="alerts-load-more"
         errorTestId="alerts-load-error"
       />

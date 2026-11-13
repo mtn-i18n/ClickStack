@@ -1,3 +1,4 @@
+import { useTranslation } from 'next-i18next/pages';
 import { useController, UseControllerProps } from 'react-hook-form';
 import { Select } from '@mantine/core';
 import { IconDatabase } from '@tabler/icons-react';
@@ -23,6 +24,7 @@ function DatabaseSelect({
   inputRef,
   size,
 }: DatabaseSelectProps) {
+  const { t } = useTranslation('settings');
   const { data: databases, isLoading: isDatabasesLoading } = useDatabasesDirect(
     { connectionId: connectionId ?? '' },
     { enabled: !!connectionId },
@@ -36,7 +38,7 @@ function DatabaseSelect({
   return (
     <Select
       searchable
-      placeholder="Database"
+      placeholder={t('databaseSelect.placeholder')}
       leftSection={<IconDatabase size={16} />}
       maxDropdownHeight={280}
       data={data}

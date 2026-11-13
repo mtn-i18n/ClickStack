@@ -1,3 +1,4 @@
+import { useTranslation } from 'next-i18next/pages';
 import { ChartVariable } from '@hyperdx/common-utils/dist/types';
 import { Box, Text } from '@mantine/core';
 
@@ -10,6 +11,8 @@ export function RawSqlVariableInstructions({
 }: {
   variables: ChartVariable[] | undefined;
 }) {
+  const { t } = useTranslation('dashboards');
+
   if (!variables?.length) {
     return null;
   }
@@ -17,18 +20,15 @@ export function RawSqlVariableInstructions({
   return (
     <Box mb="xs">
       <Text size="xs" fw="bold">
-        Dashboard variables
+        {t('chartEditor.dashboardVariables')}
       </Text>
       <Text size="xs">
-        This chart may reference the following variables from the dashboard:{' '}
-        {variables.map(variable => `$${variable.name}`).join(', ')}.
+        {t('chartEditor.dashboardVariablesDescription', {
+          variables: variables.map(variable => `$${variable.name}`).join(', '),
+        })}
       </Text>
 
-      <Text size="xs">
-        Prefer using the $__filter and $__conditionalAll macros when referencing
-        variables, to ensure that the query remains valid when a variable has no
-        selection.
-      </Text>
+      <Text size="xs">{t('chartEditor.dashboardVariablesMacrosHint')}</Text>
     </Box>
   );
 }

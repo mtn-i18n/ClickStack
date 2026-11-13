@@ -1,4 +1,5 @@
 import { useCallback, useState } from 'react';
+import { useTranslation } from 'next-i18next/pages';
 import {
   Control,
   useFieldArray,
@@ -45,6 +46,7 @@ export default function PromqlChartEditor({
   heatmapMode: PromqlHeatmapMode;
   onHeatmapModeChange: (mode: PromqlHeatmapMode) => void;
 }) {
+  const { t } = useTranslation('dashboards');
   const {
     fields: expressions,
     append,
@@ -99,7 +101,7 @@ export default function PromqlChartEditor({
     <>
       <Group>
         <Text pe="md" size="sm">
-          Data Source
+          {t('chartEditor.dataSource')}
         </Text>
         <SourceSelectControlled
           size="xs"
@@ -152,7 +154,7 @@ export default function PromqlChartEditor({
               data-testid="promql-add-expression-button"
             >
               <IconCirclePlus size={14} className="me-2" />
-              Add expression
+              {t('chartEditor.promql.addExpression')}
             </Button>
           )}
         </Group>
@@ -162,7 +164,7 @@ export default function PromqlChartEditor({
           variant="secondary"
           data-testid="display-settings-button"
         >
-          Display Settings
+          {t('chartEditor.displaySettings')}
         </Button>
       </Flex>
     </>

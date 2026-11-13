@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'next-i18next/pages';
 import { type IacResourceRef } from '@hyperdx/common-utils/dist/iac';
 import { ActionIcon, Popover, Tooltip } from '@mantine/core';
 import { IconBrandTerraform } from '@tabler/icons-react';
@@ -36,6 +37,7 @@ export default function ResourceTerraformPopover({
 }: {
   resource: IacResourceRef;
 }) {
+  const { t } = useTranslation('settings');
   const [opened, setOpened] = useState(false);
   const { id } = resource;
   const snippets = useTerraformSnippets({ resource, enabled: opened });
@@ -54,7 +56,12 @@ export default function ResourceTerraformPopover({
       onChange={setOpened}
     >
       <Popover.Target>
-        <Tooltip withArrow label="Export to Terraform" fz="xs" color="gray">
+        <Tooltip
+          withArrow
+          label={t('iac.exportToTerraform')}
+          fz="xs"
+          color="gray"
+        >
           <ActionIcon
             variant="secondary"
             size="input-xs"

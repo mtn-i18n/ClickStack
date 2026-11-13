@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { useTranslation } from 'next-i18next/pages';
 import { Controller } from 'react-hook-form';
 import { OnClickTarget } from '@hyperdx/common-utils/dist/types';
 import { Select } from '@mantine/core';
@@ -21,29 +22,34 @@ export function OnClickTargetInputControlled({
   objectType: 'source' | 'dashboard';
   onTargetChange?: (target: OnClickTarget) => void;
 }) {
+  const { t } = useTranslation('dashboards');
+  const objectLabel =
+    objectType === 'dashboard'
+      ? t('chartEditor.onClick.objectDashboard')
+      : t('chartEditor.onClick.objectSource');
   const optionsWithTemplate = useMemo(() => {
     return [
       {
-        group: 'Template',
+        group: t('chartEditor.onClick.templateGroup'),
         items: [
           {
-            label: 'Template',
+            label: t('chartEditor.onClick.templateGroup'),
             value: TEMPLATE_SELECT_VALUE,
           },
         ],
       },
       {
-        group: objectType === 'dashboard' ? 'Dashboard' : 'Source',
+        group: objectLabel,
         items: options ?? [],
       },
     ];
-  }, [options, objectType]);
+  }, [options, objectLabel, t]);
 
-  const label = objectType === 'dashboard' ? 'Dashboard' : 'Source';
+  const label = objectLabel;
   const labelTooltip =
     objectType === 'dashboard'
-      ? 'A dashboard, or a Handlebars template that is matched by name to an available dashboard'
-      : 'A source, or a Handlebars template that is matched by name to an available Log or Trace source';
+      ? t('chartEditor.onClick.targetTooltipDashboard')
+      : t('chartEditor.onClick.targetTooltipSource');
   const placeholder =
     objectType === 'dashboard'
       ? 'e.g. Error Dashboard or Errors-{{ServiceName}}'
@@ -75,7 +81,9 @@ export function OnClickTargetInputControlled({
               }
               error={
                 targetMissing
-                  ? `The previously selected ${objectType} no longer exists. Choose another ${objectType}.`
+                  ? t('chartEditor.onClick.targetMissing', {
+                      objectType: objectLabel,
+                    })
                   : undefined
               }
               onChange={value => {

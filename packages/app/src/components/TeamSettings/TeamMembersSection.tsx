@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'next-i18next/pages';
 import { HTTPError } from 'ky';
 import CopyToClipboard from 'react-copy-to-clipboard';
 import { Badge, Separator } from '@clickhouse/click-ui';
@@ -20,6 +21,8 @@ import api from '@/api';
 import { useBrandDisplayName } from '@/brand';
 
 export default function TeamMembersSection() {
+  const { t } = useTranslation('settings');
+  const { t: tCommon } = useTranslation('common');
   const brandName = useBrandDisplayName();
   const hasAdminAccess = true;
 
@@ -66,8 +69,7 @@ export default function TeamMembersSection() {
           onSuccess: () => {
             notifications.show({
               color: 'green',
-              message:
-                'Click "Copy URL" and share the URL with your team member',
+              message: t('teamMembers.inviteCreated'),
             });
             refetchInvitations();
           },
@@ -85,7 +87,7 @@ export default function TeamMembersSection() {
                 .catch(() => {
                   notifications.show({
                     color: 'red',
-                    message: `Something went wrong. Please contact ${brandName} team.`,
+                    message: t('teamMembers.contactSupport', { brandName }),
 
                     autoClose: 5000,
                   });
@@ -93,7 +95,7 @@ export default function TeamMembersSection() {
             } else {
               notifications.show({
                 color: 'red',
-                message: `Something went wrong. Please contact ${brandName} team.`,
+                message: t('teamMembers.contactSupport', { brandName }),
                 autoClose: 5000,
               });
             }
@@ -124,7 +126,7 @@ export default function TeamMembersSection() {
           onSuccess: () => {
             notifications.show({
               color: 'green',
-              message: 'Deleted team invite',
+              message: t('teamMembers.inviteDeleted'),
             });
             refetchInvitations();
           },
@@ -136,7 +138,7 @@ export default function TeamMembersSection() {
               if (e.response.status === 404) {
                 notifications.show({
                   color: 'yellow',
-                  message: 'That invite has already been removed',
+                  message: t('teamMembers.inviteAlreadyRemoved'),
                   autoClose: 5000,
                 });
                 refetchInvitations();
@@ -154,7 +156,7 @@ export default function TeamMembersSection() {
                 .catch(() => {
                   notifications.show({
                     color: 'red',
-                    message: `Something went wrong. Please contact ${brandName} team.`,
+                    message: t('teamMembers.contactSupport', { brandName }),
 
                     autoClose: 5000,
                   });
@@ -162,7 +164,7 @@ export default function TeamMembersSection() {
             } else {
               notifications.show({
                 color: 'red',
-                message: `Something went wrong. Please contact ${brandName} team.`,
+                message: t('teamMembers.contactSupport', { brandName }),
                 autoClose: 5000,
               });
             }
@@ -179,7 +181,7 @@ export default function TeamMembersSection() {
           onSuccess: () => {
             notifications.show({
               color: 'green',
-              message: 'Deleted team member',
+              message: t('teamMembers.memberDeleted'),
             });
             refetchMembers();
           },
@@ -197,14 +199,14 @@ export default function TeamMembersSection() {
                 .catch(() => {
                   notifications.show({
                     color: 'red',
-                    message: `Something went wrong. Please contact ${brandName} team.`,
+                    message: t('teamMembers.contactSupport', { brandName }),
                     autoClose: 5000,
                   });
                 });
             } else {
               notifications.show({
                 color: 'red',
-                message: `Something went wrong. Please contact ${brandName} team.`,
+                message: t('teamMembers.contactSupport', { brandName }),
                 autoClose: 5000,
               });
             }
@@ -216,19 +218,19 @@ export default function TeamMembersSection() {
 
   return (
     <Box id="team_members" data-testid="team-members-section">
-      <Text size="md">Team Members</Text>
+      <Text size="md">{t('teamMembers.title')}</Text>
       <Separator size="lg" />
       <Card>
         <Card.Section withBorder py="sm" px="lg">
           <Group align="center" justify="space-between">
-            <div className="fs-7">Team Members</div>
+            <div className="fs-7">{t('teamMembers.title')}</div>
             <Button
               data-testid="invite-member-button"
               variant="primary"
               leftSection={<IconUserPlus size={16} />}
               onClick={() => setTeamInviteModalShow(true)}
             >
-              Invite Team Member
+              {t('teamMembers.invite')}
             </Button>
           </Group>
         </Card.Section>
@@ -244,7 +246,7 @@ export default function TeamMembersSection() {
                         {member.isCurrentUser && (
                           <Badge
                             size="sm"
-                            text="You"
+                            text={t('teamMembers.you')}
                             state="info"
                             style={{
                               marginRight: 'var(--mantine-spacing-xs)',
@@ -259,7 +261,8 @@ export default function TeamMembersSection() {
                         <div>{member.email}</div>
                         {member.hasPasswordAuth && (
                           <div>
-                            <IconLock size={14} /> Password Auth
+                            <IconLock size={14} />{' '}
+                            {t('teamMembers.passwordAuth')}
                           </div>
                         )}
                       </Group>
@@ -287,7 +290,7 @@ export default function TeamMembersSection() {
                               })
                             }
                           >
-                            Remove
+                            {t('teamMembers.remove')}
                           </Button>
                         </Group>
                       )}
@@ -306,14 +309,14 @@ export default function TeamMembersSection() {
                     <Table.Td>
                       <Badge
                         size="sm"
-                        text="Pending invite"
+                        text={t('teamMembers.pendingInvite')}
                         state="neutral"
                         icon="dot"
                         iconDir="start"
                       />
                       <CopyToClipboard text={invitation.url}>
                         <Button size="compact-xs" variant="secondary" ml="xs">
-                          📋 Copy URL
+                          📋 {t('teamMembers.copyUrl')}
                         </Button>
                       </CopyToClipboard>
                     </Table.Td>
@@ -331,7 +334,7 @@ export default function TeamMembersSection() {
                               })
                             }
                           >
-                            Delete
+                            {t('teamMembers.delete')}
                           </Button>
                         </Group>
                       )}
@@ -347,7 +350,7 @@ export default function TeamMembersSection() {
         centered
         onClose={() => setTeamInviteModalShow(false)}
         opened={teamInviteModalShow}
-        title="Invite Team Member"
+        title={t('teamMembers.invite')}
       >
         <InviteTeamMemberForm
           onSubmit={onSubmitTeamInviteForm}
@@ -366,14 +369,13 @@ export default function TeamMembersSection() {
         }
         opened={deleteTeamMemberConfirmationModalData.id != null}
         size="lg"
-        title="Delete Team Member"
+        title={t('teamMembers.deleteTitle')}
       >
         <Stack>
           <Text>
-            Deleting this team member (
-            {deleteTeamMemberConfirmationModalData.email}) will revoke their
-            access to the team&apos;s resources and services. This action is not
-            reversible.
+            {t('teamMembers.deleteConfirm', {
+              email: deleteTeamMemberConfirmationModalData.email,
+            })}
           </Text>
           <Group justify="flex-end" gap="xs">
             <Button
@@ -387,7 +389,7 @@ export default function TeamMembersSection() {
                 })
               }
             >
-              Cancel
+              {tCommon('actions.cancel')}
             </Button>
             <Button
               data-testid="confirm-delete-member"
@@ -399,7 +401,7 @@ export default function TeamMembersSection() {
                 )
               }
             >
-              Confirm
+              {tCommon('actions.confirm')}
             </Button>
           </Group>
         </Stack>
@@ -415,6 +417,7 @@ function InviteTeamMemberForm({
   isSubmitting?: boolean;
   onSubmit: (arg0: { email: string }) => void;
 }) {
+  const { t } = useTranslation('settings');
   const [email, setEmail] = useState<string>('');
 
   return (
@@ -427,25 +430,23 @@ function InviteTeamMemberForm({
       <Stack>
         <TextInput
           data-testid="invite-email-input"
-          label="Email"
+          label={t('teamMembers.email')}
           name="email"
           type="email"
           value={email}
           onChange={e => setEmail(e.target.value)}
           required
-          placeholder="you@company.com"
+          placeholder={t('teamMembers.emailPlaceholder')}
           withAsterisk={false}
         />
-        <div className="fs-8">
-          The invite link will automatically expire after 30 days.
-        </div>
+        <div className="fs-8">{t('teamMembers.inviteExpiry')}</div>
         <Button
           data-testid="send-invite-button"
           variant="primary"
           type="submit"
           disabled={!email || isSubmitting}
         >
-          Send Invite
+          {t('teamMembers.sendInvite')}
         </Button>
       </Stack>
     </form>

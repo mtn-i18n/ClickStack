@@ -1,3 +1,4 @@
+import { useTranslation } from 'next-i18next/pages';
 import { isDateRangeEqual } from '@hyperdx/common-utils/dist/core/utils';
 import { SQLInterval } from '@hyperdx/common-utils/dist/types';
 import { Tooltip } from '@mantine/core';
@@ -16,6 +17,7 @@ export default function DateRangeIndicator({
   effectiveDateRange,
   mvGranularity,
 }: DateRangeIndicatorProps) {
+  const { t } = useTranslation('charts');
   const formatTime = useFormatTime();
 
   if (
@@ -31,8 +33,12 @@ export default function DateRangeIndicator({
   ];
 
   const label = mvGranularity
-    ? `Querying ${start} - ${end} due to ${mvGranularity} rollups in query acceleration.`
-    : `Querying ${start} - ${end} to show complete intervals.`;
+    ? t('queryingRangeWithRollups', {
+        start,
+        end,
+        granularity: mvGranularity,
+      })
+    : t('queryingRange', { start, end });
 
   return (
     <Tooltip multiline maw={500} label={label}>

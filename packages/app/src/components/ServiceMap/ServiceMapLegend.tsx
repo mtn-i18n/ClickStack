@@ -1,3 +1,4 @@
+import { useTranslation } from 'next-i18next/pages';
 import { TTraceSource } from '@hyperdx/common-utils/dist/types';
 import { Group, Stack, Text } from '@mantine/core';
 
@@ -65,6 +66,7 @@ export default function ServiceMapLegend({
   dateRange: [Date, Date];
   isSingleTrace?: boolean;
 }) {
+  const { t } = useTranslation('services');
   const max = metricMax[metric];
 
   // Latency is a p95 aggregate; spell that out in the legend (but not the
@@ -85,7 +87,7 @@ export default function ServiceMapLegend({
       />
       <Group justify="space-between" gap="xs" wrap="nowrap">
         <Text size="xxs" c="var(--color-text-muted)">
-          {metric === 'errorRate' ? 'none' : 'low'}
+          {metric === 'errorRate' ? t('none') : t('low')}
         </Text>
         {/* Lands on the right stop only while the bar has four equal
             segments, which puts the 1% threshold at its midpoint. */}
@@ -100,11 +102,11 @@ export default function ServiceMapLegend({
       </Group>
       {metric === 'errorRate' && (
         <Text size="xxs" c="var(--color-text-muted)">
-          Hollow = no data
+          {t('hollowNoData')}
         </Text>
       )}
       <Text size="xxs" c="var(--color-text-muted)">
-        Node size = throughput
+        {t('nodeSizeThroughput')}
       </Text>
     </Stack>
   );

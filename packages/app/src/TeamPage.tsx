@@ -1,6 +1,7 @@
 import { ReactNode, useCallback, useEffect, useState } from 'react';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
+import { useTranslation } from 'next-i18next/pages';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import {
   Box,
@@ -74,7 +75,10 @@ function TeamTabContent({
 }
 
 export default function TeamPage() {
-  const title = usePageTitle('My Team');
+  const { t } = useTranslation('settings');
+  const { t: tNav } = useTranslation('nav');
+  const { t: tCommon } = useTranslation('common');
+  const title = usePageTitle(tNav('pages.myTeam'));
   const router = useRouter();
   const { data: team, refetch: refetchTeam, isLoading } = api.useTeam();
   const setTeamName = api.useSetTeamName();
@@ -95,13 +99,13 @@ export default function TeamPage() {
           onError: () => {
             notifications.show({
               color: 'red',
-              message: 'Failed to update team name',
+              message: t('teamName.updateFailed'),
             });
           },
           onSuccess: () => {
             notifications.show({
               color: 'green',
-              message: 'Updated team name',
+              message: t('teamName.updated'),
             });
             refetchTeam();
             setIsEditingTeamName(false);
@@ -109,13 +113,13 @@ export default function TeamPage() {
         },
       );
     },
-    [refetchTeam, setTeamName],
+    [refetchTeam, setTeamName, t],
   );
 
   const tabs: TeamTab[] = [
     {
       value: 'data',
-      label: 'Data',
+      label: t('tabs.data'),
       icon: <IconDatabase size={16} />,
       sections: [
         {
@@ -130,7 +134,7 @@ export default function TeamPage() {
     },
     {
       value: 'team',
-      label: 'Members',
+      label: t('members'),
       icon: <IconUsers size={16} />,
       sections: [
         {
@@ -143,7 +147,7 @@ export default function TeamPage() {
       ? [
           {
             value: 'access',
-            label: 'Access',
+            label: t('tabs.access'),
             icon: <IconShieldLock size={16} />,
             sections: [
               {
@@ -160,7 +164,7 @@ export default function TeamPage() {
       : []),
     {
       value: 'api-agents',
-      label: 'API & Agents',
+      label: t('tabs.apiAgents'),
       icon: <IconApi size={16} />,
       sections: [
         {
@@ -194,7 +198,7 @@ export default function TeamPage() {
     },
     {
       value: 'integrations',
-      label: 'Integrations',
+      label: t('integrations'),
       icon: <IconPlug size={16} />,
       sections: [
         {
@@ -205,7 +209,7 @@ export default function TeamPage() {
     },
     {
       value: 'advanced',
-      label: 'Query Settings',
+      label: t('querySettings'),
       icon: <IconAdjustmentsHorizontal size={16} />,
       sections: [
         {
@@ -289,7 +293,7 @@ export default function TeamPage() {
                 <TextInput
                   data-testid="team-name-input"
                   size="xs"
-                  placeholder="My Team"
+                  placeholder={t('myTeam')}
                   required
                   error={form.formState.errors.name?.message}
                   {...form.register('name', { required: true })}
@@ -309,7 +313,7 @@ export default function TeamPage() {
                   variant="primary"
                   loading={setTeamName.isPending}
                 >
-                  Save
+                  {t('save')}
                 </Button>
                 <Button
                   data-testid="team-name-cancel-button"
@@ -319,14 +323,14 @@ export default function TeamPage() {
                   disabled={setTeamName.isPending}
                   onClick={() => setIsEditingTeamName(false)}
                 >
-                  Cancel
+                  {tCommon('actions.cancel')}
                 </Button>
               </Group>
             </form>
           ) : (
             <Group gap="sm">
               <span data-testid="team-name-display">
-                {team?.name || 'My team'}
+                {team?.name || t('myTeam')}
               </span>
               {hasAdminAccess && (
                 <Button
@@ -334,7 +338,7 @@ export default function TeamPage() {
                   size="xs"
                   variant="subtle"
                   px={4}
-                  aria-label="Edit team name"
+                  aria-label={t('teamName.editAriaLabel')}
                   onClick={() => {
                     form.reset({ name: team?.name });
                     setIsEditingTeamName(true);

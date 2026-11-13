@@ -1,4 +1,5 @@
 import { useCallback } from 'react';
+import { useTranslation } from 'next-i18next/pages';
 import SqlString from 'sqlstring';
 import { DisplayType } from '@hyperdx/common-utils/dist/types';
 import { Grid } from '@mantine/core';
@@ -26,6 +27,7 @@ const CHART_HEIGHT = 320;
 
 /** Token throughput, estimated spend, and the per-model breakdown table. */
 export function TokenCostCharts(props: LLMChartProps) {
+  const { t } = useTranslation('llm');
   const { source, expressions, dateRange } = props;
   const base = baseLLMChartConfig(props);
   const gatedSum = (valueExpression: string) =>
@@ -68,7 +70,7 @@ export function TokenCostCharts(props: LLMChartProps) {
       <Grid.Col span={IS_LLM_COST_ENABLED ? 6 : 12}>
         <ChartCard style={{ height: CHART_HEIGHT }}>
           <DBTimeChart
-            title="Token Usage"
+            title={t('tokenCost.tokenUsage')}
             sourceId={source.id}
             config={{
               ...base,
@@ -108,7 +110,7 @@ export function TokenCostCharts(props: LLMChartProps) {
         <Grid.Col span={6}>
           <ChartCard style={{ height: CHART_HEIGHT }}>
             <DBTimeChart
-              title="Est. Cost by Model"
+              title={t('tokenCost.estimatedCostByModel')}
               sourceId={source.id}
               config={{
                 ...base,
@@ -129,7 +131,7 @@ export function TokenCostCharts(props: LLMChartProps) {
       <Grid.Col span={7}>
         <ChartCard style={{ height: CHART_HEIGHT }}>
           <DBTableChart
-            title="Models"
+            title={t('tokenCost.models')}
             getRowSearchLink={getModelSearchLink}
             hiddenColumns={['p95_duration']}
             config={{
@@ -200,7 +202,7 @@ export function TokenCostCharts(props: LLMChartProps) {
       <Grid.Col span={5}>
         <ChartCard style={{ height: CHART_HEIGHT }}>
           <DBListBarChart
-            title="Top Services"
+            title={t('tokenCost.topServices')}
             groupColumn="Service"
             valueColumn="Calls"
             getRowSearchLink={getServiceSearchLink}

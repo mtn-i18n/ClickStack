@@ -10,6 +10,7 @@ import dynamic from 'next/dynamic';
 import Head from 'next/head';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
+import { useTranslation } from 'next-i18next/pages';
 import { formatDistanceToNow, formatRelative } from 'date-fns';
 import produce from 'immer';
 import { pick } from 'lodash';
@@ -22,6 +23,7 @@ import {
 import { ErrorBoundary } from 'react-error-boundary';
 import RGL from 'react-grid-layout';
 import { useForm, useWatch } from 'react-hook-form';
+import { Trans } from 'react-i18next';
 import {
   TableConnection,
   tcFromSource,
@@ -167,6 +169,7 @@ import {
   parseTimeRangeInput,
   timeRangeInputToSeconds,
 } from '@/components/TimePicker/utils';
+import { NOW } from '@/config';
 import {
   Dashboard,
   type Tile,
@@ -272,6 +275,7 @@ function HeatmapTile({
   dateRange: [Date, Date];
   enabled?: boolean;
 }) {
+  const { t } = useTranslation('dashboards');
   const heatmapQuery = toHeatmapQuery({
     ...queriedConfig,
     minGranularitySeconds: getMinGranularitySeconds(source),
@@ -386,7 +390,7 @@ function HeatmapTile({
               >
                 <Group gap="xs">
                   <IconSearch size={16} />
-                  View in Event Deltas
+                  {t('dashboard.viewInEventDeltas')}
                 </Group>
               </Link>
             </Popover.Dropdown>
@@ -510,6 +514,7 @@ const Tile = ({
   onSelect?: (tileId: string) => void;
   ref?: ForwardedRef<HTMLDivElement>;
 }) => {
+  const { t } = useTranslation('dashboards');
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
 
@@ -820,16 +825,18 @@ const Tile = ({
 
   const alertTooltip = useMemo(() => {
     if (!alert) {
-      return 'Add alert';
+      return t('tile.addAlert');
     }
-    let tooltip = `Has alert and is in ${alert.state} state`;
+    let tooltip = t('tile.hasAlertState', { state: alert.state });
     if (alert.silenced?.at) {
       const silencedAt = new Date(alert.silenced.at);
-      // eslint-disable-next-line no-restricted-syntax
-      tooltip += `. Ack'd ${formatRelative(silencedAt, new Date())}`;
+
+      tooltip += t('tile.alertAcked', {
+        time: formatRelative(silencedAt, new Date(NOW)),
+      });
     }
     return tooltip;
-  }, [alert]);
+  }, [alert, t]);
 
   const tileCanDrawAnnotations = isTimeSeriesDisplayType(
     chart.config.displayType,
@@ -907,17 +914,17 @@ const Tile = ({
       return null;
 
     const message = missingFiltersMacro
-      ? 'Filters may not be applied correctly because the SQL does not include the recommended $__filters macro'
+      ? t('tile.filtersMissingMacro')
       : isMetricsSourceWithLuceneFilter
-        ? 'Lucene filters are not applied because they are not supported for metrics sources.'
-        : 'Filters are not applied because no Source is set for this chart';
+        ? t('tile.filtersMetricsLucene')
+        : t('tile.filtersNoSource');
 
     return (
       <Tooltip multiline maw={500} label={message} key="filter-warning">
         <IconZoomExclamation size={16} color="var(--color-text-danger)" />
       </Tooltip>
     );
-  }, [sqlFilters, queriedConfig, source]);
+  }, [sqlFilters, queriedConfig, source, t]);
 
   const addTimeZone = useTimeZoneLinkParam();
   const replaySearchUrl = useMemo(() => {
@@ -950,7 +957,7 @@ const Tile = ({
         my={2} // Margin to ensure that the Alert Indicator doesn't clip on non-Line/Bar display types
       >
         {replaySearchUrl && (
-          <Tooltip label="Replay search" position="top" withArrow>
+          <Tooltip label={t('tile.replaySearch')} position="top" withArrow>
             <ActionIcon
               component={Link}
               href={replaySearchUrl}
@@ -958,7 +965,7 @@ const Tile = ({
               rel="noopener noreferrer"
               prefetch={false}
               data-testid={`tile-replay-search-button-${chart.id}`}
-              aria-label="Replay search (opens in new tab)"
+              aria-label={t('tile.replaySearchAria')}
               variant="subtle"
               size="sm"
               mr={4}
@@ -1007,7 +1014,7 @@ const Tile = ({
 
         {/* Fullscreen is a primary action, so it lives directly in the
               toolbar rather than buried in the "More actions" menu. */}
-        <Tooltip label="View fullscreen (f)" position="top" withArrow>
+        <Tooltip label={t('tile.viewFullscreen')} position="top" withArrow>
           <ActionIcon
             data-testid={`tile-fullscreen-button-${chart.id}`}
             variant="subtle"
@@ -1021,7 +1028,7 @@ const Tile = ({
 
         <Menu width={220} position="bottom-end">
           <Menu.Target>
-            <Tooltip label="More actions" position="top" withArrow>
+            <Tooltip label={t('tile.moreActions')} position="top" withArrow>
               <ActionIcon
                 data-testid={`tile-actions-button-${chart.id}`}
                 variant="subtle"
@@ -1037,14 +1044,14 @@ const Tile = ({
               leftSection={<IconCopy size={14} />}
               onClick={onDuplicateClick}
             >
-              Duplicate
+              {t('tile.duplicate')}
             </Menu.Item>
             <Menu.Item
               data-testid={`tile-edit-button-${chart.id}`}
               leftSection={<IconPencil size={14} />}
               onClick={onEditClick}
             >
-              Edit
+              {t('common:actions.edit')}
             </Menu.Item>
             {canMoveToGroup && (
               <MoveToGroupSubmenu
@@ -1061,7 +1068,7 @@ const Tile = ({
               leftSection={<IconTrash size={14} />}
               onClick={onDeleteClick}
             >
-              Delete
+              {t('common:actions.delete')}
             </Menu.Item>
           </Menu.Dropdown>
         </Menu>
@@ -1083,6 +1090,7 @@ const Tile = ({
     onMoveToGroup,
     openFullscreen,
     readOnly,
+    t,
   ]);
 
   // Menu items for the collapsed (narrow-tile) toolbar.
@@ -1110,7 +1118,7 @@ const Tile = ({
             rel="noopener noreferrer"
             leftSection={<IconSearch size={14} />}
           >
-            Replay search
+            {t('tile.replaySearch')}
           </Menu.Item>
         )}
         {showAlerts && (
@@ -1130,16 +1138,16 @@ const Tile = ({
           leftSection={<IconCopy size={14} />}
           onClick={onDuplicateClick}
         >
-          Duplicate
+          {t('tile.duplicate')}
         </Menu.Item>
         <Menu.Item
           leftSection={<IconArrowsMaximize size={14} />}
           onClick={() => openFullscreen()}
         >
-          View fullscreen
+          {t('tile.viewFullscreenShort')}
         </Menu.Item>
         <Menu.Item leftSection={<IconPencil size={14} />} onClick={onEditClick}>
-          Edit
+          {t('common:actions.edit')}
         </Menu.Item>
         {canMoveToGroup && (
           <MoveToGroupSubmenu
@@ -1155,7 +1163,7 @@ const Tile = ({
           leftSection={<IconTrash size={14} />}
           onClick={onDeleteClick}
         >
-          Delete
+          {t('common:actions.delete')}
         </Menu.Item>
       </>
     );
@@ -1173,6 +1181,7 @@ const Tile = ({
     onMoveToGroup,
     openFullscreen,
     readOnly,
+    t,
   ]);
 
   const title = useMemo(
@@ -1245,7 +1254,7 @@ const Tile = ({
           onError={console.error}
           fallback={
             <div className="text-danger px-2 py-1 m-2 fs-7 font-monospace bg-danger-transparent">
-              An error occurred while rendering the chart.
+              {t('dashboard.chartRenderError')}
             </div>
           }
         >
@@ -1255,19 +1264,17 @@ const Tile = ({
               toolbarItems={toolbar}
               data-testid="tile-missing-required-filters"
             >
-              {`Missing required filters: ${missingRequiredFilterNames.join(
-                ', ',
-              )}. Select a value for each to load this tile.`}
+              {t('dashboard.missingRequiredFilters', {
+                names: missingRequiredFilterNames.join(', '),
+              })}
             </TilePlaceholder>
           ) : isSourceMissing ? (
             <TilePlaceholder title={title} toolbarItems={toolbar}>
-              The data source for this tile no longer exists. Edit the tile to
-              select a new source.
+              {t('dashboard.sourceMissing')}
             </TilePlaceholder>
           ) : isSourceUnset ? (
             <TilePlaceholder title={title} toolbarItems={toolbar}>
-              The data source for this tile is not set. Edit the tile to select
-              a data source.
+              {t('dashboard.sourceUnset')}
             </TilePlaceholder>
           ) : (
             <>
@@ -1511,6 +1518,7 @@ const Tile = ({
       variableNames,
       searchRowContext,
       onFilter,
+      t,
     ],
   );
 
@@ -1639,6 +1647,7 @@ const EditTileModal = ({
   const contextZIndex = useZIndex();
   const modalZIndex = contextZIndex + 10;
   const confirm = useConfirm();
+  const { t } = useTranslation('dashboards');
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 
   // Reset dirty state only when a *different* tile is opened, not on every
@@ -1655,8 +1664,8 @@ const EditTileModal = ({
     if (isSaving) return;
     if (hasUnsavedChanges) {
       confirm(
-        'You have unsaved changes. Discard them and close the editor?',
-        'Discard',
+        t('dashboard.unsavedChangesConfirm'),
+        t('dashboard.discard'),
       ).then(ok => {
         if (ok) {
           // Reset dirty state before closing so any re-invocation of
@@ -1669,7 +1678,7 @@ const EditTileModal = ({
     } else {
       onClose();
     }
-  }, [confirm, isSaving, hasUnsavedChanges, onClose]);
+  }, [confirm, isSaving, hasUnsavedChanges, onClose, t]);
 
   return (
     <Modal
@@ -1886,7 +1895,11 @@ function DBDashboardPage({
     isFetching: isFetchingDashboard,
     isSetting: isSavingDashboard,
   } = dashboardProps;
-  const title = usePageTitle(dashboard?.name ? dashboard.name : 'Dashboard');
+  const { t } = useTranslation('dashboards');
+  const { t: tNav } = useTranslation('nav');
+  const title = usePageTitle(
+    dashboard?.name ? dashboard.name : tNav('pages.dashboard'),
+  );
   const confirm = useConfirm();
   const timeZone = useDisplayTimeZone();
 
@@ -2194,9 +2207,8 @@ function DBDashboardPage({
       () => {
         notifications.show({
           color: 'green',
-          title: 'Query saved and executed',
-          message:
-            'Filter query, dropdown values, and relative time range have been saved with the dashboard',
+          title: t('dashboard.querySavedTitle'),
+          message: t('dashboard.querySavedMessage'),
           autoClose: 3000,
         });
       },
@@ -2210,6 +2222,7 @@ function DBDashboardPage({
     onSubmit,
     timeZone,
     displayedTimeInputValue,
+    t,
   ]);
   const handleRemoveSavedQuery = useCallback(() => {
     if (!dashboard || isLocalDashboard) return;
@@ -2224,13 +2237,13 @@ function DBDashboardPage({
       () => {
         notifications.show({
           color: 'green',
-          title: 'Default query and filters removed',
-          message: 'Dashboard will no longer auto-apply saved defaults',
+          title: t('dashboard.queryRemovedTitle'),
+          message: t('dashboard.queryRemovedMessage'),
           autoClose: 3000,
         });
       },
     );
-  }, [dashboard, isLocalDashboard, setDashboard]);
+  }, [dashboard, isLocalDashboard, setDashboard, t]);
 
   const [editedTile, setEditedTile] = useState<undefined | Tile>();
 
@@ -2468,14 +2481,13 @@ function DBDashboardPage({
             if (dashboard != null) {
               if (
                 !(await confirm(
-                  <>
-                    Duplicate {'"'}
-                    <Text component="span" fw={700}>
-                      {chart.config.name}
-                    </Text>
-                    {'"'}?
-                  </>,
-                  'Duplicate',
+                  <Trans
+                    ns="dashboards"
+                    i18nKey="dashboard.duplicateTileConfirm"
+                    values={{ name: chart.config.name }}
+                    components={{ bold: <Text component="span" fw={700} /> }}
+                  />,
+                  t('dashboard.duplicateAction'),
                 ))
               ) {
                 return;
@@ -2500,14 +2512,13 @@ function DBDashboardPage({
             if (dashboard != null) {
               if (
                 !(await confirm(
-                  <>
-                    Delete{' '}
-                    <Text component="span" fw={700}>
-                      {chart.config.name}
-                    </Text>
-                    ?
-                  </>,
-                  'Delete',
+                  <Trans
+                    ns="dashboards"
+                    i18nKey="dashboard.deleteTileConfirm"
+                    values={{ name: chart.config.name }}
+                    components={{ bold: <Text component="span" fw={700} /> }}
+                  />,
+                  t('common:actions.delete'),
                   { variant: 'danger' },
                 ))
               ) {
@@ -2552,6 +2563,7 @@ function DBDashboardPage({
       selectedTileIds,
       handleToggleTileSelect,
       isKioskMode,
+      t,
     ],
   );
 
@@ -2800,11 +2812,9 @@ function DBDashboardPage({
   const handleDeleteDashboard = useCallback(async () => {
     if (!dashboard?.id) return;
 
-    const confirmed = await confirm(
-      'Are you sure you want to delete this dashboard? This action cannot be undone.',
-      'Delete Dashboard',
-      { variant: 'danger' },
-    );
+    const confirmed = await confirm(t('deleteConfirm'), t('deleteDashboard'), {
+      variant: 'danger',
+    });
     if (!confirmed) return;
 
     deleteDashboard.mutate(dashboard.id, {
@@ -2812,7 +2822,7 @@ function DBDashboardPage({
         router.push('/dashboards/list');
       },
     });
-  }, [confirm, dashboard?.id, deleteDashboard, router]);
+  }, [confirm, dashboard?.id, deleteDashboard, router, t]);
 
   const handleUpdateTags = useCallback(
     (newTags: string[]) => {
@@ -2825,7 +2835,7 @@ function DBDashboardPage({
           () => {
             notifications.show({
               color: 'green',
-              message: 'Tags updated successfully',
+              message: t('toast.tagsUpdated'),
             });
           },
           () => {
@@ -2833,7 +2843,7 @@ function DBDashboardPage({
               color: 'red',
               message: (
                 <>
-                  An error occurred. <ContactSupportText />
+                  {t('toast.genericError')} <ContactSupportText />
                 </>
               ),
             });
@@ -2841,7 +2851,7 @@ function DBDashboardPage({
         );
       }
     },
-    [dashboard, setDashboard],
+    [dashboard, setDashboard, t],
   );
 
   const createDashboard = useCreateDashboard();
@@ -2872,7 +2882,9 @@ function DBDashboardPage({
       <Text size="xs" c="dimmed" style={{ flexShrink: 0 }}>
         {dashboard.createdBy && (
           <span>
-            Created by {dashboard.createdBy.name || dashboard.createdBy.email}.{' '}
+            {t('dashboard.createdBy', {
+              name: dashboard.createdBy.name || dashboard.createdBy.email,
+            })}{' '}
           </span>
         )}
         {dashboard.updatedAt && (
@@ -2881,12 +2893,21 @@ function DBDashboardPage({
               <>
                 <FormatTime value={dashboard.updatedAt} format="short" />
                 {dashboard.updatedBy
-                  ? ` by ${dashboard.updatedBy.name || dashboard.updatedBy.email}`
+                  ? t('dashboard.updatedBy', {
+                      name:
+                        dashboard.updatedBy.name || dashboard.updatedBy.email,
+                    })
                   : ''}
               </>
             }
           >
-            <span>{`Updated ${formatDistanceToNow(new Date(dashboard.updatedAt), { addSuffix: true })}.`}</span>
+            <span>
+              {t('dashboard.updated', {
+                time: formatDistanceToNow(new Date(dashboard.updatedAt), {
+                  addSuffix: true,
+                }),
+              })}
+            </span>
           </Tooltip>
         )}
       </Text>
@@ -2896,12 +2917,12 @@ function DBDashboardPage({
     <Flex justify="space-between" align="center" gap="sm" w="100%">
       <Breadcrumbs fz="sm">
         <Anchor component={Link} href="/dashboards/list" fz="sm" c="dimmed">
-          Dashboards
+          {tNav('pages.dashboards')}
         </Anchor>
         <Text fz="sm" c="dimmed" maw={500} truncate="end" lh={1}>
           {isLocalDashboard
-            ? 'Temporary Dashboard'
-            : (dashboard?.name ?? 'Untitled')}
+            ? t('temporaryDashboard')
+            : (dashboard?.name ?? t('dashboard.untitled'))}
         </Text>
       </Breadcrumbs>
       {dashboardMeta}
@@ -2912,8 +2933,8 @@ function DBDashboardPage({
     <InlineNameInput
       key={`${dashboardHash}`}
       value={dashboard?.name ?? ''}
-      placeholder="Untitled dashboard"
-      aria-label="Dashboard name"
+      placeholder={t('dashboard.untitledDashboard')}
+      aria-label={t('dashboard.dashboardNameAria')}
       size="md"
       headingLevel={3}
       data-testid="dashboard-name-input"
@@ -2921,7 +2942,7 @@ function DBDashboardPage({
         if (dashboard == null) return;
         return new Promise<void>((resolve, reject) => {
           setDashboard({ ...dashboard, name: editedName }, resolve, () =>
-            reject(new Error('Unable to save dashboard')),
+            reject(new Error(t('dashboard.saveFailed'))),
           );
         });
       }}
@@ -2946,8 +2967,7 @@ function DBDashboardPage({
             style={{ flexShrink: 0 }}
           >
             <IconTags size={14} className="me-2" />
-            {dashboard?.tags?.length || 0}{' '}
-            {dashboard?.tags?.length === 1 ? 'Tag' : 'Tags'}
+            {t('tagCount', { count: dashboard?.tags?.length || 0 })}
           </Button>
         </Tags>
       )}
@@ -2982,13 +3002,13 @@ function DBDashboardPage({
         </Menu.Target>
 
         <Menu.Dropdown>
-          <Menu.Label>View</Menu.Label>
+          <Menu.Label>{t('dashboard.viewMenu')}</Menu.Label>
           <Menu.Item
             leftSection={<IconPresentation size={16} />}
             onClick={enterKioskMode}
             data-testid="enter-kiosk-mode-menu-item"
           >
-            Enter kiosk mode
+            {t('dashboard.enterKioskMode')}
           </Menu.Item>
           {(hasTiles || containers.length > 0) && (
             <>
@@ -3000,8 +3020,8 @@ function DBDashboardPage({
                     data-testid="toggle-alert-annotations-menu-item"
                   >
                     {showAlertAnnotations
-                      ? 'Hide alert annotations'
-                      : 'Show alert annotations'}
+                      ? t('dashboard.hideAlertAnnotations')
+                      : t('dashboard.showAlertAnnotations')}
                   </Menu.Item>
                   <Menu.Item
                     leftSection={<IconRocket size={16} />}
@@ -3009,8 +3029,8 @@ function DBDashboardPage({
                     data-testid="toggle-release-annotations-menu-item"
                   >
                     {showReleaseAnnotations
-                      ? 'Hide release markers'
-                      : 'Show release markers'}
+                      ? t('dashboard.hideReleaseMarkers')
+                      : t('dashboard.showReleaseMarkers')}
                   </Menu.Item>
                 </>
               )}
@@ -3028,8 +3048,8 @@ function DBDashboardPage({
                     data-testid="toggle-toc-menu-item"
                   >
                     {tocVisible
-                      ? 'Hide table of contents'
-                      : 'Show table of contents'}
+                      ? t('dashboard.hideTableOfContents')
+                      : t('dashboard.showTableOfContents')}
                   </Menu.Item>
                   <Menu.Item
                     leftSection={<IconChevronsUp size={16} />}
@@ -3037,7 +3057,7 @@ function DBDashboardPage({
                     disabled={collapsibleContainers.length === 0}
                     data-testid="collapse-all-sections-menu-item"
                   >
-                    Collapse all sections
+                    {t('dashboard.collapseAllSections')}
                   </Menu.Item>
                   <Menu.Item
                     leftSection={<IconChevronsDown size={16} />}
@@ -3045,7 +3065,7 @@ function DBDashboardPage({
                     disabled={collapsibleContainers.length === 0}
                     data-testid="expand-all-sections-menu-item"
                   >
-                    Expand all sections
+                    {t('dashboard.expandAllSections')}
                   </Menu.Item>
                 </>
               )}
@@ -3060,7 +3080,7 @@ function DBDashboardPage({
                 if (!sources || !dashboard) {
                   notifications.show({
                     color: 'red',
-                    message: 'Export Failed',
+                    message: t('toast.exportFailed'),
                   });
                   return;
                 }
@@ -3075,7 +3095,7 @@ function DBDashboardPage({
                 );
               }}
             >
-              Export Dashboard
+              {t('dashboard.exportDashboard')}
             </Menu.Item>
           )}
           <Menu.Item
@@ -3088,7 +3108,9 @@ function DBDashboardPage({
               }
             }}
           >
-            {hasTiles ? 'Import New Dashboard' : 'Import Dashboard'}
+            {hasTiles
+              ? t('dashboard.importNewDashboard')
+              : t('importDashboard')}
           </Menu.Item>
           <Menu.Divider />
           <Menu.Item
@@ -3097,8 +3119,8 @@ function DBDashboardPage({
             onClick={handleSaveQuery}
           >
             {hasSavedQueryAndFilterDefaults
-              ? 'Update Default Query & Filters'
-              : 'Save Query & Filters as Default'}
+              ? t('dashboard.updateDefault')
+              : t('dashboard.saveAsDefault')}
           </Menu.Item>
           {hasSavedQueryAndFilterDefaults && (
             <Menu.Item
@@ -3107,7 +3129,7 @@ function DBDashboardPage({
               color="red"
               onClick={handleRemoveSavedQuery}
             >
-              Remove Default Query & Filters
+              {t('dashboard.removeDefault')}
             </Menu.Item>
           )}
           <Menu.Divider />
@@ -3116,7 +3138,7 @@ function DBDashboardPage({
             color="red"
             onClick={handleDeleteDashboard}
           >
-            Delete Dashboard
+            {t('deleteDashboard')}
           </Menu.Item>
         </Menu.Dropdown>
       </Menu>
@@ -3166,8 +3188,10 @@ function DBDashboardPage({
         withArrow
         label={
           isRefreshEnabled
-            ? `Auto-refreshing with ${granularityOverride} interval`
-            : 'Enable auto-refresh'
+            ? t('dashboard.queryToolbar.autoRefreshInterval', {
+                interval: granularityOverride,
+              })
+            : t('dashboard.queryToolbar.enableAutoRefresh')
         }
         fz="xs"
         color="gray"
@@ -3176,18 +3200,27 @@ function DBDashboardPage({
           onClick={() => setIsLive(prev => !prev)}
           size="sm"
           variant={isLive ? 'primary' : 'secondary'}
-          title={isLive ? 'Disable auto-refresh' : 'Enable auto-refresh'}
+          title={
+            isLive
+              ? t('dashboard.queryToolbar.disableAutoRefresh')
+              : t('dashboard.queryToolbar.enableAutoRefresh')
+          }
         >
-          Live
+          {t('dashboard.queryToolbar.live')}
         </Button>
       </Tooltip>
-      <Tooltip withArrow label="Refresh dashboard" fz="xs" color="gray">
+      <Tooltip
+        withArrow
+        label={t('dashboard.queryToolbar.refreshDashboard')}
+        fz="xs"
+        color="gray"
+      >
         <ActionIcon
           onClick={refresh}
           loading={manualRefreshCooloff}
           disabled={manualRefreshCooloff}
           variant="secondary"
-          title="Refresh dashboard"
+          title={t('dashboard.queryToolbar.refreshDashboard')}
           size="input-sm"
         >
           <IconRefresh size={18} />
@@ -3195,7 +3228,7 @@ function DBDashboardPage({
       </Tooltip>
       <Tooltip
         withArrow
-        label="Edit filters and variables"
+        label={t('dashboard.queryToolbar.editFilters')}
         fz="xs"
         color="gray"
       >
@@ -3215,7 +3248,7 @@ function DBDashboardPage({
         leftSection={<IconPlayerPlay size={16} />}
         style={{ flexShrink: 0 }}
       >
-        Run
+        {t('dashboard.queryToolbar.run')}
       </Button>
     </Flex>
   );
@@ -3272,16 +3305,14 @@ function DBDashboardPage({
       {!isKioskMode && isLocalDashboard && (
         <Paper mt="xs" mb="md" p="md" data-testid="temporary-dashboard-banner">
           <Flex justify="space-between" align="center">
-            <Text size="sm">
-              This is a temporary dashboard and can not be saved.
-            </Text>
+            <Text size="sm">{t('dashboard.temporaryBanner')}</Text>
             <Button
               variant="primary"
               fw={400}
               onClick={onCreateDashboard}
               data-testid="create-dashboard-button"
             >
-              Create New Saved Dashboard
+              {t('dashboard.createSavedDashboard')}
             </Button>
           </Flex>
         </Paper>
@@ -3294,29 +3325,29 @@ function DBDashboardPage({
             mb="sm"
             variant="warning"
             icon={<IconAlertTriangle size={16} />}
-            title="Some filters could not be applied"
+            title={t('dashboard.ignoredFilters.title')}
             data-testid="ignored-url-filters-banner"
             withCloseButton
-            closeButtonLabel="Dismiss"
+            closeButtonLabel={t('common:actions.close')}
             onClose={() => setShouldShowIgnoredFiltersBanner(false)}
           >
             <List type="unordered" size="sm" mb="xs">
               {ignoredFilterExpressions.length > 0 && (
                 <List.Item>
-                  No dashboard filter(s) found for{' '}
-                  {ignoredFilterExpressions.length === 1
-                    ? 'expression'
-                    : 'expressions'}{' '}
-                  in the URL: {ignoredFilterExpressions.join(', ')}. Add a
-                  filter with a matching expression to apply these filters.
+                  {t('dashboard.ignoredFilters.expression', {
+                    count: ignoredFilterExpressions.length,
+                    expressions: ignoredFilterExpressions.join(', '),
+                  })}
                 </List.Item>
               )}
               {ignoredVariableNames.length > 0 && (
                 <List.Item>
-                  No dashboard variable(s) found for{' '}
-                  {ignoredVariableNames.map(name => `$${name}`).join(', ')} in
-                  the URL. Add a variable-enabled filter with a matching
-                  variable name to apply these values.
+                  {t('dashboard.ignoredFilters.variable', {
+                    count: ignoredVariableNames.length,
+                    variables: ignoredVariableNames
+                      .map(name => `$${name}`)
+                      .join(', '),
+                  })}
                 </List.Item>
               )}
             </List>
@@ -3339,23 +3370,24 @@ function DBDashboardPage({
         <Paper p="xs" mt="sm" withBorder>
           <Flex align="center" gap="sm">
             <Text size="sm">
-              {selectedTileIds.size} tile{selectedTileIds.size > 1 ? 's' : ''}{' '}
-              selected
+              {t('dashboard.selection.tilesSelected', {
+                count: selectedTileIds.size,
+              })}
             </Text>
             <Button
               size="xs"
               variant="primary"
               onClick={handleGroupSelected}
-              title="Group selected tiles (Cmd+G)"
+              title={t('dashboard.selection.groupTitle')}
             >
-              Group
+              {t('dashboard.selection.group')}
             </Button>
             <Button
               size="xs"
               variant="secondary"
               onClick={() => setSelectedTileIds(new Set())}
             >
-              Clear
+              {t('dashboard.selection.clear')}
             </Button>
           </Flex>
         </Paper>
@@ -3368,7 +3400,7 @@ function DBDashboardPage({
                 onError={console.error}
                 fallback={
                   <div className="text-danger px-2 py-1 m-2 fs-7 font-monospace bg-danger-transparent">
-                    An error occurred while rendering the dashboard.
+                    {t('dashboard.renderError')}
                   </div>
                 }
               >
@@ -3467,7 +3499,7 @@ function DBDashboardPage({
                   w="100%"
                   leftSection={<IconPlus size={16} />}
                 >
-                  Add
+                  {t('dashboard.add')}
                 </Button>
               </Menu.Target>
               <Menu.Dropdown>
@@ -3476,7 +3508,7 @@ function DBDashboardPage({
                   leftSection={<IconChartBar size={16} />}
                   onClick={() => onAddTile()}
                 >
-                  New Tile
+                  {t('dashboard.newTile')}
                 </Menu.Item>
                 <Menu.Divider />
                 <Menu.Item
@@ -3484,7 +3516,7 @@ function DBDashboardPage({
                   leftSection={<IconSquaresDiagonal size={16} />}
                   onClick={() => handleAddContainer()}
                 >
-                  New Group
+                  {t('dashboard.newGroup')}
                 </Menu.Item>
               </Menu.Dropdown>
             </Menu>

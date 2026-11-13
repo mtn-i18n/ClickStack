@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import { useTranslation } from 'next-i18next/pages';
 import {
   Control,
   UseFormGetValues,
@@ -79,6 +80,7 @@ export function useBuilderToSqlConversion({
   watch: UseFormWatch<ChartEditorFormState>;
   tableSource: TSource | undefined;
 }) {
+  const { t } = useTranslation('dashboards');
   const metadata = useMetadataWithSettings();
 
   const configType = useWatch({ control, name: 'configType' });
@@ -121,7 +123,7 @@ export function useBuilderToSqlConversion({
       });
       notifications.show({
         id: 'builder-to-sql-error',
-        title: 'Could not auto-convert to SQL',
+        title: t('chartEditor.builderToSql.convertErrorTitle'),
         message,
         color: 'red',
       });
@@ -136,7 +138,7 @@ export function useBuilderToSqlConversion({
     // every other reason a config can't be converted is reported by
     // renderBuilderConfigAsSqlTemplate below.
     if (!tableSource) {
-      showError('Auto-converting to SQL requires a source to be selected.');
+      showError(t('chartEditor.builderToSql.sourceRequired'));
       return;
     }
 
@@ -170,8 +172,8 @@ export function useBuilderToSqlConversion({
       ) {
         setValue('sqlTemplate', result.sql);
         notifications.show({
-          title: 'Chart converted to SQL',
-          message: 'The existing chart configuration has been converted to SQL',
+          title: t('chartEditor.builderToSql.convertedTitle'),
+          message: t('chartEditor.builderToSql.convertedMessage'),
           color: 'green',
         });
       }
@@ -179,6 +181,14 @@ export function useBuilderToSqlConversion({
 
     renderBuilderConfigAsSqlTemplate(config, metadata)
       .then(applyResult)
-      .catch(e => showError('Chart could not be auto-converted to SQL', e));
-  }, [configType, tableSource, metadata, getValues, setValue, prevConfigType]);
+      .catch(e => showError(t('chartEditor.builderToSql.conversionFailed'), e));
+  }, [
+    configType,
+    tableSource,
+    metadata,
+    getValues,
+    setValue,
+    prevConfigType,
+    t,
+  ]);
 }

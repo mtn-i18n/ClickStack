@@ -1,4 +1,5 @@
 import { useCallback, useMemo, useState } from 'react';
+import { Trans, useTranslation } from 'next-i18next/pages';
 import {
   isBuilderChartConfig,
   isPromqlChartConfig,
@@ -61,9 +62,6 @@ import {
   tabQueriesData,
 } from './utils';
 
-/** Why a preview accordion is empty before its tile has been run. */
-const RUN_TO_PREVIEW = 'Run the query to see the preview';
-
 function HeatmapPreview({
   config,
   minGranularitySeconds,
@@ -96,6 +94,7 @@ function HeatmapSQLPreview({
   config: BuilderChartConfigWithOptTimestamp;
   dateRange: [Date, Date];
 }) {
+  const { t } = useTranslation('dashboards');
   const { timestampValueExpression } = config;
   if (!timestampValueExpression) {
     return null;
@@ -148,14 +147,20 @@ function HeatmapSQLPreview({
     <Stack gap="md">
       <div>
         <Text size="xs" c="dimmed" mb={4}>
-          1. Bounds query — resolves min/max for bucket boundaries
+          {t('chartEditor.heatmapBoundsQuery')}
         </Text>
         <ChartSQLPreview config={boundsConfig} enableCopy />
       </div>
       <div>
         <Text size="xs" c="dimmed" mb={4}>
-          2. Heatmap query — runs after bounds resolve; <code>{'{min}'}</code>/
-          <code>{'{max}'}</code> are filled in at runtime
+          <Trans
+            ns="dashboards"
+            i18nKey="chartEditor.heatmapQuery"
+            components={{
+              min: <code />,
+              max: <code />,
+            }}
+          />
         </Text>
         <ChartSQLPreview config={bucketConfig} enableCopy />
       </div>
@@ -201,6 +206,7 @@ export function ChartPreviewPanel({
   setDisplayType,
   onSubmit,
 }: ChartPreviewPanelProps) {
+  const { t } = useTranslation('dashboards');
   const [isSampleEventsOpen, setIsSampleEventsOpen] = useState(false);
 
   const { data: queriedSource } = useSource({ id: queriedConfig?.source });
@@ -262,16 +268,16 @@ export function ChartPreviewPanel({
     <>
       {isBlockedByRequiredFilters ? (
         <EmptyState
-          description={`Missing required filters: ${blockingFilterNames.join(
-            ', ',
-          )}. Select a value for each required filter, or turn off “Apply filters” to preview this tile without them.`}
+          description={t('chartEditor.missingRequiredFilters', {
+            names: blockingFilterNames.join(', '),
+          })}
           variant="card"
           fullWidth
           data-testid="preview-missing-required-filters"
         />
       ) : !queryReady && tabQueriesData(activeTab) ? (
         <EmptyState
-          description="Please start by defining your chart above and then click the play button to query data."
+          description={t('chartEditor.defineChartFirst')}
           variant="card"
           fullWidth
         />
@@ -479,7 +485,7 @@ export function ChartPreviewPanel({
               <Accordion.Item value="sample">
                 <Accordion.Control icon={<IconList size={16} />}>
                   <Text size="sm" style={{ alignSelf: 'center' }}>
-                    Sample Matched Events
+                    {t('chartEditor.sampleMatchedEvents')}
                   </Text>
                 </Accordion.Control>
                 <Accordion.Panel>
@@ -503,11 +509,11 @@ export function ChartPreviewPanel({
           )}
           <QueryPreviewAccordion
             value="SQL"
-            label="Generated SQL"
+            label={t('chartEditor.generatedSql')}
             disabledReason={
               queryReady && chartConfigForExplanations != null
                 ? undefined
-                : RUN_TO_PREVIEW
+                : t('chartEditor.runToPreview')
             }
           >
             {chartConfigForExplanations != null &&
@@ -531,9 +537,11 @@ export function ChartPreviewPanel({
           <Divider mt="md" />
           <QueryPreviewAccordion
             value="promql"
-            label="Generated PromQL"
+            label={t('chartEditor.generatedPromql')}
             disabledReason={
-              renderedPromql == null ? RUN_TO_PREVIEW : renderedPromql.error
+              renderedPromql == null
+                ? t('chartEditor.runToPreview')
+                : renderedPromql.error
             }
           >
             <Stack gap="xs">
@@ -541,7 +549,10 @@ export function ChartPreviewPanel({
                 <Box key={entry.id}>
                   {all.length > 1 && (
                     <Text size="xxs" c="dimmed" mb={2}>
-                      {entry.alias ?? `Expression ${index + 1}`}
+                      {entry.alias ??
+                        t('chartEditor.expressionFallback', {
+                          index: index + 1,
+                        })}
                     </Text>
                   )}
                   <PromQLPreview expression={entry.expression} />

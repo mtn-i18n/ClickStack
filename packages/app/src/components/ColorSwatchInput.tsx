@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'next-i18next/pages';
 import {
   ActionIcon,
   Button,
@@ -67,10 +68,12 @@ type ColorSwatchInputProps = {
 export const ColorSwatchInput = ({
   value,
   onChange,
-  label = 'Color',
+  label,
   disabled = false,
   ariaLabel,
 }: ColorSwatchInputProps) => {
+  const { t } = useTranslation('charts');
+  const resolvedLabel = label ?? t('colors.color');
   const [opened, setOpened] = React.useState(false);
 
   // Accept both current hue-named tokens and legacy `chart-1`..`chart-10`
@@ -88,8 +91,13 @@ export const ColorSwatchInput = ({
   const triggerAriaLabel = ariaLabel
     ? ariaLabel
     : safeValue
-      ? `${label}: ${TOKEN_LABELS[safeValue]}`
-      : `Pick ${label.toLowerCase()}`;
+      ? t('colors.selectedColor', {
+          label: resolvedLabel,
+          color: t(`colors.${safeValue}`, {
+            defaultValue: TOKEN_LABELS[safeValue],
+          }),
+        })
+      : t('colors.pickLabel', { label: resolvedLabel.toLowerCase() });
 
   return (
     <Popover
@@ -126,7 +134,11 @@ export const ColorSwatchInput = ({
               <IconCircleOff size={14} stroke={1.5} aria-hidden />
             )}
             <Text size="xs" c="dimmed">
-              {safeValue ? TOKEN_LABELS[safeValue] : label}
+              {safeValue
+                ? t(`colors.${safeValue}`, {
+                    defaultValue: TOKEN_LABELS[safeValue],
+                  })
+                : resolvedLabel}
             </Text>
           </Group>
         </UnstyledButton>
@@ -134,9 +146,9 @@ export const ColorSwatchInput = ({
       <Popover.Dropdown p="xs" style={{ zIndex: Z_INDEX }}>
         <Stack gap="xs">
           <div>
-            <VisuallyHidden>Categorical colors</VisuallyHidden>
+            <VisuallyHidden>{t('colors.categoricalColors')}</VisuallyHidden>
             <Text size="xs" c="dimmed" mb={4} aria-hidden>
-              Categorical
+              {t('colors.categorical')}
             </Text>
             <SwatchGrid
               tokens={CATEGORICAL_PALETTE_TOKENS}
@@ -145,9 +157,9 @@ export const ColorSwatchInput = ({
             />
           </div>
           <div>
-            <VisuallyHidden>Semantic colors</VisuallyHidden>
+            <VisuallyHidden>{t('colors.semanticColors')}</VisuallyHidden>
             <Text size="xs" c="dimmed" mb={4} aria-hidden>
-              Semantic
+              {t('colors.semantic')}
             </Text>
             <SwatchGrid
               tokens={SEMANTIC_PALETTE_TOKENS}
@@ -165,7 +177,7 @@ export const ColorSwatchInput = ({
               onClick={() => handleChange(undefined)}
               data-testid="color-swatch-input-clear"
             >
-              Clear
+              {t('common:actions.clear')}
             </Button>
           )}
         </Stack>
@@ -185,6 +197,7 @@ function SwatchGrid({
   onSelect: (token: ChartPaletteToken) => void;
   cols?: number;
 }) {
+  const { t } = useTranslation('charts');
   return (
     <SimpleGrid cols={cols} spacing={4} verticalSpacing={4}>
       {tokens.map(token => {
@@ -192,7 +205,7 @@ function SwatchGrid({
         return (
           <Tooltip
             key={token}
-            label={TOKEN_LABELS[token]}
+            label={t(`colors.${token}`, { defaultValue: TOKEN_LABELS[token] })}
             withArrow
             openDelay={200}
             zIndex={Z_INDEX + 1}
@@ -205,7 +218,9 @@ function SwatchGrid({
               onClick={() => onSelect(token)}
               data-testid={`color-swatch-option-${token}`}
               data-selected={selected || undefined}
-              aria-label={TOKEN_LABELS[token]}
+              aria-label={t(`colors.${token}`, {
+                defaultValue: TOKEN_LABELS[token],
+              })}
               aria-pressed={selected}
               className={classes.swatchButton}
             >

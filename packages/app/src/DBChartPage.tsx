@@ -2,9 +2,11 @@ import { useCallback, useMemo, useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
 import Head from 'next/head';
 import Link from 'next/link';
+import { useTranslation } from 'next-i18next/pages';
 import { parseAsJson, parseAsString, useQueryState } from 'nuqs';
 import { useForm } from 'react-hook-form';
 import { useHotkeys } from 'react-hotkeys-hook';
+import { Trans } from 'react-i18next';
 import { Badge, Separator } from '@clickhouse/click-ui';
 import { SavedChartConfig, SourceKind } from '@hyperdx/common-utils/dist/types';
 import {
@@ -63,6 +65,8 @@ function AIAssistant({
   aiAssistantEnabled: boolean;
 }) {
   const brandName = useBrandDisplayName();
+  const { t } = useTranslation('dashboards');
+  const { t: tSearch } = useTranslation('search');
   const [opened, setOpened] = useState(false);
   const [alertDismissed, setAlertDismissed] = useLocalStorage(
     'ai-assistant-alert-dismissed',
@@ -103,14 +107,14 @@ function AIAssistant({
 
           notifications.show({
             color: 'green',
-            message: 'Chart generated successfully',
+            message: tSearch('aiAssistant.chartGenerated'),
             autoClose: 2000,
           });
         },
         onError(err) {
           notifications.show({
             color: 'red',
-            title: 'Error Generating Chart',
+            title: tSearch('aiAssistant.errorGeneratingChart'),
             message: err.message,
             autoClose: 2000,
           });
@@ -141,9 +145,12 @@ function AIAssistant({
           p="xxs"
         >
           <Text size="xs" pt="2px">
-            New AI Assistant available, enable with configuring the{' '}
-            <code>ANTHROPIC_API_KEY</code> environment variable on the{' '}
-            {brandName} server.
+            <Trans
+              ns="dashboards"
+              i18nKey="aiAssistant.notice"
+              values={{ brand: brandName }}
+              components={{ code: <code /> }}
+            />
           </Text>
         </Alert>
         <Divider mt="sm" />
@@ -163,10 +170,10 @@ function AIAssistant({
             ) : (
               <IconChevronDown size={14} />
             )}
-            <Text size="xxs">AI Assistant [A]</Text>
+            <Text size="xxs">{t('aiAssistant.title')}</Text>
           </Group>
         </Button>
-        <Badge size="sm" text="Experimental" state="info" />
+        <Badge size="sm" text={t('aiAssistant.experimental')} state="info" />
       </Group>
       <Collapse expanded={opened}>
         {opened && (
@@ -183,7 +190,7 @@ function AIAssistant({
               />
               <Box style={{ flexGrow: 1, minWidth: 100 }}>
                 <InputControlled
-                  placeholder="ex. Error counts by service over last 2 hours"
+                  placeholder={tSearch('saveSearchModal.namePlaceholder')}
                   data-testid="save-search-name-input"
                   control={control}
                   name="text"
@@ -195,7 +202,7 @@ function AIAssistant({
                 <Loader size="xs" type="dots" />
               ) : (
                 <Button type="submit" size="xs" variant="primary">
-                  Generate
+                  {t('aiAssistant.generate')}
                 </Button>
               )}
             </Group>
@@ -210,8 +217,10 @@ function AIAssistant({
 const DEFAULT_INTERVAL = 'Past 1h';
 
 function DBChartExplorerPage() {
+  const { t } = useTranslation('nav');
+  const { t: tAlerts } = useTranslation('alerts');
   const defaultTimeRange = useDefaultTimeRange(DEFAULT_INTERVAL);
-  const title = usePageTitle('Chart Explorer');
+  const title = usePageTitle(t('pages.chartExplorer'));
   const {
     searchedTimeRange,
     displayedTimeInputValue,
@@ -279,21 +288,24 @@ function DBChartExplorerPage() {
         notifications.show({
           color: 'green',
           message: (
-            <>
-              Alert created.{' '}
-              <Anchor
-                component={Link}
-                href={
-                  IS_ALERT_DETAILS_ENABLED && created?.id
-                    ? `/alerts/${created.id}`
-                    : '/alerts'
-                }
-                inherit
-                underline="always"
-              >
-                View alert
-              </Anchor>
-            </>
+            <Trans
+              ns="alerts"
+              i18nKey="inlineAlert.created"
+              components={{
+                link: (
+                  <Anchor
+                    component={Link}
+                    href={
+                      IS_ALERT_DETAILS_ENABLED && created?.id
+                        ? `/alerts/${created.id}`
+                        : '/alerts'
+                    }
+                    inherit
+                    underline="always"
+                  />
+                ),
+              }}
+            />
           ),
           autoClose: 5000,
         });
@@ -301,16 +313,19 @@ function DBChartExplorerPage() {
         console.error('Failed to create alert:', error);
         notifications.show({
           color: 'red',
-          title: 'Error creating alert',
+          title: tAlerts('inlineAlert.errorTitle'),
           // The API validates more than the editor can (raw SQL templates,
           // source/connection ownership, formula references), so its reason is
           // usually the only thing that says what to fix.
-          message: await getApiErrorMessage(error, 'Failed to create alert.'),
+          message: await getApiErrorMessage(
+            error,
+            tAlerts('inlineAlert.errorMessage'),
+          ),
           autoClose: 5000,
         });
       }
     },
-    [createAlert, queryClient, setChartConfig],
+    [createAlert, queryClient, setChartConfig, tAlerts],
   );
 
   return (
@@ -349,7 +364,7 @@ function DBChartExplorerPage() {
           autoRun
           enableAlerts
           onSaveAlert={onSaveAlert}
-          saveAlertLabel="Create alert"
+          saveAlertLabel={tAlerts('createAlert')}
           isSavingAlert={createAlert.isPending}
         />
       )}

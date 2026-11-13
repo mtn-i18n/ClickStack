@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'next-i18next/pages';
 import { Separator } from '@clickhouse/click-ui';
 import {
   ActionIcon,
@@ -53,13 +54,14 @@ export function FilterSettingsPanel({
   showAllValues: boolean;
   onShowAllValuesChange: (show: boolean) => void;
 }) {
+  const { t } = useTranslation('search');
   const showResetSection = hasPersonalPins || hasSharedPins;
 
   return (
     <SettingsPopover
       target={
         <Tooltip
-          label="Filter Settings"
+          label={t('filterSettings.title')}
           position="top"
           withArrow
           fz="xxs"
@@ -69,7 +71,7 @@ export function FilterSettingsPanel({
             variant="subtle"
             color="gray"
             size="xs"
-            aria-label="Filter settings"
+            aria-label={t('filterSettings.title')}
           >
             <IconSettings size={14} />
           </ActionIcon>
@@ -78,11 +80,11 @@ export function FilterSettingsPanel({
     >
       <Flex direction="column" gap="xs">
         <Text size="sm" fw={500}>
-          Filter Settings
+          {t('filterSettings.title')}
         </Text>
         <Separator size="xs" />
         <Checkbox
-          label="Show Shared Filters"
+          label={t('filterSettings.showSharedFilters')}
           labelPosition="left"
           size="xs"
           styles={{ labelWrapper: { width: '100%' } }}
@@ -92,7 +94,7 @@ export function FilterSettingsPanel({
           }
         />
         <Checkbox
-          label="Show Filter Counts"
+          label={t('filterSettings.showFilterCounts')}
           labelPosition="left"
           size="xs"
           styles={{ labelWrapper: { width: '100%' } }}
@@ -100,7 +102,7 @@ export function FilterSettingsPanel({
           onChange={e => onShowFilterCountsChange(e.currentTarget.checked)}
         />
         <Tooltip
-          label="Show all known values instead of only values matching the current query"
+          label={t('filterSettings.showAllValuesTooltip')}
           multiline
           w={220}
           position="bottom"
@@ -109,7 +111,7 @@ export function FilterSettingsPanel({
           color="gray"
         >
           <Checkbox
-            label="Show All Values"
+            label={t('filterSettings.showAllValues')}
             labelPosition="left"
             size="xs"
             styles={{ labelWrapper: { width: '100%' } }}
@@ -122,15 +124,15 @@ export function FilterSettingsPanel({
             <Separator size="xs" />
             {hasPersonalPins && (
               <ResetAction
-                label="Reset My Pins"
-                confirmationText="This will clear your personal pinned filters."
+                label={t('filterSettings.resetMyPins')}
+                confirmationText={t('filterSettings.resetMyPinsConfirm')}
                 onReset={onResetPersonalPins}
               />
             )}
             {hasSharedPins && (
               <ResetAction
-                label="Reset Shared Filters"
-                confirmationText="This will clear all shared filters for the entire team."
+                label={t('filterSettings.resetSharedFilters')}
+                confirmationText={t('filterSettings.resetSharedFiltersConfirm')}
                 onReset={onResetSharedFilters}
               />
             )}
@@ -150,6 +152,7 @@ function ResetAction({
   confirmationText: string;
   onReset: VoidFunction;
 }) {
+  const { t } = useTranslation('search');
   const [confirming, setConfirming] = useState(false);
 
   if (confirming) {
@@ -166,12 +169,12 @@ function ResetAction({
             }}
           >
             <Text size="xs" c="red" fw={500}>
-              Confirm
+              {t('common:actions.confirm')}
             </Text>
           </UnstyledButton>
           <UnstyledButton onClick={() => setConfirming(false)}>
             <Text size="xs" c="dimmed">
-              Cancel
+              {t('common:actions.cancel')}
             </Text>
           </UnstyledButton>
         </Flex>

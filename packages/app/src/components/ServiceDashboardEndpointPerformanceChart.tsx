@@ -1,3 +1,4 @@
+import { useTranslation } from 'next-i18next/pages';
 import { pick } from 'lodash';
 import {
   pickSampleWeightExpressionProps,
@@ -26,6 +27,7 @@ export default function ServiceDashboardEndpointPerformanceChart({
   service?: string;
   endpoint?: string;
 }) {
+  const { t } = useTranslation('services');
   const { data: jsonColumns = [] } = useJsonColumns({
     databaseName: source?.from?.databaseName || '',
     tableName: source?.from?.tableName || '',
@@ -92,7 +94,7 @@ export default function ServiceDashboardEndpointPerformanceChart({
     <ChartCard style={{ height: 350, overflow: 'auto' }}>
       {source && (
         <DBListBarChart
-          title="20 Top Most Time Consuming Operations"
+          title={t('top20TimeConsumingOperations')}
           groupColumn="group"
           valueColumn="Total Time Spent"
           config={{

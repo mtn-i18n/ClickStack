@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { useTranslation } from 'next-i18next/pages';
 import { parseAsString, useQueryState } from 'nuqs';
 import { Badge } from '@clickhouse/click-ui';
 import { tcFromSource } from '@hyperdx/common-utils/dist/core/metadata';
@@ -57,6 +58,7 @@ const NodeDetails = ({
   dateRange: [Date, Date];
   metricSource: TMetricSource;
 }) => {
+  const { t } = useTranslation('k8s');
   const where = `${metricSource.resourceAttributesExpression}.k8s.node.name:"${name}"`;
   const groupBy = ['k8s.node.name'];
 
@@ -104,22 +106,22 @@ const NodeDetails = ({
   return (
     <Grid.Col span={12}>
       <div className="p-2 gap-2 d-flex flex-wrap">
-        <PodDetailsProperty label="Node" value={name} />
+        <PodDetailsProperty label={t('node')} value={name} />
         {properties.ready !== undefined && (
           <PodDetailsProperty
-            label="Status"
+            label={t('status')}
             value={
               properties.ready === 1 ? (
-                <Badge text="Ready" state="success" />
+                <Badge text={t('ready')} state="success" />
               ) : (
-                <Badge text="Not Ready" state="danger" />
+                <Badge text={t('notReady')} state="danger" />
               )
             }
           />
         )}
         {properties.uptime && (
           <PodDetailsProperty
-            label="Uptime"
+            label={t('uptime')}
             value={formatUptime(properties.uptime)}
           />
         )}
@@ -137,6 +139,7 @@ function NodeLogs({
   logSource: TLogSource;
   where: string;
 }) {
+  const { t } = useTranslation('k8s');
   const [resultType, setResultType] = React.useState<'all' | 'error'>('all');
 
   const _where = where + (resultType === 'error' ? ' Severity:err' : '');
@@ -145,7 +148,7 @@ function NodeLogs({
     <Card p="md">
       <Card.Section p="md" py="xs">
         <Flex justify="space-between" align="center">
-          Latest Node Logs & Spans
+          {t('latestNodeLogs')}
           <Flex gap="xs" align="center">
             <SegmentedControl
               size="xs"
@@ -156,8 +159,8 @@ function NodeLogs({
                 }
               }}
               data={[
-                { label: 'All', value: 'all' },
-                { label: 'Errors', value: 'error' },
+                { label: t('all'), value: 'all' },
+                { label: t('errors'), value: 'error' },
               ]}
             />
             {/*
@@ -229,6 +232,7 @@ function NodeDetailsSidePanelInner({
   nodeName: string;
   setNodeName: (value: string | null) => void;
 }) {
+  const { t } = useTranslation('k8s');
   const contextZIndex = useZIndex();
   const drawerZIndex = contextZIndex + 10;
 
@@ -329,7 +333,7 @@ function NodeDetailsSidePanelInner({
         <IsolatedChartSyncProvider>
           <div className={styles.panel} data-testid="k8s-node-details-panel">
             <DrawerHeader
-              header={`Details for ${nodeName}`}
+              header={t('detailsFor', { name: nodeName })}
               onClose={handleClose}
             />
             <DrawerBody>
@@ -343,7 +347,7 @@ function NodeDetailsSidePanelInner({
                   <Card p="md" data-testid="nodes-details-cpu-usage-chart">
                     <Card.Section p="md" py="sm" h={CHART_HEIGHT}>
                       <DBTimeChart
-                        title="CPU Usage by Pod"
+                        title={t('cpuUsageByPod')}
                         config={convertV1ChartConfigToV2(
                           {
                             dateRange,
@@ -377,7 +381,7 @@ function NodeDetailsSidePanelInner({
                   <Card p="md">
                     <Card.Section p="md" py="sm" h={CHART_HEIGHT}>
                       <DBTimeChart
-                        title="Memory Usage by Pod"
+                        title={t('memoryUsageByPod')}
                         config={convertV1ChartConfigToV2(
                           {
                             dateRange,

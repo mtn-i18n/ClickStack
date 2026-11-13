@@ -2,6 +2,7 @@ import * as React from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
+import { useTranslation } from 'next-i18next/pages';
 import { AlertInterval } from '@hyperdx/common-utils/dist/types';
 import {
   ActionIcon,
@@ -77,6 +78,7 @@ function AlertProperties({ alert }: { alert: AlertsPageItem }) {
 }
 
 function AlertDetailBody({ alert }: { alert: AlertsPageItem }) {
+  const { t } = useTranslation('alerts');
   const alertUrl = getAlertSourceUrl(alert);
   const router = useRouter();
 
@@ -125,10 +127,10 @@ function AlertDetailBody({ alert }: { alert: AlertsPageItem }) {
         breadcrumbs={
           <Breadcrumbs fz="sm">
             <Anchor component={Link} href="/alerts" fz="sm" c="dimmed">
-              Alerts
+              {t('title')}
             </Anchor>
             <Text fz="sm" c="dimmed">
-              {alert.displayName || 'Alert'}
+              {alert.displayName || t('alert')}
             </Text>
           </Breadcrumbs>
         }
@@ -143,7 +145,9 @@ function AlertDetailBody({ alert }: { alert: AlertsPageItem }) {
                  to what the alert watches, so it belongs with the identity,
                  not with the verbs acting on the alert. */
               <Tooltip
-                label={`Open ${getAlertSourceLabel(alert).toLowerCase()}`}
+                label={t('openSource', {
+                  source: getAlertSourceLabel(alert).toLowerCase(),
+                })}
                 withArrow
               >
                 <ActionIcon
@@ -151,7 +155,9 @@ function AlertDetailBody({ alert }: { alert: AlertsPageItem }) {
                   href={alertUrl}
                   variant="subtle"
                   size="md"
-                  aria-label={`Open ${getAlertSourceLabel(alert).toLowerCase()}`}
+                  aria-label={t('openSource', {
+                    source: getAlertSourceLabel(alert).toLowerCase(),
+                  })}
                   data-testid="open-alert-source"
                 >
                   <IconExternalLink size={16} />
@@ -196,7 +202,7 @@ function AlertDetailBody({ alert }: { alert: AlertsPageItem }) {
                 justify="space-between"
                 mb="sm"
               >
-                <span>Evaluation History</span>
+                <span>{t('evaluationHistory')}</span>
                 <AlertHistoryCardList
                   alert={alert}
                   alertUrl={alertUrl}
@@ -223,6 +229,8 @@ function AlertDetailBody({ alert }: { alert: AlertsPageItem }) {
 }
 
 export default function AlertDetailPage() {
+  const { t } = useTranslation('alerts');
+  const { t: tNav } = useTranslation('nav');
   const router = useRouter();
   const alertId =
     typeof router.query.alertId === 'string' ? router.query.alertId : undefined;
@@ -238,7 +246,9 @@ export default function AlertDetailPage() {
   const { data, isLoading, isError } = api.useAlert(alertId);
   const alert = data?.data;
   const title = usePageTitle(
-    alert ? `${alert.displayName} - Alerts` : 'Alerts',
+    alert
+      ? `${alert.displayName} - ${tNav('pages.alerts')}`
+      : tNav('pages.alerts'),
   );
 
   if (!IS_ALERT_DETAILS_ENABLED) {
@@ -266,10 +276,10 @@ export default function AlertDetailPage() {
         <Container size="xl" py="md" w="100%">
           <EmptyState
             variant="card"
-            title="Alert not found"
+            title={t('notFound')}
             description={
               <Anchor component={Link} href="/alerts" size="sm">
-                Back to alerts
+                {t('backToAlerts')}
               </Anchor>
             }
           />

@@ -1,4 +1,5 @@
 import React from 'react';
+import { I18nextProvider } from 'react-i18next';
 /* Polyfills for browser APIs in Node.js test environment */
 import { TextDecoder, TextEncoder } from 'util';
 import { ClickUIProvider } from '@clickhouse/click-ui';
@@ -6,6 +7,8 @@ import { MantineProvider } from '@mantine/core';
 import { Notifications } from '@mantine/notifications';
 import { render } from '@testing-library/react';
 import structuredClone from '@ungap/structured-clone';
+
+import testI18n from './i18n/test-i18n';
 
 import '@testing-library/jest-dom';
 global.TextEncoder = TextEncoder as any;
@@ -35,12 +38,14 @@ Object.defineProperty(window, 'matchMedia', {
 });
 
 global.TestProviders = ({ children }: { children: React.ReactNode }) => (
-  <MantineProvider>
-    <ClickUIProvider theme="dark" persistTheme={false}>
-      <Notifications />
-      {children}
-    </ClickUIProvider>
-  </MantineProvider>
+  <I18nextProvider i18n={testI18n}>
+    <MantineProvider>
+      <ClickUIProvider theme="dark" persistTheme={false}>
+        <Notifications />
+        {children}
+      </ClickUIProvider>
+    </MantineProvider>
+  </I18nextProvider>
 );
 
 global.renderWithMantine = (ui: React.ReactElement) => {

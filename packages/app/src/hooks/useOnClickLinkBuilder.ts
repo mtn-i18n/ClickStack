@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { useTranslation } from 'next-i18next/pages';
 import {
   describeOnClick,
   renderOnClickDashboard,
@@ -53,6 +54,7 @@ export function useOnClickLinkBuilder({
   onClick: OnClick | undefined;
   dateRange: [Date, Date];
 }): ((row: Record<string, unknown>) => RowAction) | null {
+  const { t } = useTranslation('dashboards');
   const { data: sources } = useSources();
   const { data: dashboards } = useDashboards();
   const addTimeZone = useTimeZoneLinkParam();
@@ -142,7 +144,7 @@ export function useOnClickLinkBuilder({
           notifications.show({
             id: errorMessage,
             color: 'red',
-            title: 'Link error',
+            title: t('chartEditor.onClick.linkError'),
             message: errorMessage,
           });
         },
@@ -166,5 +168,6 @@ export function useOnClickLinkBuilder({
     dashboardIds,
     dashboardIdsByName,
     dashboardNamesById,
+    t,
   ]);
 }

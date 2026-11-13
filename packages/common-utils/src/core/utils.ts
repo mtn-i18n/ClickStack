@@ -1,5 +1,6 @@
 // Port from ChartUtils + source.ts
 import { add as fnsAdd, format as fnsFormat } from 'date-fns';
+import { enUS, zhCN } from 'date-fns/locale';
 import { formatInTimeZone, zonedTimeToUtc } from 'date-fns-tz';
 import { omit } from 'lodash';
 import { z } from 'zod';
@@ -838,17 +839,22 @@ export const formatDate = (
     timeZone,
     format = 'normal',
     clock = '12h',
+    locale,
   }: {
     timeZone?: string;
     format?: 'normal' | 'short' | 'withMs' | 'time' | 'withYear';
     clock?: '12h' | '24h';
+    /** Display language for month and day names (e.g. `zh-CN`). */
+    locale?: string;
   },
 ) => {
   const formatStr = TIME_TOKENS[format][clock];
+  const fnsLocale =
+    locale?.toLowerCase().startsWith('zh') ? zhCN : locale ? enUS : undefined;
 
   return timeZone
-    ? formatInTimeZone(date, timeZone, formatStr)
-    : fnsFormat(date, formatStr);
+    ? formatInTimeZone(date, timeZone, formatStr, { locale: fnsLocale })
+    : fnsFormat(date, formatStr, { locale: fnsLocale });
 };
 
 /**

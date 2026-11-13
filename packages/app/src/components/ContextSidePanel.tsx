@@ -1,4 +1,5 @@
 import { use, useCallback, useEffect, useMemo, useState } from 'react';
+import { Trans, useTranslation } from 'next-i18next/pages';
 import ms from 'ms';
 import { ErrorBoundary } from 'react-error-boundary';
 import { useForm, useWatch } from 'react-hook-form';
@@ -53,6 +54,7 @@ export default function ContextSubpanel({
   onNavigateToRow,
   'data-testid': dataTestId,
 }: ContextSubpanelProps) {
+  const { t } = useTranslation('search');
   const QUERY_KEY_PREFIX = 'context';
   const origTimestamp = rowData[ROW_DATA_ALIASES.TIMESTAMP];
   const { whereLanguage: originalLanguage = 'lucene' } =
@@ -133,8 +135,12 @@ export default function ContextSubpanel({
   );
 
   const presetOptions = useMemo(
-    () => getAvailablePresets(availableFilters),
-    [availableFilters],
+    () =>
+      getAvailablePresets(availableFilters).map(preset => ({
+        label: t(preset.labelKey),
+        value: preset.value,
+      })),
+    [availableFilters, t],
   );
 
   const handlePresetChange = useCallback(
@@ -241,7 +247,7 @@ export default function ContextSubpanel({
           </Group>
           <Flex direction="column" px="sm" pb="xs" gap={6}>
             <Text size="xxs" c="dimmed" fw={600} tt="uppercase">
-              Match on
+              {t('contextPanel.matchOn')}
             </Text>
             <SegmentedControl
               size="xs"
@@ -266,18 +272,18 @@ export default function ContextSubpanel({
             <ErrorBoundary
               fallbackRender={() => (
                 <Text size="xs" c="dimmed" px="sm">
-                  Unable to load event filters.
+                  {t('contextPanel.unableToLoadEventFilters')}
                 </Text>
               )}
             >
               <Flex direction="column" px="sm" pb="xs" gap={4}>
                 <Group justify="space-between">
                   <Text size="xs">
-                    Matching on{' '}
-                    <Text span fw={700}>
-                      {activeFilterIds.length}
-                    </Text>{' '}
-                    attributes
+                    <Trans
+                      i18nKey="search:contextPanel.matchingOn"
+                      count={activeFilterIds.length}
+                      components={{ strong: <Text span fw={700} /> }}
+                    />
                   </Text>
                   {activeFilterIds.length > 0 && (
                     <Text
@@ -289,7 +295,7 @@ export default function ContextSubpanel({
                         setActivePreset('all');
                       }}
                     >
-                      Clear all
+                      {t('contextPanel.clearAll')}
                     </Text>
                   )}
                 </Group>

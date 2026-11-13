@@ -1,4 +1,5 @@
 import { useCallback, useMemo, useState } from 'react';
+import { useTranslation } from 'next-i18next/pages';
 import {
   Control,
   FieldArrayWithId,
@@ -120,6 +121,7 @@ export function ChartEditorControls({
   heatmapMode,
   onHeatmapModeChange,
 }: ChartEditorControlsProps) {
+  const { t } = useTranslation('dashboards');
   // Formulas (HDX-5080): derived series computed from the chart's series via
   // letter-ref arithmetic expressions. Metric and event (log/trace) sources,
   // and only on display types the formula query paths render (time series /
@@ -203,7 +205,7 @@ export function ChartEditorControls({
       <Flex mb="md" align="center" justify="space-between">
         <Group>
           <Text pe="md" size="sm">
-            Data Source
+            {t('chartEditor.dataSource')}
           </Text>
           <SourceSelectControlled
             size="xs"
@@ -260,20 +262,20 @@ export function ChartEditorControls({
             name="select"
             placeholder={
               tableSource
-                ? `Default (${getEventBody(tableSource) ?? 'Body'}) — column name or expression`
-                : 'Default — column name or expression'
+                ? t('chartEditor.patternDefaultEventBody', {
+                    body: getEventBody(tableSource) ?? 'Body',
+                  })
+                : t('chartEditor.patternDefault')
             }
             onSubmit={onSubmit}
-            label="Pattern Expression"
+            label={t('chartEditor.patternExpression')}
             enableVariables
           />
           {typeof select === 'string' &&
             select.length > 0 &&
             !isSingleExpression(select) && (
               <Text size="xs" c="red">
-                Pattern expression must be a single column or expression —
-                multi-column lists are not supported. The source default will be
-                used instead.
+                {t('chartEditor.patternSingleExpressionError')}
               </Text>
             )}
           <SearchWhereInput
@@ -356,7 +358,7 @@ export function ChartEditorControls({
                       whiteSpace: 'nowrap',
                     }}
                   >
-                    Group By
+                    {t('chartEditor.groupBy')}
                   </Text>
                 </Flex>
                 <div>
@@ -366,7 +368,7 @@ export function ChartEditorControls({
                     dateRange={dateRange}
                     control={control}
                     name={`groupBy`}
-                    placeholder="SQL Columns"
+                    placeholder={t('chartEditor.sqlColumns')}
                     onSubmit={onSubmit}
                     disableKeywordAutocomplete
                     enableVariables
@@ -382,7 +384,7 @@ export function ChartEditorControls({
                           whiteSpace: 'nowrap',
                         }}
                       >
-                        Having
+                        {t('chartEditor.having')}
                       </Text>
                     </Flex>
                     <div>
@@ -392,7 +394,7 @@ export function ChartEditorControls({
                         dateRange={dateRange}
                         control={control}
                         name="having"
-                        placeholder="SQL HAVING clause (ex. count() > 100)"
+                        placeholder={t('chartEditor.sqlHavingPlaceholder')}
                         onSubmit={onSubmit}
                         enableVariables
                       />
@@ -420,7 +422,7 @@ export function ChartEditorControls({
                   }}
                 >
                   <IconCirclePlus size={14} className="me-2" />
-                  Add Series
+                  {t('chartEditor.addSeries')}
                 </Button>
               )}
               {canAddFormula && (
@@ -432,7 +434,7 @@ export function ChartEditorControls({
                   data-testid="add-formula-button"
                 >
                   <IconMathFunction size={14} className="me-2" />
-                  Add Formula
+                  {t('chartEditor.addFormula')}
                 </Button>
               )}
               {/* Only the formula column(s) vs formula + raw operand series
@@ -444,7 +446,7 @@ export function ChartEditorControls({
                 hasFormulas &&
                 displayType !== DisplayType.Number && (
                   <Switch
-                    label="Show input series"
+                    label={t('chartEditor.showInputSeries')}
                     size="sm"
                     color="gray"
                     variant="subtle"
@@ -465,7 +467,7 @@ export function ChartEditorControls({
                   hidden while any formula exists (mutually exclusive). */}
               {fields.length === 2 && !hasFormulas && (
                 <Switch
-                  label="As Ratio"
+                  label={t('chartEditor.asRatio')}
                   size="sm"
                   color="gray"
                   variant="subtle"
@@ -492,7 +494,7 @@ export function ChartEditorControls({
                 tableSource?.kind === SourceKind.Metric &&
                 hasGroupBy && (
                   <Switch
-                    label="Share of total"
+                    label={t('chartEditor.shareOfTotal')}
                     size="sm"
                     color="gray"
                     variant="subtle"
@@ -535,7 +537,7 @@ export function ChartEditorControls({
                 variant="secondary"
                 data-testid="display-settings-button"
               >
-                Display Settings
+                {t('chartEditor.displaySettings')}
               </Button>
             </Group>
           </Flex>
@@ -552,7 +554,7 @@ export function ChartEditorControls({
               ((tableSource?.kind === SourceKind.Log ||
                 tableSource?.kind === SourceKind.Trace) &&
                 tableSource.defaultTableSelectExpression) ||
-              'SELECT Columns'
+              t('chartEditor.selectColumns')
             }
             defaultValue={
               tableSource?.kind === SourceKind.Log ||

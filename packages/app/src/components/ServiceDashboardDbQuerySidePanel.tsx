@@ -1,4 +1,5 @@
 import { useCallback, useMemo } from 'react';
+import { useTranslation } from 'next-i18next/pages';
 import { pick } from 'lodash';
 import { parseAsString, useQueryState } from 'nuqs';
 import {
@@ -35,6 +36,7 @@ export default function ServiceDashboardDbQuerySidePanel({
   service?: string;
   searchedTimeRange: [Date, Date];
 }) {
+  const { t } = useTranslation('services');
   const { data: source } = useSource({
     id: sourceId,
     kinds: [SourceKind.Trace],
@@ -96,7 +98,7 @@ export default function ServiceDashboardDbQuerySidePanel({
             <DrawerHeader
               header={
                 <>
-                  Details for {dbQuery}
+                  {t('detailsFor', { name: dbQuery })}
                   {service && (
                     <Text component="span" c="gray" fz="xs">
                       <IconServer size={14} className="ms-3 me-1" />
@@ -113,7 +115,7 @@ export default function ServiceDashboardDbQuerySidePanel({
                   <ChartCard style={{ height: 350 }}>
                     {source && expressions && (
                       <DBTimeChart
-                        title="Total Query Time"
+                        title={t('totalQueryTime')}
                         sourceId={sourceId}
                         hiddenSeries={['total_duration_ns']}
                         config={{
@@ -152,7 +154,7 @@ export default function ServiceDashboardDbQuerySidePanel({
                   <ChartCard style={{ height: 350 }}>
                     {source && expressions && (
                       <DBTimeChart
-                        title="Query Throughput"
+                        title={t('queryThroughput')}
                         sourceId={sourceId}
                         config={{
                           source: source.id,
@@ -188,7 +190,7 @@ export default function ServiceDashboardDbQuerySidePanel({
                 <Grid.Col span={12}>
                   {source && (
                     <SlowestEventsTile
-                      title="Slowest 5% of Queries"
+                      title={t('slowestQueries')}
                       source={source}
                       dateRange={searchedTimeRange}
                       extraFilters={dbQueryFilters}

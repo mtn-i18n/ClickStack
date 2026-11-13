@@ -1,3 +1,4 @@
+import { useTranslation } from 'next-i18next/pages';
 import { FieldPath, useController, UseControllerProps } from 'react-hook-form';
 import { TableConnectionChoice } from '@hyperdx/common-utils/dist/core/metadata';
 import { ActionIcon, Box, Flex, Tooltip } from '@mantine/core';
@@ -150,8 +151,8 @@ export default function SearchWhereInput({
   allowMultiline = true,
   sqlQueryHistoryType,
   luceneQueryHistoryType,
-  sqlPlaceholder = "SQL WHERE clause (ex. column = 'foo')",
-  lucenePlaceholder = 'Search your events w/ Lucene ex. column:foo',
+  sqlPlaceholder,
+  lucenePlaceholder,
   width = '100%',
   maxWidth = '100%',
   minWidth,
@@ -163,6 +164,11 @@ export default function SearchWhereInput({
   parentRef,
   enableVariables = false,
 }: SearchWhereInputProps) {
+  const { t } = useTranslation('search');
+  const resolvedSqlPlaceholder =
+    sqlPlaceholder ?? t('searchInput.sqlPlaceholder');
+  const resolvedLucenePlaceholder =
+    lucenePlaceholder ?? t('searchInput.lucenePlaceholder');
   const [syntaxRefOpened, { open: openSyntaxRef, close: closeSyntaxRef }] =
     useDisclosure(false);
 
@@ -211,11 +217,15 @@ export default function SearchWhereInput({
               language={language}
               onLanguageChange={handleLanguageChange}
             />
-            <Tooltip label="Syntax reference" withArrow position="top">
+            <Tooltip
+              label={t('searchInput.syntaxReference')}
+              withArrow
+              position="top"
+            >
               <ActionIcon
                 variant="subtle"
                 size="xs"
-                aria-label="Open syntax reference"
+                aria-label={t('searchInput.openSyntaxReference')}
                 onClick={openSyntaxRef}
                 style={{ marginRight: 4 }}
               >
@@ -230,7 +240,7 @@ export default function SearchWhereInput({
               {...tc}
               control={control}
               name={name}
-              placeholder={sqlPlaceholder}
+              placeholder={resolvedSqlPlaceholder}
               onSubmit={onSubmit}
               queryHistoryType={sqlQueryHistoryType}
               enableHotkey={enableHotkey}
@@ -248,7 +258,7 @@ export default function SearchWhereInput({
               control={control}
               name={name}
               onSubmit={onSubmit}
-              placeholder={lucenePlaceholder}
+              placeholder={resolvedLucenePlaceholder}
               queryHistoryType={luceneQueryHistoryType}
               enableHotkey={enableHotkey}
               allowMultiline={allowMultiline}

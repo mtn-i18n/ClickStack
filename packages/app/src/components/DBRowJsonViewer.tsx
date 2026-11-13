@@ -1,5 +1,6 @@
 import { use, useCallback, useMemo, useState } from 'react';
 import router from 'next/router';
+import { useTranslation } from 'next-i18next/pages';
 import { useAtom, useAtomValue } from 'jotai';
 import { atomWithStorage } from 'jotai/utils';
 import get from 'lodash/get';
@@ -155,22 +156,22 @@ const DEFAULT_VIEWER_OPTIONS: ViewerOptions = {
 
 const KEY_ORDER_OPTIONS: {
   value: KeyOrder;
-  label: string;
+  labelKey: string;
   icon: React.ReactNode;
 }[] = [
   {
     value: 'asc',
-    label: 'Sort keys A–Z',
+    labelKey: 'jsonViewer.sortKeysAsc',
     icon: <IconSortAscendingLetters size={14} />,
   },
   {
     value: 'desc',
-    label: 'Sort keys Z–A',
+    labelKey: 'jsonViewer.sortKeysDesc',
     icon: <IconSortDescendingLetters size={14} />,
   },
   {
     value: 'original',
-    label: 'Original order',
+    labelKey: 'jsonViewer.originalOrder',
     icon: <IconList size={14} />,
   },
 ];
@@ -266,6 +267,7 @@ function HyperJsonMenu({
   rowData: any;
   showMaterializedAliasColumnsOption: boolean;
 }) {
+  const { t } = useTranslation('search');
   const [jsonOptions, setJsonOptions] = useAtom(viewerOptionsAtom);
   const [showMaterializedAliasColumns, setShowMaterializedAliasColumns] =
     useMaterializedAliasColumnsOption();
@@ -291,11 +293,11 @@ function HyperJsonMenu({
             }
             notifications.show({
               color: 'green',
-              message: `Value copied to clipboard`,
+              message: t('jsonViewer.valueCopied'),
             });
           }}
           variant="copy"
-          title={'Copy row as JSON'}
+          title={t('jsonViewer.copyRowAsJson')}
         >
           <IconCopy size={14} />
         </UnstyledButton>
@@ -323,7 +325,7 @@ function HyperJsonMenu({
         </Menu.Target>
         <Menu.Dropdown>
           <Menu.Label lh={1} py={6}>
-            Properties view options
+            {t('jsonViewer.viewOptions')}
           </Menu.Label>
           <Menu.Item
             onClick={() =>
@@ -340,7 +342,7 @@ function HyperJsonMenu({
               ) : null
             }
           >
-            Expand all properties
+            {t('jsonViewer.expandAll')}
           </Menu.Item>
           <Menu.Item
             lh="1"
@@ -357,7 +359,7 @@ function HyperJsonMenu({
               })
             }
           >
-            Tabulate
+            {t('jsonViewer.tabulate')}
           </Menu.Item>
           <Menu.Item
             lh="1"
@@ -374,7 +376,7 @@ function HyperJsonMenu({
               })
             }
           >
-            Hide blank values
+            {t('jsonViewer.hideBlankValues')}
           </Menu.Item>
           {showMaterializedAliasColumnsOption && (
             <Menu.Item
@@ -390,14 +392,14 @@ function HyperJsonMenu({
                 setShowMaterializedAliasColumns(!showMaterializedAliasColumns)
               }
             >
-              Show materialized and alias columns
+              {t('jsonViewer.showMaterializedColumns')}
             </Menu.Item>
           )}
           <Menu.Divider />
           <Menu.Label lh={1} py={6}>
-            Property order
+            {t('jsonViewer.propertyOrder')}
           </Menu.Label>
-          {KEY_ORDER_OPTIONS.map(({ value, label, icon }) => (
+          {KEY_ORDER_OPTIONS.map(({ value, labelKey, icon }) => (
             <Menu.Item
               key={value}
               data-testid={`json-viewer-key-order-${value}`}
@@ -413,7 +415,7 @@ function HyperJsonMenu({
                 setJsonOptions({ ...jsonOptions, keyOrder: value })
               }
             >
-              {label}
+              {t(labelKey)}
             </Menu.Item>
           ))}
         </Menu.Dropdown>
@@ -438,6 +440,7 @@ export function DBRowJsonViewer({
   // and only when the source's row query would change.
   showMaterializedAliasColumnsOption?: boolean;
 }) {
+  const { t } = useTranslation('search');
   const formatTime = useFormatTime();
   const {
     onPropertyAddClick,
@@ -514,7 +517,7 @@ export function DBRowJsonViewer({
         actions.push({
           key: 'add-to-search',
           label: <IconFilter size={14} />,
-          title: 'Add to Filters',
+          title: t('jsonViewer.addToFilters'),
           onClick: () => {
             let filterFieldPath = fieldPath;
 
@@ -559,7 +562,10 @@ export function DBRowJsonViewer({
             );
             notifications.show({
               color: 'green',
-              message: `Added "${fieldPath} = ${String(value)}" to filters`,
+              message: t('jsonViewer.addedToFilters', {
+                field: fieldPath,
+                value: String(value),
+              }),
             });
           },
         });
@@ -569,7 +575,7 @@ export function DBRowJsonViewer({
         actions.push({
           key: 'search',
           label: <IconSearch size={14} />,
-          title: 'Search for this value only',
+          title: t('jsonViewer.searchForValue'),
           onClick: () => {
             let searchFieldPath = fieldPath;
 
@@ -622,7 +628,7 @@ export function DBRowJsonViewer({
         actions.push({
           key: 'chart',
           label: <IconChartLine size={14} />,
-          title: 'Chart',
+          title: t('jsonViewer.chart'),
           onClick: () => {
             let chartFieldPath = fieldPath;
 
@@ -674,15 +680,15 @@ export function DBRowJsonViewer({
           key: 'toggle-column',
           label: isIncluded ? <IconMinus size={14} /> : <IconPlus size={14} />,
           title: isIncluded
-            ? `Remove ${fieldPath} column from results table`
-            : `Add ${fieldPath} column to results table`,
+            ? t('jsonViewer.removeColumn', { field: fieldPath })
+            : t('jsonViewer.addColumn', { field: fieldPath }),
           onClick: () => {
             toggleColumn(columnFieldPath);
             notifications.show({
               color: 'green',
-              message: `Column "${fieldPath}" ${
-                isIncluded ? 'removed from' : 'added to'
-              } results table`,
+              message: isIncluded
+                ? t('jsonViewer.columnRemoved', { field: fieldPath })
+                : t('jsonViewer.columnAdded', { field: fieldPath }),
             });
           },
         });
@@ -712,7 +718,7 @@ export function DBRowJsonViewer({
         }
         notifications.show({
           color: 'green',
-          message: `Copied object to clipboard`,
+          message: t('jsonViewer.copiedObject'),
         });
       };
 
@@ -720,14 +726,14 @@ export function DBRowJsonViewer({
         actions.push({
           key: 'copy-object',
           label: <IconCopy size={14} />,
-          title: 'Copy object',
+          title: t('jsonViewer.copyObject'),
           onClick: handleCopyObject,
         });
       } else {
         actions.push({
           key: 'copy-value',
           label: <IconCopy size={14} />,
-          title: 'Copy value',
+          title: t('jsonViewer.copyValue'),
           onClick: async () => {
             const copied = await copyTextToClipboard(
               typeof value === 'string'
@@ -743,7 +749,7 @@ export function DBRowJsonViewer({
             }
             notifications.show({
               color: 'green',
-              message: `Value copied to clipboard`,
+              message: t('jsonViewer.valueCopied'),
             });
           },
         });
@@ -760,6 +766,7 @@ export function DBRowJsonViewer({
       toggleColumn,
       jsonColumns,
       mapColumns,
+      t,
     ],
   );
 
@@ -771,7 +778,7 @@ export function DBRowJsonViewer({
             size="xs"
             w="100%"
             maw="400px"
-            placeholder="Search properties by key or value"
+            placeholder={t('jsonViewer.searchPlaceholder')}
             value={filter}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
               setFilter(e.currentTarget.value)
@@ -780,7 +787,7 @@ export function DBRowJsonViewer({
           />
           {filter && (
             <Button variant="secondary" size="xs" onClick={() => setFilter('')}>
-              Clear
+              {t('common:actions.clear')}
             </Button>
           )}
           <div className="flex-grow-1" />
@@ -801,7 +808,7 @@ export function DBRowJsonViewer({
             {...jsonOptions}
           />
         ) : (
-          <Text>No data</Text>
+          <Text>{t('common:states.empty')}</Text>
         )}
       </Paper>
     </div>

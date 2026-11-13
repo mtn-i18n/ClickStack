@@ -1,3 +1,4 @@
+import { useTranslation } from 'next-i18next/pages';
 import { Controller, useWatch } from 'react-hook-form';
 import {
   DashboardFilter,
@@ -30,12 +31,13 @@ export const PromqlLabelFilterEditForm = ({
   control,
   otherFilters,
 }: PromqlLabelFilterEditFormProps) => {
+  const { t } = useTranslation('dashboards');
   const { data: sources } = useSources();
 
   const validatePromqlSource = (value: string) => {
     const source = sources?.find(s => s.id === value);
     if (source && !isPromqlSource(source)) {
-      return 'Select a PromQL source';
+      return t('filtersModal.promql.selectPromqlSource');
     }
     return true;
   };
@@ -51,15 +53,15 @@ export const PromqlLabelFilterEditForm = ({
   return (
     <>
       <CustomInputWrapper
-        label="Data source"
-        tooltipText="The PromQL source that the label values are read from"
+        label={t('filtersModal.promql.dataSource')}
+        tooltipText={t('filtersModal.promql.dataSourceTooltip')}
       >
         <SourceSelectControlled
           control={control}
           name="source"
           data-testid="source-selector"
           rules={{
-            required: 'Select a PromQL source',
+            required: t('filtersModal.promql.selectPromqlSource'),
             validate: validatePromqlSource,
           }}
           comboboxProps={{ withinPortal: true }}
@@ -68,8 +70,8 @@ export const PromqlLabelFilterEditForm = ({
       </CustomInputWrapper>
 
       <CustomInputWrapper
-        label="Label"
-        tooltipText="The Prometheus label whose values fill the dropdown. Use __name__ to list metric names."
+        label={t('filtersModal.promql.label')}
+        tooltipText={t('filtersModal.promql.labelTooltip')}
       >
         <AutocompleteControlled
           control={control}
@@ -79,17 +81,17 @@ export const PromqlLabelFilterEditForm = ({
           data-testid="filter-label-input"
           comboboxProps={{ withinPortal: true }}
           rules={{
-            required: 'This field is required',
+            required: t('filtersModal.promql.fieldRequired'),
             validate: value =>
               (typeof value === 'string' && value.trim().length > 0) ||
-              'This field is required',
+              t('filtersModal.promql.fieldRequired'),
           }}
         />
       </CustomInputWrapper>
 
       <CustomInputWrapper
-        label="Series matchers"
-        tooltipText="Optional Prometheus series selector narrowing which series the label values are read from. May reference the dashboard's other variables."
+        label={t('filtersModal.promql.seriesMatchers')}
+        tooltipText={t('filtersModal.promql.seriesMatchersTooltip')}
       >
         <div data-testid="filter-match-input">
           <Controller

@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { useTranslation } from 'next-i18next/pages';
 import { formatDistanceToNow } from 'date-fns';
 import { Badge } from '@clickhouse/click-ui';
 import { ActionIcon, Card, Group, Menu, Text, Tooltip } from '@mantine/core';
@@ -31,6 +32,7 @@ export function ListingCard({
   updatedAt?: string;
   updatedBy?: string;
 }) {
+  const { t } = useTranslation('common');
   return (
     <Card
       component={Link}
@@ -79,7 +81,7 @@ export function ListingCard({
                   onDelete();
                 }}
               >
-                Delete
+                {t('actions.delete')}
               </Menu.Item>
             </Menu.Dropdown>
           </Menu>
@@ -91,12 +93,12 @@ export function ListingCard({
           label={
             <>
               <FormatTime value={updatedAt} format="short" />
-              {updatedBy ? ` by ${updatedBy}` : ''}
+              {updatedBy ? ` ${t('updatedBy', { user: updatedBy })}` : ''}
             </>
           }
         >
           <Text size="xs" c="dimmed" mt={2}>
-            Updated{' '}
+            {t('updated')}{' '}
             {formatDistanceToNow(new Date(updatedAt), { addSuffix: true })}
           </Text>
         </Tooltip>

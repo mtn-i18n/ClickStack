@@ -10,9 +10,11 @@ import dynamic from 'next/dynamic';
 import Head from 'next/head';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
+import { useTranslation } from 'next-i18next/pages';
 import { uniq } from 'lodash';
 import { parseAsString, useQueryState } from 'nuqs';
 import { Controller, useForm, useWatch } from 'react-hook-form';
+import { Trans } from 'react-i18next';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { convertToDashboardDocument } from '@hyperdx/common-utils/dist/core/utils';
@@ -104,6 +106,7 @@ function CollapsibleMessage({
   details?: ReactNode;
   'data-testid'?: string;
 }) {
+  const { t } = useTranslation('dashboards');
   const [detailsOpen, { toggle: toggleDetails }] = useDisclosure(false);
   return (
     <div data-testid={dataTestId}>
@@ -119,7 +122,9 @@ function CollapsibleMessage({
                   transform: detailsOpen ? 'rotate(90deg)' : 'rotate(0deg)',
                 }}
               />
-              {detailsOpen ? 'Hide Details' : 'Show Details'}
+              {detailsOpen
+                ? t('importPage.hideDetails')
+                : t('importPage.showDetails')}
             </Group>
           </Button>
           <Collapse expanded={detailsOpen}>{details}</Collapse>
@@ -134,6 +139,7 @@ function FileSelection({
 }: {
   onComplete: (input: DashboardTemplate | null) => void;
 }) {
+  const { t } = useTranslation('dashboards');
   // The schema for the form data we expect to receive
   const FormSchema = z.object({ file: z.instanceof(File).nullable() });
 
@@ -170,8 +176,9 @@ function FileSelection({
     } catch (e: unknown) {
       onComplete(null);
       setError({
-        message: 'Invalid JSON File',
-        details: e instanceof Error ? e.message : 'Failed to parse JSON',
+        message: t('importPage.errors.invalidJson'),
+        details:
+          e instanceof Error ? e.message : t('importPage.errors.parseJson'),
       });
       return;
     }
@@ -188,7 +195,7 @@ function FileSelection({
     if (!result.success) {
       onComplete(null);
       setError({
-        message: 'Failed to Import Dashboard',
+        message: t('importPage.errors.importFailed'),
         details: (
           <Stack gap={0}>
             {result.error.issues.map(issue => (
@@ -244,7 +251,7 @@ function FileSelection({
                 handleSubmit(onSubmit)();
               }}
               onReject={() =>
-                setError({ message: 'Invalid File Type or Size' })
+                setError({ message: t('importPage.errors.invalidFile') })
               }
               maxSize={5 * 1024 ** 2}
               maxFiles={1}
@@ -280,11 +287,10 @@ function FileSelection({
 
                 <div>
                   <Text size="xl" inline>
-                    Import Dashboard
+                    {t('importDashboard')}
                   </Text>
                   <Text size="sm" c="dimmed" inline mt={7}>
-                    Drag and drop a JSON file here, or click to select from your
-                    computer.
+                    {t('importPage.dropzoneHint')}
                   </Text>
                 </div>
               </Group>
@@ -305,11 +311,9 @@ function FileSelection({
           <CollapsibleMessage
             color="yellow"
             data-testid="import-warning-saved-filter-values"
-            message={
-              filterWarnings.length === 1
-                ? '1 saved filter value has an invalid condition and will not be applied.'
-                : `${filterWarnings.length} saved filter values have invalid conditions and will not be applied.`
-            }
+            message={t('importPage.warnings.savedFilterValues', {
+              count: filterWarnings.length,
+            })}
             details={
               <Stack gap={0}>
                 {filterWarnings.map(warning => (
@@ -317,7 +321,10 @@ function FileSelection({
                     key={`${warning.index}:${warning.condition}`}
                     c="yellow"
                   >
-                    Invalid {warning.language} condition: {warning.condition}
+                    {t('importPage.warnings.invalidCondition', {
+                      language: warning.language,
+                      condition: warning.condition,
+                    })}
                   </Text>
                 ))}
               </Stack>
@@ -329,17 +336,18 @@ function FileSelection({
           <CollapsibleMessage
             color="yellow"
             data-testid="import-warning-filter-queries"
-            message={
-              filterQueryWarnings.length === 1
-                ? "1 filter has an invalid query and won't load values."
-                : `${filterQueryWarnings.length} filters have invalid queries and won't load values.`
-            }
+            message={t('importPage.warnings.filterQueries', {
+              count: filterQueryWarnings.length,
+            })}
             details={
               <Stack gap={0}>
                 {filterQueryWarnings.map(warning => (
                   <Text key={warning.filterId} c="yellow">
-                    {warning.filterName}: invalid {warning.language} query:{' '}
-                    {warning.where}
+                    {t('importPage.warnings.invalidFilterQuery', {
+                      filterName: warning.filterName,
+                      language: warning.language,
+                      where: warning.where,
+                    })}
                   </Text>
                 ))}
               </Stack>
@@ -351,11 +359,13 @@ function FileSelection({
           <CollapsibleMessage
             color="yellow"
             data-testid="import-warning-saved-query"
-            message="The dashboard's saved query has an invalid condition and will not be applied."
+            message={t('importPage.warnings.savedQueryInvalid')}
             details={
               <Text c="yellow">
-                Invalid {savedQueryWarning.language} query:{' '}
-                {savedQueryWarning.query}
+                {t('importPage.warnings.invalidSavedQuery', {
+                  language: savedQueryWarning.language,
+                  query: savedQueryWarning.query,
+                })}
               </Text>
             }
           />
@@ -447,7 +457,13 @@ const MappingValueSchema = z
 export function buildMappingFormSchema(
   input: DashboardTemplate,
   sources?: readonly Pick<TSource, 'id' | 'kind'>[],
+  t?: (key: string) => string,
 ) {
+  // Tests exercise the schema without an i18n instance, so fall back to the
+  // English copy that the mapping UI has always shown.
+  const message = (key: string, fallback: string) =>
+    t == null ? fallback : t(key);
+
   return z
     .object({
       dashboardName: z.string().min(1, 'Enter a dashboard name'),
@@ -493,7 +509,10 @@ export function buildMappingFormSchema(
           ctx.addIssue({
             code: z.ZodIssueCode.custom,
             path: ['tileSourceMappings', idx],
-            message: 'Select a source for this tile',
+            message: message(
+              'importPage.validation.tileSource',
+              'Select a source for this tile',
+            ),
           });
         }
         // A raw SQL tile always gets a connection row, and its connection is
@@ -502,7 +521,10 @@ export function buildMappingFormSchema(
           ctx.addIssue({
             code: z.ZodIssueCode.custom,
             path: ['connectionMappings', idx],
-            message: 'Select a connection for this tile',
+            message: message(
+              'importPage.validation.tileConnection',
+              'Select a connection for this tile',
+            ),
           });
         }
       });
@@ -527,7 +549,10 @@ export function buildMappingFormSchema(
             ctx.addIssue({
               code: z.ZodIssueCode.custom,
               path: ['filterAdhocSourceMappings', idx],
-              message: 'Select at least one source for this filter',
+              message: message(
+                'importPage.validation.filterAtLeastOneSource',
+                'Select at least one source for this filter',
+              ),
             });
           } else if (hasWrongKind(mappedSourceIds, kinds)) {
             ctx.addIssue({
@@ -552,7 +577,10 @@ export function buildMappingFormSchema(
           ctx.addIssue({
             code: z.ZodIssueCode.custom,
             path: ['filterSourceMappings', idx],
-            message: 'Select a source for this filter',
+            message: message(
+              'importPage.validation.filterSource',
+              'Select a source for this filter',
+            ),
           });
           return;
         }
@@ -579,6 +607,7 @@ export function buildMappingFormSchema(
 type MappingFormState = z.infer<ReturnType<typeof buildMappingFormSchema>>;
 
 export function Mapping({ input }: { input: DashboardTemplate }) {
+  const { t } = useTranslation('dashboards');
   const router = useRouter();
   const { data: sources } = useSources();
   const { data: connections } = useConnections();
@@ -587,8 +616,8 @@ export function Mapping({ input }: { input: DashboardTemplate }) {
   const [dashboardId] = useQueryState('dashboardId', parseAsString);
 
   const formSchema = useMemo(
-    () => buildMappingFormSchema(input, sources),
-    [input, sources],
+    () => buildMappingFormSchema(input, sources, t),
+    [input, sources, t],
   );
 
   const { handleSubmit, getFieldState, control, setValue } =
@@ -1088,13 +1117,13 @@ export function Mapping({ input }: { input: DashboardTemplate }) {
       // Redirect to the new/updated dashboard
       notifications.show({
         color: 'green',
-        message: 'Import Successful!',
+        message: t('importPage.importSuccess'),
       });
       router.push(`/dashboards/${_dashboardId}`);
     } catch {
       notifications.show({
         color: 'red',
-        message: 'Something went wrong. Please try again.',
+        message: t('importPage.errors.generic'),
       });
     }
   };
@@ -1103,14 +1132,14 @@ export function Mapping({ input }: { input: DashboardTemplate }) {
     <form onSubmit={handleSubmit(onSubmit)}>
       <Stack gap="sm">
         <Text fw={500} size="sm">
-          Step 2: Map Data
+          {t('importPage.step2MapData')}
         </Text>
         <Controller
           name="dashboardName"
           control={control}
           render={({ field, formState }) => (
             <TextInput
-              label="Dashboard name"
+              label={t('importPage.dashboardName')}
               {...field}
               error={formState.errors.dashboardName?.message}
             />
@@ -1121,8 +1150,8 @@ export function Mapping({ input }: { input: DashboardTemplate }) {
           control={control}
           render={({ field }) => (
             <TagsInput
-              label="Tags"
-              placeholder="Add tags"
+              label={t('toolbar.tags')}
+              placeholder={t('importPage.addTags')}
               data={existingTags?.data ?? []}
               {...field}
             />
@@ -1131,10 +1160,10 @@ export function Mapping({ input }: { input: DashboardTemplate }) {
         <Table>
           <Table.Thead>
             <Table.Tr>
-              <Table.Th>Tile / Filter</Table.Th>
-              <Table.Th>Mapping type</Table.Th>
-              <Table.Th>From</Table.Th>
-              <Table.Th>To</Table.Th>
+              <Table.Th>{t('importPage.mapping.tileOrFilter')}</Table.Th>
+              <Table.Th>{t('importPage.mapping.type')}</Table.Th>
+              <Table.Th>{t('importPage.mapping.from')}</Table.Th>
+              <Table.Th>{t('importPage.mapping.to')}</Table.Th>
             </Table.Tr>
           </Table.Thead>
           <Table.Tbody>
@@ -1148,7 +1177,7 @@ export function Mapping({ input }: { input: DashboardTemplate }) {
                   {tile.config.source && (
                     <Table.Tr>
                       <Table.Td>{tile.config.name}</Table.Td>
-                      <Table.Td>Data source</Table.Td>
+                      <Table.Td>{t('importPage.mapping.dataSource')}</Table.Td>
                       <Table.Td>{config.source ?? ''}</Table.Td>
                       <Table.Td>
                         <SelectControlled
@@ -1158,7 +1187,7 @@ export function Mapping({ input }: { input: DashboardTemplate }) {
                             value: source.id,
                             label: source.name,
                           }))}
-                          placeholder="Select a source"
+                          placeholder={t('importPage.mapping.selectSource')}
                         />
                       </Table.Td>
                     </Table.Tr>
@@ -1167,7 +1196,9 @@ export function Mapping({ input }: { input: DashboardTemplate }) {
                   {isRawSql && (
                     <Table.Tr>
                       <Table.Td>{tile.config.name}</Table.Td>
-                      <Table.Td>Data connection</Table.Td>
+                      <Table.Td>
+                        {t('importPage.mapping.dataConnection')}
+                      </Table.Td>
                       <Table.Td>{config.connection}</Table.Td>
                       <Table.Td>
                         <SelectControlled
@@ -1177,7 +1208,7 @@ export function Mapping({ input }: { input: DashboardTemplate }) {
                             value: conn.id,
                             label: conn.name,
                           }))}
-                          placeholder="Select a connection"
+                          placeholder={t('importPage.mapping.selectConnection')}
                         />
                       </Table.Td>
                     </Table.Tr>
@@ -1186,7 +1217,9 @@ export function Mapping({ input }: { input: DashboardTemplate }) {
                   {isOnClickSearchById(tile.config.onClick) && (
                     <Table.Tr>
                       <Table.Td>{tile.config.name}</Table.Td>
-                      <Table.Td>On click - search source</Table.Td>
+                      <Table.Td>
+                        {t('importPage.mapping.onClickSearchSource')}
+                      </Table.Td>
                       <Table.Td>{tile.config.onClick.target.id}</Table.Td>
                       <Table.Td>
                         <SelectControlled
@@ -1198,7 +1231,7 @@ export function Mapping({ input }: { input: DashboardTemplate }) {
                               value: source.id,
                               label: source.name,
                             }))}
-                          placeholder="Select a source"
+                          placeholder={t('importPage.mapping.selectSource')}
                         />
                       </Table.Td>
                     </Table.Tr>
@@ -1207,7 +1240,9 @@ export function Mapping({ input }: { input: DashboardTemplate }) {
                   {isOnClickDashboardById(tile.config.onClick) && (
                     <Table.Tr>
                       <Table.Td>{tile.config.name}</Table.Td>
-                      <Table.Td>On click - dashboard</Table.Td>
+                      <Table.Td>
+                        {t('importPage.mapping.onClickDashboard')}
+                      </Table.Td>
                       <Table.Td>{tile.config.onClick.target.id}</Table.Td>
                       <Table.Td>
                         <SelectControlled
@@ -1217,7 +1252,7 @@ export function Mapping({ input }: { input: DashboardTemplate }) {
                             value: dashboard.id,
                             label: dashboard.name,
                           }))}
-                          placeholder="Select a dashboard"
+                          placeholder={t('importPage.mapping.selectDashboard')}
                         />
                       </Table.Td>
                     </Table.Tr>
@@ -1234,8 +1269,10 @@ export function Mapping({ input }: { input: DashboardTemplate }) {
                 <Fragment key={filter.id}>
                   {isSourceBackedTemplateFilter(filter) && (
                     <Table.Tr>
-                      <Table.Td>{filter.name} (Filter)</Table.Td>
-                      <Table.Td>Data source</Table.Td>
+                      <Table.Td>
+                        {filter.name} {t('importPage.filterSuffix')}
+                      </Table.Td>
+                      <Table.Td>{t('importPage.mapping.dataSource')}</Table.Td>
                       <Table.Td>{filter.source}</Table.Td>
                       <Table.Td>
                         <SelectControlled
@@ -1249,7 +1286,7 @@ export function Mapping({ input }: { input: DashboardTemplate }) {
                               value: source.id,
                               label: source.name,
                             }))}
-                          placeholder="Select a source"
+                          placeholder={t('importPage.mapping.selectSource')}
                         />
                       </Table.Td>
                       <Table.Td />
@@ -1258,8 +1295,10 @@ export function Mapping({ input }: { input: DashboardTemplate }) {
                   )}
                   {isAdhocFilter(filter) && (
                     <Table.Tr>
-                      <Table.Td>{filter.name} (Filter)</Table.Td>
-                      <Table.Td>Data sources</Table.Td>
+                      <Table.Td>
+                        {filter.name} {t('importPage.filterSuffix')}
+                      </Table.Td>
+                      <Table.Td>{t('importPage.mapping.dataSources')}</Table.Td>
                       <Table.Td>{filter.sources.join(', ')}</Table.Td>
                       <Table.Td>
                         <SourceMultiSelectControlled
@@ -1268,7 +1307,7 @@ export function Mapping({ input }: { input: DashboardTemplate }) {
                           allowedSourceKinds={getAdhocFilterSourceKinds(
                             filter.sourceType,
                           )}
-                          placeholder="Select sources"
+                          placeholder={t('importPage.mapping.selectSources')}
                           data-testid={`filter-adhoc-sources-mapping-${filter.name}`}
                         />
                       </Table.Td>
@@ -1278,16 +1317,20 @@ export function Mapping({ input }: { input: DashboardTemplate }) {
                   )}
                   {!!appliesToSourceIds?.length && (
                     <Table.Tr>
-                      <Table.Td>{filter.name} (Filter)</Table.Td>
+                      <Table.Td>
+                        {filter.name} {t('importPage.filterSuffix')}
+                      </Table.Td>
                       <Table.Td>
                         <Tooltip
                           label={
                             isAdhocFilter(filter)
-                              ? "The list of sources that this filter will be applied to. Leave empty to apply to the filter's data sources."
-                              : 'The list of sources that this filter will be applied to. Leave empty to apply to all tiles, regardless of source.'
+                              ? t('importPage.mapping.appliesToAdhocHint')
+                              : t('importPage.mapping.appliesToHint')
                           }
                         >
-                          <span>Applies to sources</span>
+                          <span>
+                            {t('importPage.mapping.appliesToSources')}
+                          </span>
                         </Tooltip>
                       </Table.Td>
                       <Table.Td>{appliesToSourceIds.join(', ')}</Table.Td>
@@ -1296,7 +1339,7 @@ export function Mapping({ input }: { input: DashboardTemplate }) {
                           control={control}
                           name={`filterAppliesToSourceMappings.${i}`}
                           allowedSourceKinds={appliesToSourceKinds(filter)}
-                          placeholder="Select sources"
+                          placeholder={t('importPage.mapping.selectSources')}
                           data-testid={`filter-applies-to-mapping-${filter.name}`}
                         />
                       </Table.Td>
@@ -1313,7 +1356,7 @@ export function Mapping({ input }: { input: DashboardTemplate }) {
           <Text c="red">{createDashboard.error.toString()}</Text>
         )}
         <Button type="submit" loading={createDashboard.isPending} mb="md">
-          Finish Import
+          {t('importPage.finishImport')}
         </Button>
       </Stack>
     </form>
@@ -1321,7 +1364,9 @@ export function Mapping({ input }: { input: DashboardTemplate }) {
 }
 
 function DBDashboardImportPage() {
-  const title = usePageTitle('Import Dashboard');
+  const { t } = useTranslation('dashboards');
+  const { t: tNav } = useTranslation('nav');
+  const title = usePageTitle(tNav('pages.importDashboard'));
   const router = useRouter();
 
   // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
@@ -1345,7 +1390,7 @@ function DBDashboardImportPage() {
       </Head>
       <Breadcrumbs my="lg" ms="xs" fz="sm">
         <Anchor component={Link} href="/dashboards/list" fz="sm" c="dimmed">
-          Dashboards
+          {tNav('pages.dashboards')}
         </Anchor>
         {isTemplate && (
           <Anchor
@@ -1354,11 +1399,11 @@ function DBDashboardImportPage() {
             fz="sm"
             c="dimmed"
           >
-            Templates
+            {t('templatesPage.breadcrumb')}
           </Anchor>
         )}
         <Text fz="sm" c="dimmed">
-          Import
+          {t('import')}
         </Text>
       </Breadcrumbs>
       <div>
@@ -1368,13 +1413,17 @@ function DBDashboardImportPage() {
               <Loader mx="auto" />
             ) : isTemplateNotFound ? (
               <Stack align="center" gap="sm" py="xl">
-                <Text ta="center">Oops! We couldn't find that template.</Text>
+                <Text ta="center">{t('importPage.templateNotFound')}</Text>
                 <Text ta="center">
-                  Try{' '}
-                  <Anchor component={Link} href="/dashboards/templates">
-                    browsing available templates
-                  </Anchor>
-                  .
+                  <Trans
+                    ns="dashboards"
+                    i18nKey="importPage.browseTemplatesHint"
+                    components={{
+                      link: (
+                        <Anchor component={Link} href="/dashboards/templates" />
+                      ),
+                    }}
+                  />
                 </Text>
               </Stack>
             ) : !isTemplate ? (

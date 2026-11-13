@@ -1,4 +1,5 @@
 import { useCallback, useMemo, useState } from 'react';
+import { useTranslation } from 'next-i18next/pages';
 import { Badge, Separator } from '@clickhouse/click-ui';
 import { TMetricSource } from '@hyperdx/common-utils/dist/types';
 import { Box, Group, Loader, ScrollArea, Stack, Text } from '@mantine/core';
@@ -36,12 +37,13 @@ export function MetricDetailPanel({
   metric,
   ...actions
 }: MetricDetailPanelProps) {
+  const { t } = useTranslation('charts');
   if (!metric) {
     return (
       <EmptyState
         icon={<IconChartLine size={28} />}
-        title="No metric selected"
-        description="Pick a metric from the tree to see its unit, description, and tags."
+        title={t('metricExplorer.noMetricSelected')}
+        description={t('metricExplorer.noMetricSelectedDescription')}
       />
     );
   }
@@ -65,6 +67,7 @@ function MetricDetail({
   onAddWhere,
   onAddGroupBy,
 }: MetricDetailPanelProps & { metric: MetricCatalogEntry }) {
+  const { t } = useTranslation('charts');
   const [selectedAttribute, setSelectedAttribute] =
     useState<AttributeKey | null>(null);
 
@@ -126,7 +129,7 @@ function MetricDetail({
             {metric.unit && (
               <Group gap={4}>
                 <Text size="xs" style={{ color: 'var(--color-text-muted)' }}>
-                  Unit
+                  {t('metricExplorer.unit')}
                 </Text>
                 <Text size="xs">{formatUnitDisplay(metric.unit)}</Text>
               </Group>
@@ -134,7 +137,7 @@ function MetricDetail({
             {!!services?.length && (
               <Group gap={4}>
                 <Text size="xs" style={{ color: 'var(--color-text-muted)' }}>
-                  Services
+                  {t('metricExplorer.services')}
                 </Text>
                 <Text size="xs" truncate>
                   {services.slice(0, MAX_SERVICES_SHOWN).join(', ')}
@@ -151,7 +154,7 @@ function MetricDetail({
 
       <Group gap="xs">
         <Text size="xs" fw={600}>
-          Tags
+          {t('metricExplorer.tags')}
         </Text>
         {attributeKeys.length > 0 && (
           <Badge size="sm" text={attributeKeys.length} state="neutral" />
@@ -165,7 +168,7 @@ function MetricDetail({
           </Group>
         ) : attributeKeys.length === 0 ? (
           <Text size="xs" style={{ color: 'var(--color-text-muted)' }}>
-            No tags found for this metric.
+            {t('metricExplorer.noTags')}
           </Text>
         ) : selectedAttribute ? (
           <AttributeValueList

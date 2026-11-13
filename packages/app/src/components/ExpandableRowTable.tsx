@@ -1,4 +1,5 @@
 import React, { memo, useCallback, useState } from 'react';
+import { useTranslation } from 'next-i18next/pages';
 import cx from 'classnames';
 import { useQueryState } from 'nuqs';
 import { TSource } from '@hyperdx/common-utils/dist/types';
@@ -40,6 +41,7 @@ export const ExpandedLogRow = memo(
     /** False on tables that render no side panel, so the URL params go nowhere. */
     canOpenSidePanel?: boolean;
   }) => {
+    const { t } = useTranslation('common');
     const openSidebar = useSidebarOpener();
 
     return (
@@ -62,8 +64,8 @@ export const ExpandedLogRow = memo(
                       styles.expandButton,
                     )}
                     onClick={() => openSidebar(rowId, source?.id)}
-                    title="Open in side panel"
-                    aria-label="Open in side panel"
+                    title={t('table.openInSidePanel')}
+                    aria-label={t('table.openInSidePanel')}
                     style={{
                       zIndex: 1,
                       fontSize: '12px',
@@ -132,6 +134,7 @@ const ExpandButton = memo(
     highlightedLineId?: string;
     toggleRowExpansion: (rowId: string) => void;
   }) => {
+    const { t } = useTranslation('common');
     return (
       <span className="d-flex align-items-center justify-content-center">
         <button
@@ -146,7 +149,11 @@ const ExpandButton = memo(
             toggleRowExpansion(rowId);
           }}
           aria-expanded={isExpanded}
-          aria-label={`${isExpanded ? 'Collapse' : 'Expand'} log details`}
+          aria-label={
+            isExpanded
+              ? t('table.collapseLogDetails')
+              : t('table.expandLogDetails')
+          }
         >
           <IconChevronRight size={16} />
         </button>

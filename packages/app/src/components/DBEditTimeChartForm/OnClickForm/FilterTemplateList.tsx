@@ -1,3 +1,4 @@
+import { useTranslation } from 'next-i18next/pages';
 import { useFieldArray } from 'react-hook-form';
 import {
   ActionIcon,
@@ -15,6 +16,7 @@ import { TextInputControlled } from '@/components/InputControlled';
 import { DrawerControl } from './utils';
 
 export function FilterTemplateList({ control }: { control: DrawerControl }) {
+  const { t } = useTranslation('dashboards');
   const {
     fields: filters,
     append,
@@ -26,9 +28,9 @@ export function FilterTemplateList({ control }: { control: DrawerControl }) {
 
   return (
     <Box>
-      <InputLabel>Filters</InputLabel>
+      <InputLabel>{t('chartEditor.onClick.filters')}</InputLabel>
       <Text size="xs" c="dimmed" mb="xs">
-        Enter an expression (e.g. a column name) and a template for its value.
+        {t('chartEditor.onClick.filtersDescription')}
       </Text>
       <Stack gap="xs">
         {filters.map((filter, i) => (
@@ -36,21 +38,23 @@ export function FilterTemplateList({ control }: { control: DrawerControl }) {
             <TextInputControlled
               control={control}
               name={`onClick.filters.${i}.expression` as const}
-              placeholder="Expression"
+              placeholder={t('chartEditor.onClick.expression')}
               style={{ flex: 1 }}
               data-testid="onclick-filter-expression-input"
             />
             <TextInputControlled
               control={control}
               name={`onClick.filters.${i}.template` as const}
-              placeholder="Template (e.g. {{ServiceName}})"
+              placeholder={t('chartEditor.onClick.template', {
+                pattern: '{{ServiceName}}',
+              })}
               style={{ flex: 1 }}
               data-testid="onclick-filter-template-input"
             />
             <ActionIcon
               variant="subtle"
               color="gray"
-              aria-label="Remove filter"
+              aria-label={t('chartEditor.onClick.removeFilter')}
               onClick={() => remove(i)}
               mt={3}
               data-testid="onclick-filter-remove-button"
@@ -72,7 +76,7 @@ export function FilterTemplateList({ control }: { control: DrawerControl }) {
           }
           style={{ alignSelf: 'flex-start' }}
         >
-          Add filter
+          {t('chartEditor.onClick.addFilter')}
         </Button>
       </Stack>
     </Box>

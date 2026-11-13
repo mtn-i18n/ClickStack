@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'next-i18next/pages';
 import { escapeSqlString } from '@hyperdx/common-utils/dist/core/utils';
 import { isPersistableUserId } from '@hyperdx/common-utils/dist/types';
 
@@ -35,6 +36,7 @@ interface OnboardingCompletion {
 export function useOnboardingCompletion(
   onAddDataClick?: () => void,
 ): OnboardingCompletion {
+  const { t } = useTranslation('settings');
   // A ClickStack deployment must never render "HyperDX".
   const brandName = useBrandDisplayName();
   const { data: me, isLoading: isMeLoading } = api.useMe();
@@ -113,24 +115,24 @@ export function useOnboardingCompletion(
     () => [
       {
         id: 'connection',
-        title: 'Connect to ClickHouse',
-        description: 'Set up your database connection',
+        title: t('onboarding.setup.connectionTitle'),
+        description: t('onboarding.setup.connectionDescription'),
         isComplete: hasConnections,
         isLoading: isConnectionsLoading,
         href: hasConnections ? undefined : '/team',
       },
       {
         id: 'sources',
-        title: 'Create data sources',
-        description: 'Configure where your data comes from',
+        title: t('onboarding.setup.sourcesTitle'),
+        description: t('onboarding.setup.sourcesDescription'),
         isComplete: hasSources,
         isLoading: isSourcesLoading,
         href: hasSources ? undefined : '/team',
       },
       {
         id: 'data',
-        title: 'Add data',
-        description: 'Start sending logs, metrics, or traces',
+        title: t('onboarding.setup.dataTitle'),
+        description: t('onboarding.setup.dataDescription'),
         isComplete: hasData,
         isLoading: isSourceRowsLoading,
         onClick: hasData ? undefined : onAddDataClick,
@@ -144,6 +146,7 @@ export function useOnboardingCompletion(
       isSourcesLoading,
       isSourceRowsLoading,
       onAddDataClick,
+      t,
     ],
   );
 
@@ -154,12 +157,12 @@ export function useOnboardingCompletion(
     () =>
       PRODUCT_TASK_ORDER.map(id => ({
         id,
-        title: PRODUCT_TASKS[id].title,
-        description: PRODUCT_TASKS[id].description,
+        title: t(PRODUCT_TASKS[id].title),
+        description: t(PRODUCT_TASKS[id].description),
         href: PRODUCT_TASKS[id].href,
         isComplete: completedTasks.has(id),
       })),
-    [completedTasks],
+    [completedTasks, t],
   );
 
   const isTeamAgeEligible =
@@ -169,8 +172,8 @@ export function useOnboardingCompletion(
 
   const steps = isSetupComplete ? productSteps : setupSteps;
   const phaseLabel = isSetupComplete
-    ? `Get started with ${brandName}`
-    : 'Set up ClickHouse';
+    ? t('onboarding.phaseGetStarted', { brandName })
+    : t('onboarding.phaseSetup');
   const completedCount = steps.filter(step => step.isComplete).length;
   const isPhaseComplete = completedCount === steps.length;
   // First incomplete step; rendered as the active call-to-action.

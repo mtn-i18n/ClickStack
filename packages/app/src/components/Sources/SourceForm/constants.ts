@@ -50,17 +50,18 @@ export const MIN_AUTO_GRANULARITY_OPTIONS = [
   ...MV_GRANULARITY_OPTIONS.filter(option => option.value !== '1 second'),
 ];
 
+// Labels resolve against the settings namespace at the render site.
 export const USE_TEXT_INDEX_OPTIONS = [
   {
     value: UseTextIndex.Auto,
-    label: 'Auto (detect from schema)',
+    labelKey: 'sourceForm.useTextIndex.auto',
   },
   {
     value: UseTextIndex.Enabled,
-    label: 'Force enable',
+    labelKey: 'sourceForm.useTextIndex.forceEnable',
   },
   {
     value: UseTextIndex.Disabled,
-    label: 'Force disable',
+    labelKey: 'sourceForm.useTextIndex.forceDisable',
   },
 ];

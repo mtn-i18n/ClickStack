@@ -1,3 +1,4 @@
+import { useTranslation } from 'next-i18next/pages';
 import { DisplayType } from '@hyperdx/common-utils/dist/types';
 import { Grid } from '@mantine/core';
 
@@ -16,6 +17,7 @@ const CHART_HEIGHT = 320;
  * dedicated Latency tab (see LatencyTab).
  */
 export function LatencyCharts(props: LLMChartProps) {
+  const { t } = useTranslation('llm');
   const { source, expressions } = props;
   // Neither chart selects cost, so skip the ~70 KiB cost alias binding.
   const base = baseLLMChartConfig({ ...props, withCostAlias: false });
@@ -25,7 +27,7 @@ export function LatencyCharts(props: LLMChartProps) {
       <Grid.Col span={6}>
         <ChartCard style={{ height: CHART_HEIGHT }}>
           <DBTimeChart
-            title="P95 Latency by Model"
+            title={t('latency.p95LatencyByModel')}
             sourceId={source.id}
             config={{
               ...base,
@@ -46,7 +48,7 @@ export function LatencyCharts(props: LLMChartProps) {
       <Grid.Col span={6}>
         <ChartCard style={{ height: CHART_HEIGHT }}>
           <DBTimeChart
-            title="Time to First Token"
+            title={t('latency.timeToFirstToken')}
             sourceId={source.id}
             config={{
               ...base,

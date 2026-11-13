@@ -1,12 +1,13 @@
+import { useTranslation } from 'next-i18next/pages';
 import { BackgroundChart } from '@hyperdx/common-utils/dist/types';
 import { Box, Select, Text } from '@mantine/core';
 
 import { ColorSwatchInput } from './ColorSwatchInput';
 
-const TYPE_OPTIONS = [
-  { value: 'none', label: 'None' },
-  { value: 'line', label: 'Line' },
-  { value: 'area', label: 'Area' },
+const TYPE_OPTIONS: { value: string; labelKey: string }[] = [
+  { value: 'none', labelKey: 'none' },
+  { value: 'line', labelKey: 'lineChart' },
+  { value: 'area', labelKey: 'areaChart' },
 ];
 
 /**
@@ -23,26 +24,32 @@ export function BackgroundChartInput({
   value,
   onChange,
   disabled = false,
-  disabledHint = 'Available on query-builder number tiles.',
+  disabledHint,
 }: {
   value?: BackgroundChart;
   onChange: (value: BackgroundChart | undefined) => void;
   disabled?: boolean;
   disabledHint?: string;
 }) {
+  const { t } = useTranslation('charts');
+  const hint = disabledHint ?? t('availableOnBuilderNumberTiles');
+
   return (
     <Box>
       <Text size="xs" c="dimmed" mb={4}>
-        Background chart
+        {t('backgroundChart')}
       </Text>
       <Select
         size="xs"
-        data={TYPE_OPTIONS}
+        data={TYPE_OPTIONS.map(option => ({
+          value: option.value,
+          label: t(option.labelKey),
+        }))}
         value={value?.type ?? 'none'}
         disabled={disabled}
         allowDeselect={false}
         comboboxProps={{ withinPortal: false }}
-        aria-label="Number tile background chart type"
+        aria-label={t('backgroundChartTypeAria')}
         onChange={next => {
           if (next === 'line' || next === 'area') {
             onChange({ ...value, type: next });
@@ -53,18 +60,18 @@ export function BackgroundChartInput({
       />
       {disabled ? (
         <Text size="xs" c="dimmed" mt={4}>
-          {disabledHint}
+          {hint}
         </Text>
       ) : (
         value && (
           <Box mt="xs">
             <Text size="xs" c="dimmed" mb={4}>
-              Background color
+              {t('backgroundColor')}
             </Text>
             <ColorSwatchInput
               value={value.color}
               onChange={color => onChange({ ...value, color })}
-              ariaLabel="Number tile background chart color"
+              ariaLabel={t('backgroundChartColorAria')}
             />
           </Box>
         )

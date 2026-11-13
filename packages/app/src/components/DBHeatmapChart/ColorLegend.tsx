@@ -1,3 +1,4 @@
+import { useTranslation } from 'next-i18next/pages';
 import { Flex, Text } from '@mantine/core';
 
 type ColorLegendProps = {
@@ -5,15 +6,12 @@ type ColorLegendProps = {
 };
 
 export function ColorLegend({ colors }: ColorLegendProps) {
+  const { t } = useTranslation('charts');
+
   return (
-    <Flex
-      align="center"
-      gap={4}
-      role="img"
-      aria-label="Color scale: low to high count"
-    >
+    <Flex align="center" gap={4} role="img" aria-label={t('colorScaleAria')}>
       <Text size="10px" c="dimmed">
-        Low
+        {t('low')}
       </Text>
       <div
         style={{
@@ -29,7 +27,7 @@ export function ColorLegend({ colors }: ColorLegendProps) {
         ))}
       </div>
       <Text size="10px" c="dimmed">
-        High
+        {t('high')}
       </Text>
     </Flex>
   );

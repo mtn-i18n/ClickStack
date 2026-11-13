@@ -1,3 +1,4 @@
+import { useTranslation } from 'next-i18next/pages';
 import { Control, useController } from 'react-hook-form';
 import { Box, Text } from '@mantine/core';
 
@@ -41,6 +42,7 @@ export default function PromqlExpressionEditor({
   onRemove?: (index: number) => void;
   onDuplicate?: (index: number) => void;
 }) {
+  const { t } = useTranslation('dashboards');
   const { field: expressionField } = useController({
     control,
     name: `promqlExpressions.${index}.expression`,
@@ -51,7 +53,7 @@ export default function PromqlExpressionEditor({
       <ChartSeriesControls
         control={control}
         aliasName={`promqlExpressions.${index}.alias`}
-        aliasPlaceholder="Expression alias"
+        aliasPlaceholder={t('chartEditor.promql.expressionAlias')}
         index={index}
         length={length}
         onSubmit={onSubmit}
@@ -71,7 +73,7 @@ export default function PromqlExpressionEditor({
       </Box>
       {isIgnored ? (
         <Text size="xxs" c="dimmed" mt={4}>
-          Not queried — only time series charts plot more than one expression.
+          {t('chartEditor.promql.notQueried')}
         </Text>
       ) : (
         isInstantQuerySupported && (

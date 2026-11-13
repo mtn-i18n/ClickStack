@@ -1,0 +1,29 @@
+{
+  "title": "User Preferences",
+  "subtitle": "Customize your experience",
+  "appearance": "Appearance",
+  "language": "Language",
+  "languageDescription": "Language used by the interface",
+  "dateAndTime": "Date and Time",
+  "timeFormat": "Time format",
+  "timeZone": "Time zone",
+  "timeZoneDescription": "Times are displayed and input in this zone.",
+  "searchResults": "Search results",
+  "rowClick": "Row click",
+  "rowClickDescription": "What clicking a result row does. The chevron always expands inline.",
+  "colorMode": "Color mode",
+  "colorModeDescription": "Use system setting, or choose light or dark",
+  "light": "Light",
+  "dark": "Dark",
+  "system": "System",
+  "contentFontSize": "Content font size",
+  "contentFontSizeDescription": "Text size for log tables, data tables, and charts",
+  "fontSizes": {
+    "sm": "Small",
+    "md": "Medium",
+    "lg": "Large"
+  },
+  "expand": "Expand inline",
+  "sidePanel": "Open side panel",
+  "experimental": "Experimental"
+}

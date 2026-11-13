@@ -1,3 +1,4 @@
+import { useTranslation } from 'next-i18next/pages';
 import { AlertSource, AlertState } from '@hyperdx/common-utils/dist/types';
 import { MAX_ALERT_DISPLAY_NAME_LENGTH } from '@hyperdx/common-utils/dist/types';
 import {
@@ -47,6 +48,7 @@ export function AlertsFilterBar({
   canFilterByCreator,
   isSettling,
 }: AlertsFilterBarProps) {
+  const { t } = useTranslation('alerts');
   return (
     <Flex
       align="center"
@@ -56,7 +58,7 @@ export function AlertsFilterBar({
       data-testid="alerts-filters"
     >
       <TextInput
-        placeholder="Search by name"
+        placeholder={t('searchByName')}
         leftSection={<IconSearch size={16} />}
         rightSection={isSettling ? <Loader size="xs" /> : null}
         value={search ?? ''}
@@ -67,7 +69,7 @@ export function AlertsFilterBar({
         flex={1}
       />
       <Select
-        placeholder="Filter by state"
+        placeholder={t('filterByState')}
         data={ALERT_STATE_FILTER_OPTIONS}
         value={state}
         onChange={value => onStateChange(value)}
@@ -76,7 +78,7 @@ export function AlertsFilterBar({
         data-testid="alerts-state-filter"
       />
       <Select
-        placeholder="Filter by source"
+        placeholder={t('filterBySource')}
         data={ALERT_SOURCE_FILTER_OPTIONS}
         value={source}
         onChange={value => onSourceChange(value)}
@@ -86,7 +88,7 @@ export function AlertsFilterBar({
       />
       {(tags.length > 0 || tag != null) && (
         <Select
-          placeholder="Filter by tag"
+          placeholder={t('filterByTag')}
           data={tag != null && !tags.includes(tag) ? [...tags, tag] : tags}
           value={tag}
           onChange={value => onTagChange(value)}
@@ -100,8 +102,8 @@ export function AlertsFilterBar({
         <SegmentedControl
           size="xs"
           data={[
-            { value: 'all', label: 'All alerts' },
-            { value: 'mine', label: 'Created by me' },
+            { value: 'all', label: t('allAlerts') },
+            { value: 'mine', label: t('createdByMe') },
           ]}
           value={mine ? 'mine' : 'all'}
           onChange={value => onMineChange(value === 'mine')}

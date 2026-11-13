@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'next-i18next/pages';
 import { isEqual } from 'lodash';
 import {
   Controller,
@@ -162,9 +163,6 @@ type EditTimeChartFormProps = {
   showSaveToDashboard?: boolean;
 };
 
-const ALERT_IGNORES_DASHBOARD_FILTERS =
-  'Dashboard-level filter and variable selections cannot be applied when an alert is configured.';
-
 /**
  * Populate form state with the standard series for a heatmap mode.
  * Distribution heatmaps bucket the trace duration (or `fallbackValueExpression`
@@ -243,6 +241,7 @@ export default function EditTimeChartForm({
   isAlertRequired = false,
   showSaveToDashboard,
 }: EditTimeChartFormProps) {
+  const { t } = useTranslation('dashboards');
   const alertsEnabled = enableAlerts ?? dashboardId != null;
   const formValue: ChartEditorFormState = useMemo(
     () => convertSavedChartConfigToFormState(chartConfig),
@@ -512,10 +511,12 @@ export default function EditTimeChartForm({
         : {
             checked: resolvedApplyFilters,
             disabledReason:
-              alert != null ? ALERT_IGNORES_DASHBOARD_FILTERS : undefined,
+              alert != null
+                ? t('chartEditor.alertIgnoresDashboardFilters')
+                : undefined,
             onChange: setApplyFilters,
           },
-    [getDashboardFilters, resolvedApplyFilters, alert],
+    [getDashboardFilters, resolvedApplyFilters, alert, t],
   );
 
   const previewDashboardFilters = useMemo(() => {
@@ -638,7 +639,7 @@ export default function EditTimeChartForm({
           if (!suppressErrorNotification) {
             notifications.show({
               id: 'chart-error',
-              title: 'Invalid Chart',
+              title: t('chartEditor.invalidChart'),
               message: <ErrorNotificationMessage errors={errors} />,
               color: 'red',
             });
@@ -670,6 +671,7 @@ export default function EditTimeChartForm({
       setQueriedConfigAndSource,
       tableSource,
       dateRange,
+      t,
     ],
   );
 
@@ -693,7 +695,7 @@ export default function EditTimeChartForm({
       if (errors.length > 0) {
         notifications.show({
           id: 'chart-error',
-          title: 'Invalid Chart',
+          title: t('chartEditor.invalidChart'),
           message: <ErrorNotificationMessage errors={errors} />,
           color: 'red',
         });
@@ -704,7 +706,7 @@ export default function EditTimeChartForm({
         onSave?.(config);
       }
     },
-    [validateAndNormalize, onSave],
+    [validateAndNormalize, onSave, t],
   );
 
   // Same validation path as a tile save, but hands the config to the
@@ -716,7 +718,7 @@ export default function EditTimeChartForm({
       if (errors.length > 0) {
         notifications.show({
           id: 'chart-error',
-          title: 'Invalid Chart',
+          title: t('chartEditor.invalidChart'),
           message: <ErrorNotificationMessage errors={errors} />,
           color: 'red',
         });
@@ -729,15 +731,15 @@ export default function EditTimeChartForm({
         notifications.show({
           id: 'chart-error',
           color: 'red',
-          title: 'Invalid alert',
-          message: 'This chart has no alert to save.',
+          title: t('chartEditor.invalidAlert'),
+          message: t('chartEditor.noAlertToSave'),
         });
         return;
       }
 
       onSaveAlert?.(config);
     },
-    [validateAndNormalize, onSaveAlert],
+    [validateAndNormalize, onSaveAlert, t],
   );
 
   // The edit-alert modal requires the alert and saves it by saving the chart,
@@ -1097,7 +1099,7 @@ export default function EditTimeChartForm({
 
   const configTypeOptions = useMemo(
     () => [
-      { label: 'Builder', value: 'builder' },
+      { label: t('chartEditor.builder'), value: 'builder' },
       ...(isRawSqlDisplayType(displayType)
         ? [{ label: 'SQL', value: 'sql' }]
         : []),
@@ -1105,7 +1107,7 @@ export default function EditTimeChartForm({
         ? [{ label: 'PromQL', value: 'promql' }]
         : []),
     ],
-    [displayType],
+    [displayType, t],
   );
 
   return (
@@ -1137,21 +1139,21 @@ export default function EditTimeChartForm({
             >
               <Flex align="center" gap="sm" flex={1}>
                 <Text size="sm" className="text-nowrap">
-                  Chart Name
+                  {t('chartEditor.chartName')}
                 </Text>
                 <InputControlled
                   name="name"
                   control={control}
                   flex={1}
                   type="text"
-                  placeholder="My Chart Name"
+                  placeholder={t('chartEditor.chartNamePlaceholder')}
                   data-testid="chart-name-input"
                 />
               </Flex>
               {isDashboardForm && (
                 <Flex align="center" gap="sm" flex={1}>
                   <Text size="sm" className="text-nowrap">
-                    Description
+                    {t('chartEditor.description')}
                   </Text>
                   <Controller
                     control={control}
@@ -1168,8 +1170,8 @@ export default function EditTimeChartForm({
                           onChange(e.currentTarget.value || undefined)
                         }
                         onBlur={onBlur}
-                        placeholder="Describe what this chart displays"
-                        aria-label="Tile description"
+                        placeholder={t('chartEditor.descriptionPlaceholder')}
+                        aria-label={t('chartEditor.tileDescriptionAria')}
                         data-testid="chart-description-input"
                       />
                     )}
@@ -1226,55 +1228,55 @@ export default function EditTimeChartForm({
                     value={DisplayType.Line}
                     leftSection={<IconChartLine size={16} />}
                   >
-                    Time Series
+                    {t('chartEditor.chartType.timeSeries')}
                   </Tabs.Tab>
                   <Tabs.Tab
                     value={DisplayType.Table}
                     leftSection={<IconTable size={16} />}
                   >
-                    Table
+                    {t('chartEditor.chartType.table')}
                   </Tabs.Tab>
                   <Tabs.Tab
                     value={DisplayType.Number}
                     leftSection={<IconNumbers size={16} />}
                   >
-                    Number
+                    {t('chartEditor.chartType.number')}
                   </Tabs.Tab>
                   <Tabs.Tab
                     value={DisplayType.Bar}
                     leftSection={<IconChartBar size={16} />}
                   >
-                    Bar
+                    {t('chartEditor.chartType.bar')}
                   </Tabs.Tab>
                   <Tabs.Tab
                     value={DisplayType.Pie}
                     leftSection={<IconChartPie size={16} />}
                   >
-                    Pie
+                    {t('chartEditor.chartType.pie')}
                   </Tabs.Tab>
                   <Tabs.Tab
                     value={DisplayType.Search}
                     leftSection={<IconList size={16} />}
                   >
-                    Search
+                    {t('chartEditor.chartType.search')}
                   </Tabs.Tab>
                   <Tabs.Tab
                     value={DisplayType.Heatmap}
                     leftSection={<IconGrid3x3 size={16} />}
                   >
-                    Heatmap
+                    {t('chartEditor.chartType.heatmap')}
                   </Tabs.Tab>
                   <Tabs.Tab
                     value={DisplayType.EventPatterns}
                     leftSection={<IconBracketsContain size={16} />}
                   >
-                    Patterns
+                    {t('chartEditor.chartType.patterns')}
                   </Tabs.Tab>
                   <Tabs.Tab
                     value={DisplayType.Markdown}
                     leftSection={<IconMarkdown size={16} />}
                   >
-                    Markdown
+                    {t('chartEditor.chartType.markdown')}
                   </Tabs.Tab>
                 </Tabs.List>
               </Tabs>
@@ -1284,8 +1286,8 @@ export default function EditTimeChartForm({
             <div>
               <Textarea
                 {...register('markdown')}
-                label="Markdown content"
-                placeholder="Markdown"
+                label={t('chartEditor.markdownContent')}
+                placeholder={t('chartEditor.markdownPlaceholder')}
                 mb="md"
                 styles={{
                   input: {

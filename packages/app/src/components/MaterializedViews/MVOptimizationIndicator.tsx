@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'next-i18next/pages';
 import { Badge } from '@clickhouse/click-ui';
 import {
   BuilderChartConfigWithOptDateRange,
@@ -22,11 +23,12 @@ function MVOptimizationIcon({
   isInWarningState: boolean;
   onClick: () => void;
 }) {
+  const { t } = useTranslation('settings');
   return isInWarningState ? (
-    <Tooltip label="Not accelerated">
+    <Tooltip label={t('materializedViews.notAccelerated')}>
       <ActionIcon
         onClick={onClick}
-        aria-label="Not accelerated"
+        aria-label={t('materializedViews.notAccelerated')}
         data-testid="mv-optimization-indicator"
         data-mv-accelerated="false"
       >
@@ -34,10 +36,10 @@ function MVOptimizationIcon({
       </ActionIcon>
     </Tooltip>
   ) : (
-    <Tooltip label="Accelerated">
+    <Tooltip label={t('materializedViews.accelerated')}>
       <ActionIcon
         onClick={onClick}
-        aria-label="Accelerated"
+        aria-label={t('materializedViews.accelerated')}
         data-testid="mv-optimization-indicator"
         data-mv-accelerated="true"
       >

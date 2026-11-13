@@ -1,6 +1,8 @@
 import React from 'react';
+import { useTranslation } from 'next-i18next/pages';
 import { formatDate } from '@hyperdx/common-utils/dist/core/utils';
 
+import { useLocale } from './i18n/useLocale';
 import { useDisplayTimeZone } from './useDisplayTimeZone';
 import { useUserPreferences } from './useUserPreferences';
 
@@ -20,6 +22,8 @@ export const useFormatTime = () => {
     userPreferences: { timeFormat },
   } = useUserPreferences();
   const timeZone = useDisplayTimeZone();
+  const { t } = useTranslation('common');
+  const { locale } = useLocale();
 
   return React.useCallback(
     (time: DateLike, { format }: { format?: DateFormat } | undefined = {}) => {
@@ -29,13 +33,14 @@ export const useFormatTime = () => {
           clock: timeFormat,
           timeZone,
           format,
+          locale,
         });
       } catch (err) {
         console.error(err, time);
-        return 'Unknown date';
+        return t('unknownDate');
       }
     },
-    [timeZone, timeFormat],
+    [timeZone, timeFormat, locale, t],
   );
 };
 

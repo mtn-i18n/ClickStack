@@ -1,4 +1,5 @@
 import { flatten } from 'flat';
+import type { TFunction } from 'i18next';
 import { parseJSON } from '@hyperdx/common-utils/dist/core/utils';
 
 import { isRecord } from '@/llm/lib/attributeUtils';
@@ -26,6 +27,8 @@ const SHORT_SELECTOR_SEGMENTS = 3;
 
 export type BrowserEventLabel = {
   title: string;
+  /** Translation key for `title` when the label is a fixed UI string. */
+  titleKey?: string;
   description: string;
   /** Tooltip text for the timeline marker. */
   timelineText: string;
@@ -89,7 +92,10 @@ function getShortSelector(selector: string): string {
     .join(' > ');
 }
 
-function getClickLabel(attributes: Attributes): BrowserEventLabel {
+function getClickLabel(
+  attributes: Attributes,
+  t?: TFunction,
+): BrowserEventLabel {
   const tag = firstSetString(attributes, ['browser.tag_name'])?.toLowerCase();
   const selector = firstSetString(attributes, ['browser.css_selector']);
   const description =
@@ -97,15 +103,24 @@ function getClickLabel(attributes: Attributes): BrowserEventLabel {
       .map(([name, value]) => `${name}=${value}`)
       .join(' ') || (selector ? getShortSelector(selector) : '');
   return {
-    title: joinWords('Clicked', tag),
+    title:
+      t == null
+        ? joinWords('Clicked', tag)
+        : t('timeline.clicked', { target: tag }),
     description,
-    timelineText: joinWords('Clicked', description || tag),
+    timelineText:
+      t == null
+        ? joinWords('Clicked', description || tag)
+        : t('timeline.clicked', { target: description || tag }),
     isError: false,
     eventSource: 'custom',
   };
 }
 
-function getNavigationLabel(attributes: Attributes): BrowserEventLabel {
+function getNavigationLabel(
+  attributes: Attributes,
+  t?: TFunction,
+): BrowserEventLabel {
   const url = firstSetString(attributes, [
     'url.full',
     'browser.document.url.full',
@@ -113,8 +128,12 @@ function getNavigationLabel(attributes: Attributes): BrowserEventLabel {
   const shortUrl = url != null ? getShortUrl(url) : '';
   return {
     title: 'Navigated',
+    titleKey: 'sessions:navigated',
     description: shortUrl,
-    timelineText: joinWords('Navigated to', shortUrl),
+    timelineText:
+      t == null
+        ? joinWords('Navigated to', shortUrl)
+        : t('timeline.navigatedTo', { url: shortUrl }),
     isError: false,
     eventSource: 'navigation',
   };
@@ -165,19 +184,22 @@ export function getBrowserEventLabel({
   eventName,
   body,
   attributes,
+  t,
 }: {
   eventName: string;
   body: unknown;
   /** Flat keys from a Map column or nested objects from a JSON column. */
   attributes: unknown;
+  /** When provided, timeline markers use translated copy. */
+  t?: TFunction;
 }): BrowserEventLabel {
   const flat = toAttributes(attributes);
   const text = typeof body === 'string' ? body : '';
   switch (eventName) {
     case BROWSER_EVENT_NAMES.CLICK:
-      return getClickLabel(flat);
+      return getClickLabel(flat, t);
     case BROWSER_EVENT_NAMES.NAVIGATION:
-      return getNavigationLabel(flat);
+      return getNavigationLabel(flat, t);
     case BROWSER_EVENT_NAMES.CONSOLE:
       return getConsoleLabel(flat, text);
     case BROWSER_EVENT_NAMES.EXCEPTION:

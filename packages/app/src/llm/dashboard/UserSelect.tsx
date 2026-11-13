@@ -1,3 +1,4 @@
+import { useTranslation } from 'next-i18next/pages';
 import { TTraceSource } from '@hyperdx/common-utils/dist/types';
 import { SelectProps } from '@mantine/core';
 
@@ -25,6 +26,7 @@ export function UserSelect({
   value: string;
   onChange: (userId: string) => void;
 } & Omit<SelectProps, 'data' | 'value' | 'onChange'>) {
+  const { t } = useTranslation('llm');
   return (
     <DistinctValueSelect
       {...props}
@@ -34,7 +36,7 @@ export function UserSelect({
         expressions && `${expressions.isLLMSpan} AND ${expressions.hasUserId}`
       }
       queryKey="llm-user-select"
-      allLabel="All users"
+      allLabel={t('filters.allUsers')}
     />
   );
 }

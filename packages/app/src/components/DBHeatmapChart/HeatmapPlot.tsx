@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'next-i18next/pages';
 import cx from 'classnames';
 import uPlot from 'uplot';
 import UplotReact from 'uplot-react';
@@ -69,6 +70,7 @@ export function HeatmapPlot({
   palette,
   selectionBounds,
 }: HeatmapPlotProps) {
+  const { t } = useTranslation('charts');
   const [highlightedPoint, setHighlightedPoint] = useState<
     HighlightedPoint | undefined
   >(undefined);
@@ -178,7 +180,11 @@ export function HeatmapPlot({
 
   const options: uPlot.Options = useMemo(() => {
     const opt = baseHeatmapOptions;
-    const themedSeries = buildSeriesForPalette(palette, cellKind);
+    const themedSeries = buildSeriesForPalette(
+      palette,
+      cellKind,
+      t('axisLatency'),
+    );
     const yAxis = heatmapYAxisOptions({
       seriesLabels,
       bucketBounds,
@@ -303,6 +309,7 @@ export function HeatmapPlot({
     bucketBounds,
     boundFormatter,
     cellKind,
+    t,
   ]);
 
   const seriesAxisHover = useSeriesAxisHover(uplotRef, seriesLabels);

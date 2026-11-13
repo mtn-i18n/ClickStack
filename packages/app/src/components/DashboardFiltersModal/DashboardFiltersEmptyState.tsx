@@ -1,3 +1,4 @@
+import { useTranslation } from 'next-i18next/pages';
 import { Button, Modal, Stack, Text, Title } from '@mantine/core';
 import { IconFilter } from '@tabler/icons-react';
 
@@ -12,6 +13,7 @@ export const DashboardFiltersEmptyState = ({
   onCreateFilter,
   onClose,
 }: DashboardFiltersEmptyStateProps) => {
+  const { t } = useTranslation('dashboards');
   return (
     <Modal opened onClose={onClose} size={MODAL_SIZE}>
       <Stack
@@ -22,17 +24,16 @@ export const DashboardFiltersEmptyState = ({
         data-testid="dashboard-filters-empty-state"
       >
         <IconFilter />
-        <Title order={4}>No filters yet.</Title>
+        <Title order={4}>{t('filtersModal.emptyTitle')}</Title>
         <Text size="sm" ta="center" px="xl">
-          Add filters to let viewers quickly narrow data on key columns. Saved
-          filters will stay with this dashboard.
+          {t('filtersModal.emptyDescription')}
         </Text>
         <Button
           variant="primary"
           onClick={onCreateFilter}
           data-testid="add-filter-button"
         >
-          Add new filter
+          {t('filtersModal.addNewFilter')}
         </Button>
       </Stack>
     </Modal>

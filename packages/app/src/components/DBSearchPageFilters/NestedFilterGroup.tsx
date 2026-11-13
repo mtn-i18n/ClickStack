@@ -1,4 +1,5 @@
 import { useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'next-i18next/pages';
 import { FilterState } from '@hyperdx/common-utils/dist/filters';
 import { Accordion, Group, Text, Tooltip, UnstyledButton } from '@mantine/core';
 import { useVirtualizer } from '@tanstack/react-virtual';
@@ -83,6 +84,7 @@ export const NestedFilterGroup = ({
   chartConfig,
   isLive,
 }: NestedFilterGroupProps) => {
+  const { t } = useTranslation('search');
   const selectedValues: FilterState = useMemo(
     () => _selectedValues ?? {},
     [_selectedValues],
@@ -199,7 +201,7 @@ export const NestedFilterGroup = ({
             <div className={classes.filterGroupPanel}>
               {childFilters.length > FILTER_SEARCH_MIN_ITEMS && (
                 <FilterSearchInput
-                  placeholder="Search keys..."
+                  placeholder={t('filter.searchKeys')}
                   value={search}
                   data-testid={`nested-filter-search-${name}`}
                   onChange={setSearch}
@@ -208,7 +210,7 @@ export const NestedFilterGroup = ({
               {matchingChildFilters.length === 0 ? (
                 <Group m={6} gap="xs">
                   <Text c="dimmed" size="xs">
-                    No properties found
+                    {t('filter.noProperties')}
                   </Text>
                 </Group>
               ) : (

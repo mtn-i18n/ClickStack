@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { useTranslation } from 'next-i18next/pages';
 import { Group, SegmentedControl, Stack, Text } from '@mantine/core';
 import {
   IconBraces,
@@ -50,6 +51,7 @@ interface McpInstallPanelProps {
  * block) for the chosen host. The access key is masked in every snippet.
  */
 export default function McpInstallPanel({ deployment }: McpInstallPanelProps) {
+  const { t } = useTranslation('settings');
   const [host, setHost] = useState<AgentHost>('cursor');
 
   const snippets = useMemo(() => buildAllSnippets(deployment), [deployment]);
@@ -57,11 +59,11 @@ export default function McpInstallPanel({ deployment }: McpInstallPanelProps) {
   return (
     <Stack gap="md">
       <CopySnippet
-        label="Run in your terminal. It asks for an API key, then sets up Claude Code, Codex, Cursor, and VS Code:"
+        label={t('mcpInstall.cliLabel')}
         snippet={buildCliInstallCommand(deployment)}
       />
       <Text size="sm" fw={500}>
-        Or set up one agent by hand:
+        {t('mcpInstall.manualHeading')}
       </Text>
       <SegmentedControl
         fullWidth
@@ -78,11 +80,13 @@ export default function McpInstallPanel({ deployment }: McpInstallPanelProps) {
           label: (
             <Group gap="xs" justify="center" wrap="nowrap">
               <HostIcon id={c.id} />
-              <Text size="sm">{c.label}</Text>
+              <Text size="sm">
+                {c.id === 'other' ? t('mcpInstall.other') : c.label}
+              </Text>
             </Group>
           ),
         }))}
-        aria-label="MCP host"
+        aria-label={t('mcpInstall.hostAriaLabel')}
       />
 
       <HostInstall
@@ -119,13 +123,14 @@ interface HostInstallProps {
 }
 
 function HostInstall({ host, snippets, accessKey }: HostInstallProps) {
+  const { t } = useTranslation('settings');
   switch (host) {
     case 'cursor':
       return (
         <DeeplinkInstall
-          buttonLabel="Add to Cursor"
+          buttonLabel={t('mcpInstall.addToCursor')}
           deeplink={snippets.cursor}
-          fallbackLabel="Or paste this JSON into Cursor settings > MCP:"
+          fallbackLabel={t('mcpInstall.cursorFallback')}
           fallbackSnippet={snippets.jsonBlock}
           fallbackAccessKey={accessKey}
         />
@@ -134,14 +139,14 @@ function HostInstall({ host, snippets, accessKey }: HostInstallProps) {
     case 'vscode-copilot':
       return (
         <DeeplinkInstall
-          buttonLabel="Add to VS Code"
+          buttonLabel={t('mcpInstall.addToVsCode')}
           deeplink={snippets.vscode}
-          fallbackLabel="Or paste this JSON into .vscode/mcp.json:"
+          fallbackLabel={t('mcpInstall.vscodeFallback')}
           fallbackSnippet={snippets.jsonBlock}
           fallbackAccessKey={accessKey}
           note={
             <Text size="xs" c="dimmed">
-              Requires VS Code 1.99+ with the Copilot Chat MCP feature enabled.
+              {t('mcpInstall.vscodeNote')}
             </Text>
           }
         />
@@ -150,7 +155,7 @@ function HostInstall({ host, snippets, accessKey }: HostInstallProps) {
     case 'opencode':
       return (
         <CopySnippet
-          label="Paste this into `opencode.json` (project) or `~/.config/opencode/config.json` (global):"
+          label={t('mcpInstall.opencodeLabel')}
           snippet={snippets.openCode}
           accessKey={accessKey}
         />
@@ -159,7 +164,7 @@ function HostInstall({ host, snippets, accessKey }: HostInstallProps) {
     case 'other':
       return (
         <CopySnippet
-          label="Paste this into your host's MCP config:"
+          label={t('mcpInstall.otherLabel')}
           snippet={snippets.jsonBlock}
           accessKey={accessKey}
         />

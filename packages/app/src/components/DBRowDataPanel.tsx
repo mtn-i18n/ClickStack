@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { useTranslation } from 'next-i18next/pages';
 import { flatten } from 'flat';
 import type { ResponseJSON } from '@hyperdx/common-utils/dist/clickhouse';
 import { tcFromSource } from '@hyperdx/common-utils/dist/core/metadata';
@@ -436,9 +437,11 @@ export function RowPanelLoader({
 }: {
   'data-testid'?: string;
 }) {
+  const { t } = useTranslation('search');
+
   return (
     <Center py="xl" data-testid={dataTestId}>
-      <Loader size="sm" aria-label="Loading row" />
+      <Loader size="sm" aria-label={t('rowPanel.loadingRow')} />
     </Center>
   );
 }

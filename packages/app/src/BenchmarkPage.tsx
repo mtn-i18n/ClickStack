@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import dynamic from 'next/dynamic';
+import { useTranslation } from 'next-i18next/pages';
 import { parseAsInteger, parseAsJson, useQueryState } from 'nuqs';
 import { useForm } from 'react-hook-form';
 import { DataFormat } from '@hyperdx/common-utils/dist/clickhouse';
@@ -133,6 +134,8 @@ function useIndexes(
 }
 
 function BenchmarkPage() {
+  const { t } = useTranslation('common');
+  const { t: tNav } = useTranslation('nav');
   const [queries, setQueries] = useQueryState<string[]>(
     'queries',
     parseAsJson(),
@@ -217,14 +220,14 @@ function BenchmarkPage() {
   return (
     <div className="p-4">
       <Title order={1} fw={400} mb="md">
-        Clickhouse Query Benchmark
+        {tNav('benchmark.title')}
       </Title>
       <form onSubmit={handleSubmit(onSubmit)}>
         <Stack gap="md">
           <Grid>
             <Grid.Col span={6}>
               <Stack>
-                <Text size="lg">Query 1</Text>
+                <Text size="lg">{tNav('benchmark.queryOne')}</Text>
                 <ConnectionSelectControlled
                   control={control}
                   name="connections.0"
@@ -234,7 +237,7 @@ function BenchmarkPage() {
             </Grid.Col>
             <Grid.Col span={6}>
               <Stack>
-                <Text size="lg">Query 2</Text>
+                <Text size="lg">{tNav('benchmark.queryTwo')}</Text>
                 <ConnectionSelectControlled
                   control={control}
                   name="connections.1"
@@ -244,19 +247,19 @@ function BenchmarkPage() {
             </Grid.Col>
           </Grid>
           <Button variant="primary" type="submit" loading={isQueryIdsLoading}>
-            Run Benchmark
+            {t('benchmark.run')}
           </Button>
           {isQueryIdsLoading && (
             <Text ta="center" c="green" size="xl">
-              Running Benchmark...
+              {t('benchmark.running')}
             </Text>
           )}
         </Stack>
         <Grid mt="md">
           <Grid.Col span={12}>
             <Stack>
-              <Text size="lg">Query Estimate & Indexes</Text>
-              <Text size="sm">Index utilization of your query</Text>
+              <Text size="lg">{t('benchmark.queryEstimateAndIndexes')}</Text>
+              <Text size="sm">{t('benchmark.indexUtilization')}</Text>
             </Stack>
           </Grid.Col>
           <Grid.Col span={6}>

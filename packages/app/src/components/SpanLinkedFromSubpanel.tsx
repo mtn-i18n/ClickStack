@@ -1,3 +1,4 @@
+import { useTranslation } from 'next-i18next/pages';
 import { ErrorBoundary } from 'react-error-boundary';
 import { Anchor, Button, Stack, Tooltip } from '@mantine/core';
 import {
@@ -21,6 +22,7 @@ function LinkedSpanRow({
   link: LinkedSpanDetails;
   onOpenTrace?: (link: SpanLinkData) => void;
 }) {
+  const { t } = useTranslation('sessions');
   return (
     <Stack gap={4}>
       <Tooltip
@@ -30,8 +32,12 @@ function LinkedSpanRow({
         multiline
         label={
           <div className="font-monospace" style={{ fontSize: 11 }}>
-            <div style={{ wordBreak: 'break-all' }}>Trace: {link.TraceId}</div>
-            <div style={{ wordBreak: 'break-all' }}>Span: {link.SpanId}</div>
+            <div style={{ wordBreak: 'break-all' }}>
+              {t('traceLabel')} {link.TraceId}
+            </div>
+            <div style={{ wordBreak: 'break-all' }}>
+              {t('spanLabel')} {link.SpanId}
+            </div>
           </div>
         }
       >
@@ -52,7 +58,7 @@ function LinkedSpanRow({
           className="d-inline-flex align-items-center"
         >
           <IconArrowUpRight size={14} className="me-1" />
-          {link.spanName || 'Open span'}
+          {link.spanName || t('openSpan')}
         </Anchor>
       </Tooltip>
       <LinkedSpanMetaLine details={link} />
@@ -67,6 +73,7 @@ export const SpanLinkedFromSubpanel = ({
   links: LinkedSpanDetails[];
   onOpenTrace?: (link: SpanLinkData) => void;
 }) => {
+  const { t } = useTranslation('sessions');
   const { handleToggleMoreRows, hiddenRowsCount, visibleRows, isExpanded } =
     useShowMoreRows({
       rows: links,
@@ -86,7 +93,7 @@ export const SpanLinkedFromSubpanel = ({
           }}
           fallbackRender={() => (
             <div className="text-danger px-2 py-1 m-2 fs-7 font-monospace bg-danger-transparent p-4">
-              An error occurred while rendering linked spans
+              {t('linkedSpansRenderError')}
             </div>
           )}
         >
@@ -114,12 +121,12 @@ export const SpanLinkedFromSubpanel = ({
           >
             {isExpanded ? (
               <>
-                <IconChevronUp size={14} className="me-2" /> Hide spans
+                <IconChevronUp size={14} className="me-2" /> {t('hideSpans')}
               </>
             ) : (
               <>
                 <IconChevronDown size={14} className="me-2" />
-                Show {hiddenRowsCount} more spans
+                {t('showMoreSpans', { count: hiddenRowsCount })}
               </>
             )}
           </Button>

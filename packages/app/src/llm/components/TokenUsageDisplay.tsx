@@ -1,3 +1,4 @@
+import { useTranslation } from 'next-i18next/pages';
 import { Group, Text, Tooltip } from '@mantine/core';
 
 import { formatCostUsd, formatTokenCount } from '@/llm/lib/extract';
@@ -42,6 +43,7 @@ export function TokenUsageDisplay({
   costUsd?: number;
   costEstimated?: boolean;
 }) {
+  const { t } = useTranslation('llm');
   const hasUsage =
     usage.inputTokens != null ||
     usage.outputTokens != null ||
@@ -54,42 +56,49 @@ export function TokenUsageDisplay({
     <Group gap="md" wrap="wrap" data-testid="llm-token-usage">
       {usage.inputTokens != null && (
         <UsageStat
-          label="Input"
+          label={t('tokenUsage.input')}
           value={formatTokenCount(usage.inputTokens)}
           detail={
             usage.cachedInputTokens != null && usage.cachedInputTokens > 0
-              ? `${formatTokenCount(usage.cachedInputTokens)} cached`
+              ? t('tokenUsage.cached', {
+                  value: formatTokenCount(usage.cachedInputTokens),
+                })
               : undefined
           }
         />
       )}
       {usage.outputTokens != null && (
         <UsageStat
-          label="Output"
+          label={t('tokenUsage.output')}
           value={formatTokenCount(usage.outputTokens)}
           detail={
             usage.reasoningOutputTokens != null &&
             usage.reasoningOutputTokens > 0
-              ? `${formatTokenCount(usage.reasoningOutputTokens)} reasoning`
+              ? t('tokenUsage.reasoning', {
+                  value: formatTokenCount(usage.reasoningOutputTokens),
+                })
               : undefined
           }
         />
       )}
       {usage.totalTokens != null && (
-        <UsageStat label="Total" value={formatTokenCount(usage.totalTokens)} />
+        <UsageStat
+          label={t('tokenUsage.total')}
+          value={formatTokenCount(usage.totalTokens)}
+        />
       )}
       {costUsd != null && (
         <Tooltip
           label={
             costEstimated
-              ? 'Estimated from token usage and bundled model prices'
-              : 'Cost reported by the instrumentation'
+              ? t('tokenUsage.estimatedTooltip')
+              : t('tokenUsage.reportedTooltip')
           }
           position="top"
         >
           <Group gap={4} wrap="nowrap">
             <Text size="xs" c="dimmed">
-              Cost
+              {t('tokenUsage.cost')}
             </Text>
             <Text size="xs" fw={500} data-testid="llm-cost">
               {costEstimated ? '~' : ''}

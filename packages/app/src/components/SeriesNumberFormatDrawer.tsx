@@ -1,4 +1,5 @@
 import { useCallback, useEffect } from 'react';
+import { useTranslation } from 'next-i18next/pages';
 import { useForm, useWatch } from 'react-hook-form';
 import { Separator } from '@clickhouse/click-ui';
 import { NumberFormat } from '@hyperdx/common-utils/dist/types';
@@ -28,6 +29,7 @@ export default function SeriesNumberFormatDrawer({
   onChange,
   onClose,
 }: SeriesNumberFormatDrawerProps) {
+  const { t } = useTranslation('charts');
   const { control, handleSubmit, reset, setValue } = useForm<FormState>({
     defaultValues: undefined,
   });
@@ -55,7 +57,7 @@ export default function SeriesNumberFormatDrawer({
 
   return (
     <Drawer
-      title="Series Display Settings"
+      title={t('seriesDisplaySettings')}
       opened={opened}
       onClose={handleClose}
       position="right"
@@ -74,8 +76,8 @@ export default function SeriesNumberFormatDrawer({
             }
           }}
           data={[
-            { label: 'Inherit', value: 'inherit' },
-            { label: 'Custom', value: 'format' },
+            { label: t('inherit'), value: 'inherit' },
+            { label: t('custom'), value: 'format' },
           ]}
         />
         {isUsingCustomFormat ? (
@@ -84,20 +86,18 @@ export default function SeriesNumberFormatDrawer({
             <Separator size="xs" />
           </>
         ) : (
-          <Text size="xs">
-            Inherit display settings from chart's display settings.
-          </Text>
+          <Text size="xs">{t('inheritDisplaySettings')}</Text>
         )}
         <Group gap="xs" mt="xs" justify="space-between">
           {isUsingCustomFormat ? (
             <Button type="submit" variant="secondary" onClick={resetToDefaults}>
-              Reset
+              {t('common:actions.reset')}
             </Button>
           ) : (
             <span />
           )}
           <Button type="submit" variant="primary" onClick={applyChanges}>
-            Apply
+            {t('common:actions.apply')}
           </Button>
         </Group>
       </Stack>

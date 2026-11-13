@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { useTranslation } from 'next-i18next/pages';
 import {
   PASSWORD_MAX_LENGTH,
   PASSWORD_MIN_LENGTH,
@@ -15,32 +16,36 @@ const checkOneNumber = passwordValidators.hasNumber;
 const checkOneSpecial = passwordValidators.hasSpecialChar;
 
 export const PasswordCheck = (opts: { password: string }) => {
+  const { t } = useTranslation('settings');
   const password = opts.password;
   return (
     <div>
       <div>
         <CheckOrX handler={checkLength} password={password}>
-          between {PASSWORD_MIN_LENGTH} and {PASSWORD_MAX_LENGTH} characters
+          {t('passwordChecks.length', {
+            min: PASSWORD_MIN_LENGTH,
+            max: PASSWORD_MAX_LENGTH,
+          })}
         </CheckOrX>
       </div>
       <div>
         <CheckOrX handler={checkOneUpper} password={password}>
-          at least 1 uppercase
+          {t('passwordChecks.uppercase')}
         </CheckOrX>
       </div>
       <div>
         <CheckOrX handler={checkOneLower} password={password}>
-          at least 1 lowercase
+          {t('passwordChecks.lowercase')}
         </CheckOrX>
       </div>
       <div>
         <CheckOrX handler={checkOneNumber} password={password}>
-          at least 1 number
+          {t('passwordChecks.number')}
         </CheckOrX>
       </div>
       <div>
         <CheckOrX handler={checkOneSpecial} password={password}>
-          at least 1 special character
+          {t('passwordChecks.special')}
         </CheckOrX>
       </div>
     </div>

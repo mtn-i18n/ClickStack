@@ -1,4 +1,5 @@
 import { memo } from 'react';
+import { useTranslation } from 'next-i18next/pages';
 import { Text, Tooltip } from '@mantine/core';
 
 import { useFormatTime } from '@/useFormatTime';
@@ -21,6 +22,7 @@ export const TimelineSpanEventMarker = memo(function ({
   eventEnd: number;
   height: number;
 }) {
+  const { t } = useTranslation('charts');
   const formatTime = useFormatTime();
   // OTel records exceptions on spans as events named `exception`.
   const isException = marker.name === 'exception';
@@ -59,7 +61,9 @@ export const TimelineSpanEventMarker = memo(function ({
           ))}
           {attributeEntries.length > 5 && (
             <div style={{ fontStyle: 'italic' }}>
-              ...and {attributeEntries.length - 5} more
+              {t('andMoreAttributes', {
+                total: attributeEntries.length - 5,
+              })}
             </div>
           )}
         </div>

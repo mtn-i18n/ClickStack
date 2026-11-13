@@ -1,4 +1,5 @@
 import { memo, useState } from 'react';
+import { useTranslation } from 'next-i18next/pages';
 import { withErrorBoundary } from 'react-error-boundary';
 import type { TooltipContentProps as RechartsTooltipContentProps } from 'recharts';
 import {
@@ -69,10 +70,21 @@ type TooltipContentProps = Partial<
   title?: string;
 };
 
+function TooltipErrorFallback() {
+  const { t } = useTranslation('search');
+
+  return (
+    <div className="text-danger px-2 py-1 m-2 fs-8 font-monospace bg-danger-transparent">
+      {t('propertyComparison.tooltipError')}
+    </div>
+  );
+}
+
 // Hover-only tooltip: shows value name and percentages.
 // Actions are handled by the click popover in PropertyComparisonChart.
 const HDXBarChartTooltip = withErrorBoundary(
   memo(({ active, payload, label, title }: TooltipContentProps) => {
+    const { t } = useTranslation('search');
     if (active && payload && payload.length) {
       return (
         <div className={styles.chartTooltip}>
@@ -83,7 +95,11 @@ const HDXBarChartTooltip = withErrorBoundary(
               </Text>
             )}
             <Text size="xs" mb="xs">
-              {String(label).length === 0 ? <i>Empty String</i> : String(label)}
+              {String(label).length === 0 ? (
+                <i>{t('propertyComparison.emptyString')}</i>
+              ) : (
+                String(label)
+              )}
             </Text>
             {[...payload]
               .sort((a, b) => Number(b.value ?? 0) - Number(a.value ?? 0))
@@ -100,11 +116,7 @@ const HDXBarChartTooltip = withErrorBoundary(
   }),
   {
     onError: console.error,
-    fallback: (
-      <div className="text-danger px-2 py-1 m-2 fs-8 font-monospace bg-danger-transparent">
-        An error occurred while rendering the tooltip.
-      </div>
-    ),
+    fallback: <TooltipErrorFallback />,
   },
 );
 
@@ -151,6 +163,7 @@ export function PropertyComparisonChart({
   onAddFilter?: AddFilterFn;
   hasSelection?: boolean;
 }) {
+  const { t } = useTranslation('search');
   const mergedValueStatistics = mergeValueStatisticsMaps(
     outlierValueOccurences,
     inlierValueOccurences,
@@ -222,7 +235,11 @@ export function PropertyComparisonChart({
               />
               <Bar
                 dataKey="outlierCount"
-                name={hasSelection ? 'Selection' : 'All spans'}
+                name={
+                  hasSelection
+                    ? t('propertyComparison.selection')
+                    : t('propertyComparison.allSpans')
+                }
                 fill={hasSelection ? getChartColorError() : ALL_SPANS_COLOR}
                 isAnimationActive={false}
               >
@@ -242,7 +259,7 @@ export function PropertyComparisonChart({
               {hasSelection && (
                 <Bar
                   dataKey="inlierCount"
-                  name="Background"
+                  name={t('propertyComparison.background')}
                   fill={getChartColorSuccess()}
                   isAnimationActive={false}
                 >
@@ -276,19 +293,25 @@ export function PropertyComparisonChart({
               {truncateMiddle(name, 40)}
             </Text>
             <Text size="xs" mb={6} style={{ wordBreak: 'break-all' }}>
-              {clickedValue.length === 0 ? <i>Empty String</i> : clickedValue}
+              {clickedValue.length === 0 ? (
+                <i>{t('propertyComparison.emptyString')}</i>
+              ) : (
+                clickedValue
+              )}
             </Text>
             <Flex gap={12} mb={8}>
               <Text
                 size="xs"
                 c={hasSelection ? getChartColorError() : ALL_SPANS_COLOR}
               >
-                {hasSelection ? 'Selection' : 'All spans'}:{' '}
-                {(outlierValueOccurences.get(clickedValue) ?? 0).toFixed(1)}%
+                {hasSelection
+                  ? t('propertyComparison.selection')
+                  : t('propertyComparison.allSpans')}
+                : {(outlierValueOccurences.get(clickedValue) ?? 0).toFixed(1)}%
               </Text>
               {hasSelection && (
                 <Text size="xs" c={getChartColorSuccess()}>
-                  Background:{' '}
+                  {t('propertyComparison.background')}:{' '}
                   {(inlierValueOccurences.get(clickedValue) ?? 0).toFixed(1)}%
                 </Text>
               )}
@@ -298,7 +321,7 @@ export function PropertyComparisonChart({
                 <>
                   <DBRowTableIconButton
                     variant="copy"
-                    title="Filter for this value"
+                    title={t('propertyComparison.filterForValue')}
                     onClick={() => {
                       onAddFilter(name, clickedValue, 'include');
                       setClickedValue(null);
@@ -308,7 +331,7 @@ export function PropertyComparisonChart({
                   </DBRowTableIconButton>
                   <DBRowTableIconButton
                     variant="copy"
-                    title="Exclude this value"
+                    title={t('propertyComparison.excludeValue')}
                     onClick={() => {
                       onAddFilter(name, clickedValue, 'exclude');
                       setClickedValue(null);
@@ -320,7 +343,11 @@ export function PropertyComparisonChart({
               )}
               <DBRowTableIconButton
                 variant="copy"
-                title={clipboard.copied ? 'Copied!' : 'Copy value'}
+                title={
+                  clipboard.copied
+                    ? t('propertyComparison.copied')
+                    : t('propertyComparison.copyValue')
+                }
                 isActive={clipboard.copied}
                 onClick={() => clipboard.copy(clickedValue)}
               >

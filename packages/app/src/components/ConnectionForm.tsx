@@ -1,4 +1,5 @@
 import { useCallback, useState } from 'react';
+import { useTranslation } from 'next-i18next/pages';
 import { omit } from 'lodash';
 import { Controller, useForm, useWatch } from 'react-hook-form';
 import { testLocalConnection } from '@hyperdx/common-utils/dist/clickhouse/browser';
@@ -48,6 +49,7 @@ function useTestConnection({
 }: {
   getValues: (name: string) => string;
 }) {
+  const { t } = useTranslation('settings');
   const testConnection = api.useTestConnection();
   const [testConnectionState, setTestConnectionState] =
     useState<TestConnectionState | null>(null);
@@ -73,7 +75,7 @@ function useTestConnection({
           setTestConnectionState(TestConnectionState.Invalid);
           notifications.show({
             color: 'red',
-            message: 'Connection test failed',
+            message: t('connectionForm.testFailed'),
             autoClose: 5000,
           });
         }
@@ -99,7 +101,7 @@ function useTestConnection({
           setTestConnectionState(TestConnectionState.Invalid);
           notifications.show({
             color: 'red',
-            message: result.error || 'Connection test failed',
+            message: result.error || t('connectionForm.testFailed'),
             autoClose: 5000,
           });
         }
@@ -108,7 +110,7 @@ function useTestConnection({
         setTestConnectionState(TestConnectionState.Invalid);
         notifications.show({
           color: 'red',
-          message: body?.error ?? 'Failed to test connection',
+          message: body?.error ?? t('connectionForm.testFailedGeneric'),
           autoClose: 5000,
         });
       }
@@ -117,7 +119,7 @@ function useTestConnection({
     setTimeout(() => {
       setTestConnectionState(null);
     }, 2000);
-  }, [getValues, testConnection, testConnectionState]);
+  }, [getValues, testConnection, testConnectionState, t]);
 
   return {
     testConnectionState,
@@ -140,6 +142,7 @@ export function ConnectionForm({
   showCancelButton?: boolean;
   showDeleteButton?: boolean;
 }) {
+  const { t } = useTranslation('settings');
   const { control, handleSubmit, resetField, getValues, formState, trigger } =
     useForm<Connection>({
       defaultValues: {
@@ -186,15 +189,14 @@ export function ConnectionForm({
           onSuccess: () => {
             notifications.show({
               color: 'green',
-              message: 'Connection created successfully',
+              message: t('connectionForm.created'),
             });
             onSave?.();
           },
           onError: () => {
             notifications.show({
               color: 'red',
-              message:
-                'Error creating connection, please check the host and credentials and try again.',
+              message: t('connectionForm.createError'),
               autoClose: 5000,
             });
           },
@@ -207,15 +209,14 @@ export function ConnectionForm({
           onSuccess: () => {
             notifications.show({
               color: 'green',
-              message: 'Connection updated successfully',
+              message: t('connectionForm.updated'),
             });
             onSave?.();
           },
           onError: () => {
             notifications.show({
               color: 'red',
-              message:
-                'Error updating connection, please check the host and credentials and try again.',
+              message: t('connectionForm.updateError'),
               autoClose: 5000,
             });
           },
@@ -244,24 +245,24 @@ export function ConnectionForm({
       <Stack gap="md">
         <Box>
           <Text size="xs" mb="xs">
-            Connection Name
+            {t('connectionForm.nameLabel')}
           </Text>
           <InputControlled
             data-testid="connection-name-input"
             name="name"
             control={control}
-            placeholder="My Clickhouse Server"
-            rules={{ required: 'Connection name is required' }}
+            placeholder={t('connectionForm.namePlaceholder')}
+            rules={{ required: t('connectionForm.nameRequired') }}
           />
         </Box>
         <Box>
           <Group gap="xs" mb="xs">
-            <Text size="xs">Host</Text>
+            <Text size="xs">{t('connectionForm.hostLabel')}</Text>
             <Tooltip
               label={
                 isPrometheusEndpoint
-                  ? 'Prometheus-compatible API endpoint. PromQL queries are proxied to this URL.'
-                  : 'ClickHouse HTTP endpoint URL.'
+                  ? t('connectionForm.hostTooltipPrometheus')
+                  : t('connectionForm.hostTooltip')
               }
               color="dark"
               c="white"
@@ -285,14 +286,14 @@ export function ConnectionForm({
             rules={{
               validate: value => {
                 if (typeof value !== 'string' || !value) {
-                  return 'Host is required';
+                  return t('connectionForm.hostRequired');
                 }
                 if (isPrometheusEndpoint) {
                   try {
                     new URL(value);
                     return true;
                   } catch {
-                    return 'Must be a valid URL';
+                    return t('connectionForm.hostInvalid');
                   }
                 }
                 return true;
@@ -304,18 +305,18 @@ export function ConnectionForm({
           <>
             <Box>
               <Text size="xs" mb="xs">
-                Username
+                {t('connectionForm.usernameLabel')}
               </Text>
               <InputControlled
                 data-testid="connection-username-input"
                 name="username"
                 control={control}
-                placeholder="Username (default: default)"
+                placeholder={t('connectionForm.usernamePlaceholder')}
               />
             </Box>
             <Box>
               <Text size="xs" mb="xs">
-                Password
+                {t('connectionForm.passwordLabel')}
               </Text>
               {!showUpdatePassword && !isNew && (
                 <Button
@@ -325,7 +326,7 @@ export function ConnectionForm({
                     setShowUpdatePassword(true);
                   }}
                 >
-                  Update Password
+                  {t('connectionForm.updatePassword')}
                 </Button>
               )}
               {(showUpdatePassword || isNew) && (
@@ -335,7 +336,7 @@ export function ConnectionForm({
                     style={{ flexGrow: 1 }}
                     name="password"
                     control={control}
-                    placeholder="Password (default: blank)"
+                    placeholder={t('connectionForm.passwordPlaceholder')}
                   />
                   {!isNew && (
                     <Button
@@ -346,7 +347,7 @@ export function ConnectionForm({
                         resetField('password');
                       }}
                     >
-                      Cancel
+                      {t('cancel')}
                     </Button>
                   )}
                 </Flex>
@@ -363,7 +364,7 @@ export function ConnectionForm({
             >
               <Group gap="xs">
                 <IconSettings size={14} />
-                Advanced Settings
+                {t('connectionForm.advancedSettings')}
               </Group>
             </Anchor>
           )}
@@ -373,7 +374,7 @@ export function ConnectionForm({
               size="xs"
               variant="subtle"
             >
-              Hide Advanced Settings
+              {t('connectionForm.hideAdvancedSettings')}
             </Button>
           )}
         </Box>
@@ -403,9 +404,11 @@ export function ConnectionForm({
                           }
                         }}
                       />
-                      <Text size="sm">Prometheus compatible</Text>
+                      <Text size="sm">
+                        {t('connectionForm.prometheusCompatible')}
+                      </Text>
                       <Tooltip
-                        label="Treat the Host as a Prometheus-compatible API endpoint (e.g. Thanos). PromQL queries are proxied here. ClickHouse-backed sources (logs, traces, OTel metrics) are not available on this connection."
+                        label={t('connectionForm.prometheusCompatibleTooltip')}
                         color="dark"
                         c="white"
                         multiline
@@ -421,9 +424,9 @@ export function ConnectionForm({
             {!isPrometheusEndpoint && (
               <Box>
                 <Group gap="xs" mb="xs">
-                  <Text size="xs">Query Log Setting Prefix</Text>
+                  <Text size="xs">{t('connectionForm.queryLogPrefix')}</Text>
                   <Tooltip
-                    label="Tracks query origins by adding the current user's email to ClickHouse queries (as {prefix}_user in system.query_log). Requires 'custom_settings_prefixes' in your ClickHouse config.xml to include this exact value, otherwise queries will be rejected."
+                    label={t('connectionForm.queryLogPrefixTooltip')}
                     color="dark"
                     c="white"
                     multiline
@@ -446,10 +449,10 @@ export function ConnectionForm({
           <Tooltip
             label={
               isPrometheusEndpoint
-                ? 'Test Connection only verifies ClickHouse hosts; Prometheus-compatible endpoints have no equivalent probe.'
+                ? t('connectionForm.testTooltipPrometheus')
                 : !watchedHost
-                  ? 'Enter a ClickHouse host to test the connection.'
-                  : '🔒 Password re-entry required for security'
+                  ? t('connectionForm.testTooltipNoHost')
+                  : t('connectionForm.testTooltipPassword')
             }
             position="right"
             disabled={isNew && !!watchedHost && !isPrometheusEndpoint}
@@ -469,18 +472,18 @@ export function ConnectionForm({
               loading={testConnectionState === TestConnectionState.Loading}
             >
               {testConnectionState === TestConnectionState.Valid ? (
-                <>Connection successful</>
+                <>{t('connectionForm.testSuccess')}</>
               ) : testConnectionState === TestConnectionState.Invalid ? (
-                <>Unable to connect</>
+                <>{t('connectionForm.testUnreachable')}</>
               ) : (
-                'Test Connection'
+                t('connectionForm.testConnection')
               )}
             </Button>
           </Tooltip>
           <Group gap="xs">
             {onClose && showCancelButton && (
               <Button variant="secondary" onClick={onClose}>
-                Cancel
+                {t('cancel')}
               </Button>
             )}
             {!isNew && showDeleteButton !== false && (
@@ -505,7 +508,9 @@ export function ConnectionForm({
                 isNew ? createConnection.isPending : updateConnection.isPending
               }
             >
-              {isNew ? 'Create' : 'Save'} Connection
+              {isNew
+                ? t('connectionForm.createConnection')
+                : t('connectionForm.saveConnection')}
             </Button>
           </Group>
         </Group>

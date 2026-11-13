@@ -1,5 +1,6 @@
 import * as React from 'react';
 import Link from 'next/link';
+import { useTranslation } from 'next-i18next/pages';
 import { sub } from 'date-fns';
 import { Badge } from '@clickhouse/click-ui';
 import type { ResponseJSON } from '@hyperdx/common-utils/dist/clickhouse';
@@ -175,6 +176,7 @@ export const KubeTimeline = ({
   dateRange?: [Date, Date];
   anchorEvent?: AnchorEvent;
 }) => {
+  const { t } = useTranslation('k8s');
   const startDate = React.useMemo(
     // eslint-disable-next-line no-restricted-syntax
     () => dateRange?.[0] ?? sub(new Date(), { days: 1 }),
@@ -278,7 +280,7 @@ export const KubeTimeline = ({
   if (isLoading) {
     return (
       <Text c="muted" ta="center">
-        Loading...
+        {t('loading')}
       </Text>
     );
   }
@@ -286,7 +288,7 @@ export const KubeTimeline = ({
   if (allPodEvents.length === 0) {
     return (
       <Text c="muted" ta="center">
-        No events
+        {t('noEvents')}
       </Text>
     );
   }
@@ -318,18 +320,19 @@ export const KubeTimeline = ({
 };
 
 export const FormatPodStatus = ({ status }: { status?: number }) => {
+  const { t } = useTranslation('k8s');
   switch (status) {
     case KubePhase.Pending:
-      return <Badge text="Pending" state="warning" />;
+      return <Badge text={t('pending')} state="warning" />;
     case KubePhase.Running:
-      return <Badge text="Running" state="success" />;
+      return <Badge text={t('running')} state="success" />;
     case KubePhase.Succeeded:
-      return <Badge text="Succeeded" state="info" />;
+      return <Badge text={t('succeeded')} state="info" />;
     case KubePhase.Failed:
-      return <Badge text="Failed" state="danger" />;
+      return <Badge text={t('failed')} state="danger" />;
     case KubePhase.Unknown:
-      return <Badge text="Unknown" state="neutral" />;
+      return <Badge text={t('unknown')} state="neutral" />;
     default:
-      return <Badge text="Unknown" state="neutral" />;
+      return <Badge text={t('unknown')} state="neutral" />;
   }
 };

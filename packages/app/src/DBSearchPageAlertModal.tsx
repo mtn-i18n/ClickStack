@@ -1,5 +1,6 @@
 import React from 'react';
 import router from 'next/router';
+import { useTranslation } from 'next-i18next/pages';
 import {
   Control,
   Controller,
@@ -7,6 +8,7 @@ import {
   useFormState,
   useWatch,
 } from 'react-hook-form';
+import { Trans } from 'react-i18next';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { tcFromSource } from '@hyperdx/common-utils/dist/core/metadata';
@@ -114,6 +116,7 @@ const NewSavedSearchFields = ({
   tags: string[];
   onTagsChange: (tags: string[]) => void;
 }) => {
+  const { t } = useTranslation('search');
   const { errors } = useFormState({ control, name: 'name' });
   const nameError = errors.name?.message;
 
@@ -121,18 +124,18 @@ const NewSavedSearchFields = ({
     <>
       <Group gap="xs" wrap="nowrap">
         <Text size="sm" style={{ flexShrink: 0 }}>
-          Alerts for
+          {t('alertModal.alertsFor')}
         </Text>
         <InlineNameInputControlled
           control={control}
           name="name"
           rules={{
             validate: value =>
-              value.trim().length > 0 || 'Name the search before saving it.',
+              value.trim().length > 0 || t('alertModal.renameRequired'),
           }}
           size="xs"
-          placeholder="Untitled search"
-          aria-label="Saved search name"
+          placeholder={t('savedSearch.untitled')}
+          aria-label={t('savedSearch.nameAria')}
           data-testid="saved-search-name-input"
         />
         <Tags allowCreate values={tags} onChange={onTagsChange}>
@@ -153,7 +156,7 @@ const NewSavedSearchFields = ({
         </Text>
       ) : (
         <Text size="xxs" opacity={0.5}>
-          Saving creates this search; the alert takes its name and tags.
+          {t('alertModal.savingCreates')}
         </Text>
       )}
     </>
@@ -196,6 +199,7 @@ const AlertForm = ({
   onSubmitAttempt?: () => void;
   onClose: () => void;
 }) => {
+  const { t } = useTranslation('search');
   const { data: source } = useSource({ id: sourceId });
 
   const {
@@ -288,16 +292,16 @@ const AlertForm = ({
               displayNameName="displayName"
               tagsName="tags"
               derivedDisplayName={savedSearchName}
-              displayNameLabel="Alert name"
+              displayNameLabel={t('alertModal.alertName')}
               labelMarginTop="0"
             />
           )}
           <Text size="xxs" opacity={0.5}>
-            Trigger
+            {t('alertModal.trigger')}
           </Text>
           <Group gap="xs">
             <Text size="sm" opacity={0.7}>
-              Alert when
+              {t('alertModal.alertWhen')}
             </Text>
             <Controller
               control={control}
@@ -329,7 +333,7 @@ const AlertForm = ({
             {isRangeThresholdType(thresholdType as AlertThresholdType) && (
               <>
                 <Text size="sm" opacity={0.7}>
-                  and
+                  {t('alertModal.and')}
                 </Text>
                 <Controller
                   control={control}
@@ -346,7 +350,7 @@ const AlertForm = ({
               </>
             )}
             <Text size="sm" opacity={0.7}>
-              lines appear within
+              {t('alertModal.linesAppearWithin')}
             </Text>
             <Controller
               control={control}
@@ -360,7 +364,7 @@ const AlertForm = ({
               )}
             />
             <Text size="sm" opacity={0.7}>
-              via
+              {t('alertModal.via')}
             </Text>
             <Controller
               control={control}
@@ -381,24 +385,26 @@ const AlertForm = ({
             scheduleStartAtName="scheduleStartAt"
             scheduleOffsetMinutes={scheduleOffsetMinutes}
             maxScheduleOffsetMinutes={maxScheduleOffsetMinutes}
-            offsetWindowLabel={`from each ${intervalLabel} window`}
+            offsetWindowLabel={t('alertModal.offsetWindow', {
+              interval: intervalLabel,
+            })}
             numConsecutiveWindowsName="numConsecutiveWindows"
             numConsecutiveWindows={numConsecutiveWindows ?? undefined}
           />
           <Text size="xxs" opacity={0.5} mb={4} mt="xs">
-            grouped by
+            {t('alertModal.groupedBy')}
           </Text>
           <SQLInlineEditorControlled
             tableConnection={tcFromSource(source)}
             sourceId={sourceId ?? undefined}
             control={control}
             name={`groupBy`}
-            placeholder="SQL Columns"
+            placeholder={t('alertModal.sqlColumns')}
             disableKeywordAutocomplete
             size="xs"
           />
           <Text size="xxs" opacity={0.5} mb={4}>
-            Send to
+            {t('alertModal.sendTo')}
           </Text>
           <AlertChannelForm control={control} channelsName="channels" />
           <AlertNoteField control={control} name="note" />
@@ -413,9 +419,7 @@ const AlertForm = ({
                 py="xs"
               >
                 <Text size="sm" opacity={0.7}>
-                  Warning: Alerts with this threshold type and a &quot;grouped
-                  by&quot; value will not alert for periods with no data for a
-                  group.
+                  {t('alertModal.groupedWarning')}
                 </Text>
               </MantineAlert>
             )}
@@ -427,8 +431,7 @@ const AlertForm = ({
               py="xs"
             >
               <Text size="sm" opacity={0.7}>
-                Note: Floating-point query results are not rounded during
-                equality comparison.
+                {t('alertModal.floatNote')}
               </Text>
             </MantineAlert>
           )}
@@ -441,7 +444,7 @@ const AlertForm = ({
             {defaultValues?.createdBy && (
               <Box>
                 <Text size="xxs" opacity={0.5} mb={4}>
-                  Created by
+                  {t('alertModal.createdBy')}
                 </Text>
                 <Text size="sm" opacity={0.8}>
                   {defaultValues.createdBy.name ||
@@ -467,7 +470,7 @@ const AlertForm = ({
       <Accordion defaultValue={'chart'} mt="sm" mx={-16}>
         <Accordion.Item value="chart">
           <Accordion.Control icon={<IconChartLine size={16} />}>
-            <Text size="sm">Threshold chart</Text>
+            <Text size="sm">{t('alertModal.thresholdChart')}</Text>
           </Accordion.Control>
           <Accordion.Panel>
             {source && (
@@ -498,20 +501,20 @@ const AlertForm = ({
               onClick={() => onDelete(defaultValues.id!)}
               loading={deleteLoading}
             >
-              Delete alert
+              {t('alertModal.deleteAlert')}
             </Button>
           )}
         </div>
         <Group gap="xs">
           <Button variant="secondary" onClick={onClose}>
-            Cancel
+            {t('common:actions.cancel')}
           </Button>
           <Button variant="primary" type="submit" loading={loading}>
             {defaultValues
-              ? 'Save alert'
+              ? t('alertModal.saveAlert')
               : hasSavedSearch
-                ? 'Create alert'
-                : 'Save search and alert'}
+                ? t('alertModal.createAlert')
+                : t('alertModal.saveSearchAndAlert')}
           </Button>
         </Group>
       </Group>
@@ -530,6 +533,7 @@ export const DBSearchPageAlertModal = ({
   onClose: () => void;
   open: boolean;
 }) => {
+  const { t } = useTranslation('search');
   const brandName = useBrandDisplayName();
   const queryClient = useQueryClient();
   const createAlert = api.useCreateAlert();
@@ -612,7 +616,10 @@ export const DBSearchPageAlertModal = ({
         }
         notifications.show({
           color: 'green',
-          message: `Alert ${activeIndex === 'stage' ? 'created' : 'updated'}!`,
+          message:
+            activeIndex === 'stage'
+              ? t('alertModal.alertCreated')
+              : t('alertModal.alertUpdated'),
           autoClose: 5000,
         });
       }
@@ -620,7 +627,7 @@ export const DBSearchPageAlertModal = ({
       console.error('Error creating/updating alert:', error);
       notifications.show({
         color: 'red',
-        message: `Something went wrong. Please contact ${brandName} team.`,
+        message: t('alertModal.genericError', { brand: brandName }),
         autoClose: 5000,
       });
     }
@@ -633,14 +640,14 @@ export const DBSearchPageAlertModal = ({
       await deleteAlert.mutateAsync(id);
       notifications.show({
         color: 'green',
-        message: 'Alert deleted!',
+        message: t('alertModal.alertDeleted'),
         autoClose: 5000,
       });
     } catch (error) {
       console.error('Failed to delete alert:', error);
       notifications.show({
         color: 'red',
-        message: `Something went wrong. Please contact ${brandName} team.`,
+        message: t('alertModal.genericError', { brand: brandName }),
         autoClose: 5000,
       });
     }
@@ -669,7 +676,12 @@ export const DBSearchPageAlertModal = ({
         <Stack gap={4} mb="md">
           {id ? (
             <Text size="sm">
-              Alerts for <strong>{savedSearch?.name}</strong>
+              <Trans
+                ns="search"
+                i18nKey="alertModal.alertsForName"
+                values={{ name: savedSearch?.name }}
+                components={{ strong: <strong /> }}
+              />
             </Text>
           ) : (
             <NewSavedSearchFields
@@ -690,7 +702,7 @@ export const DBSearchPageAlertModal = ({
                 <Tabs.Tab key={alert.id} value={`${index}`}>
                   <Group gap="xs">
                     {getWebhookChannelIcon(alert.channel?.type)}
-                    Alert {index + 1}
+                    {t('alertModal.alertTab', { index: index + 1 })}
                     <AlertStatusIcon alerts={[alert]} />
                   </Group>
                 </Tabs.Tab>
@@ -698,7 +710,7 @@ export const DBSearchPageAlertModal = ({
               <Tabs.Tab value="stage">
                 <Group gap={4}>
                   <IconPlus size={18} style={{ marginLeft: -8 }} />
-                  New alert
+                  {t('alertModal.newAlert')}
                 </Group>
               </Tabs.Tab>
             </Tabs.List>

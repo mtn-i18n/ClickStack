@@ -1,4 +1,5 @@
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'next-i18next/pages';
 import cx from 'classnames';
 import throttle from 'lodash/throttle';
 import { parseAsInteger, useQueryState } from 'nuqs';
@@ -238,6 +239,7 @@ export default function SessionSubpanel({
   onLanguageChange?: (lang: 'sql' | 'lucene') => void;
   onEventNavigate?: SessionEventNavigate;
 }) {
+  const { t } = useTranslation('sessions');
   const [tsQuery, setTsQuery] = useQueryState(
     'ts',
     parseAsInteger.withOptions({ history: 'replace' }),
@@ -471,13 +473,13 @@ export default function SessionSubpanel({
               flex={1}
               size="xs"
               data={[
-                { value: 'highlighted', label: 'Highlighted' },
-                { value: 'events', label: 'All Events' },
+                { value: 'highlighted', label: t('highlighted') },
+                { value: 'events', label: t('allEvents') },
               ]}
               value={tab}
               onChange={value => setTab(value)}
             />
-            <Tooltip label="Sync with player position" color="gray">
+            <Tooltip label={t('syncWithPlayer')} color="gray">
               <ActionIcon
                 size="md"
                 color="gray"
@@ -547,7 +549,7 @@ export default function SessionSubpanel({
         </div>
         <div className={styles.playerToolbar}>
           <div className={styles.playerTimestamp}>
-            <Tooltip label="Toggle relative time" color="gray">
+            <Tooltip label={t('toggleRelativeTime')} color="gray">
               <Button
                 variant="subtle"
                 color="gray"
@@ -569,7 +571,7 @@ export default function SessionSubpanel({
             </Tooltip>
           </div>
           <Group align="center" justify="center" gap="xs">
-            <Tooltip label="Go 15 seconds back" color="gray">
+            <Tooltip label={t('back15Seconds')} color="gray">
               <ActionIcon
                 variant="secondary"
                 size="md"
@@ -581,7 +583,7 @@ export default function SessionSubpanel({
               </ActionIcon>
             </Tooltip>
             <Tooltip
-              label={playerState === 'playing' ? 'Pause' : 'Play'}
+              label={playerState === 'playing' ? t('pause') : t('play')}
               color="gray"
             >
               <ActionIcon
@@ -597,7 +599,7 @@ export default function SessionSubpanel({
                 )}
               </ActionIcon>
             </Tooltip>
-            <Tooltip label="Skip 15 seconds" color="gray">
+            <Tooltip label={t('skip15Seconds')} color="gray">
               <ActionIcon
                 variant="secondary"
                 size="md"
@@ -623,7 +625,7 @@ export default function SessionSubpanel({
               }
               onClick={() => setSkipInactive(!skipInactive)}
             >
-              Skip Idle
+              {t('skipIdle')}
               <Divider orientation="vertical" ml="sm" />
             </Button>
             <Button
@@ -635,7 +637,7 @@ export default function SessionSubpanel({
               }
               onClick={handleSetPlayerSpeed}
             >
-              Speed
+              {t('speed')}
               <Divider orientation="vertical" ml="sm" />
             </Button>
           </Group>

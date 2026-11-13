@@ -1,4 +1,5 @@
 import { useCallback } from 'react';
+import { useTranslation } from 'next-i18next/pages';
 import SqlString from 'sqlstring';
 import { Grid } from '@mantine/core';
 
@@ -27,6 +28,7 @@ const CHART_HEIGHT = 320;
  * counts.
  */
 export function AttributionCharts(props: LLMChartProps) {
+  const { t } = useTranslation('llm');
   const { source, expressions, dateRange } = props;
   const base = baseLLMChartConfig(props);
 
@@ -71,7 +73,7 @@ export function AttributionCharts(props: LLMChartProps) {
       <Grid.Col span={6}>
         <ChartCard style={{ height: CHART_HEIGHT }}>
           <DBTableChart
-            title="Top Users"
+            title={t('attribution.topUsers')}
             getRowSearchLink={getUserSearchLink}
             config={{
               ...base,
@@ -120,7 +122,7 @@ export function AttributionCharts(props: LLMChartProps) {
       <Grid.Col span={6}>
         <ChartCard style={{ height: CHART_HEIGHT }}>
           <DBTableChart
-            title="Top Error Messages"
+            title={t('attribution.topErrorMessages')}
             getRowSearchLink={getErrorSearchLink}
             hiddenColumns={['last_seen_ts']}
             config={{

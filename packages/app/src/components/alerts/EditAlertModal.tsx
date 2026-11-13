@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { useTranslation } from 'next-i18next/pages';
 import { Controller, useForm, useWatch } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -164,6 +165,7 @@ export function EditAlertModal({
   /** Time range for the threshold preview chart (the detail page's picked range). */
   dateRange: [Date, Date];
 }) {
+  const { t } = useTranslation('alerts');
   const brandName = useBrandDisplayName();
   const queryClient = useQueryClient();
   const updateAlert = api.useUpdateAlert();
@@ -288,7 +290,7 @@ export function EditAlertModal({
       await updateAlert.mutateAsync({ ...payload, id: alert._id });
       notifications.show({
         color: 'green',
-        message: 'Alert updated!',
+        message: t('alertUpdated'),
         autoClose: 5000,
       });
       // The detail page, alerts list, and the source-bound edit surfaces
@@ -305,7 +307,7 @@ export function EditAlertModal({
       console.error('Error updating alert:', error);
       notifications.show({
         color: 'red',
-        message: `Something went wrong. Please contact ${brandName} team.`,
+        message: t('saveFailed', { brand: brandName }),
         autoClose: 5000,
       });
     }
@@ -316,17 +318,17 @@ export function EditAlertModal({
       data-testid="edit-alert-modal"
       opened={opened}
       onClose={onClose}
-      title="Edit Alert"
+      title={t('editAlertTitle')}
       size="xl"
     >
       <form onSubmit={onSubmit}>
         <Stack gap="xs">
           <Text size="xxs" opacity={0.5}>
-            Trigger
+            {t('trigger')}
           </Text>
           <Group gap="xs">
             <Text size="sm" opacity={0.7}>
-              {isChartAlert ? 'Alert when the value' : 'Alert when'}
+              {isChartAlert ? t('alertWhenValue') : t('alertWhen')}
             </Text>
             <Controller
               control={control}
@@ -358,7 +360,7 @@ export function EditAlertModal({
             {isRangeThresholdType(thresholdType as AlertThresholdType) && (
               <>
                 <Text size="sm" opacity={0.7}>
-                  and
+                  {t('and')}
                 </Text>
                 <Controller
                   control={control}
@@ -375,7 +377,7 @@ export function EditAlertModal({
               </>
             )}
             <Text size="sm" opacity={0.7}>
-              {isChartAlert ? 'over' : 'lines appear within'}
+              {isChartAlert ? t('over') : t('linesAppearWithin')}
             </Text>
             <Controller
               control={control}
@@ -389,7 +391,7 @@ export function EditAlertModal({
               )}
             />
             <Text size="sm" opacity={0.7}>
-              via
+              {t('via')}
             </Text>
             <Controller
               control={control}
@@ -416,28 +418,28 @@ export function EditAlertModal({
             scheduleStartAtName="scheduleStartAt"
             scheduleOffsetMinutes={scheduleOffsetMinutes}
             maxScheduleOffsetMinutes={maxScheduleOffsetMinutes}
-            offsetWindowLabel={`from each ${intervalLabel} window`}
+            offsetWindowLabel={t('fromEachWindow', { interval: intervalLabel })}
             numConsecutiveWindowsName="numConsecutiveWindows"
             numConsecutiveWindows={numConsecutiveWindows ?? undefined}
           />
           {!isChartAlert && (
             <>
               <Text size="xxs" opacity={0.5} mb={4} mt="xs">
-                grouped by
+                {t('groupedBy')}
               </Text>
               <SQLInlineEditorControlled
                 tableConnection={tcFromSource(source)}
                 sourceId={source?.id}
                 control={control}
                 name="groupBy"
-                placeholder="SQL Columns"
+                placeholder={t('sqlColumns')}
                 disableKeywordAutocomplete
                 size="xs"
               />
             </>
           )}
           <Text size="xxs" opacity={0.5} mb={4}>
-            Send to
+            {t('sendTo')}
           </Text>
           <AlertChannelForm control={control} channelsName="channels" />
           <AlertNoteField control={control} name="note" />
@@ -453,9 +455,7 @@ export function EditAlertModal({
                 py="xs"
               >
                 <Text size="sm" opacity={0.7}>
-                  Warning: Alerts with this threshold type and a &quot;grouped
-                  by&quot; value will not alert for periods with no data for a
-                  group.
+                  {t('groupedByNoDataWarning')}
                 </Text>
               </MantineAlert>
             )}
@@ -467,8 +467,7 @@ export function EditAlertModal({
               py="xs"
             >
               <Text size="sm" opacity={0.7}>
-                Note: Floating-point query results are not rounded during
-                equality comparison.
+                {t('floatEqualityNote')}
               </Text>
             </MantineAlert>
           )}
@@ -476,7 +475,7 @@ export function EditAlertModal({
         <Accordion defaultValue="chart" mt="sm" mx={-16}>
           <Accordion.Item value="chart">
             <Accordion.Control icon={<IconChartLine size={16} />}>
-              <Text size="sm">Threshold chart</Text>
+              <Text size="sm">{t('thresholdChart')}</Text>
             </Accordion.Control>
             <Accordion.Panel>
               <AlertDetailChart alert={previewAlert} dateRange={dateRange} />
@@ -485,14 +484,14 @@ export function EditAlertModal({
         </Accordion>
         <Group mt="lg" justify="flex-end" gap="xs">
           <Button variant="secondary" onClick={onClose}>
-            Cancel
+            {t('actions.cancel', { ns: 'common' })}
           </Button>
           <Button
             variant="primary"
             type="submit"
             loading={updateAlert.isPending}
           >
-            Save Alert
+            {t('saveAlert')}
           </Button>
         </Group>
       </form>

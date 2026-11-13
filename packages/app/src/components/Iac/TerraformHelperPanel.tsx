@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Trans, useTranslation } from 'next-i18next/pages';
 import { Badge } from '@clickhouse/click-ui';
 import {
   Anchor,
@@ -31,11 +32,14 @@ const SNIPPETS_MAX_HEIGHT = 360;
  * pasting it again is an error rather than a convenience.
  */
 function CollapsibleSnippet({ snippet }: { snippet: TerraformSnippet }) {
+  const { t } = useTranslation('settings');
   const [opened, setOpened] = useState(false);
   return (
     <Stack gap="xs">
       <Anchor component="button" size="sm" onClick={() => setOpened(v => !v)}>
-        {opened ? 'Hide' : 'Show'} {snippet.label.toLowerCase()}
+        {t(opened ? 'iac.hideLabel' : 'iac.showLabel', {
+          label: snippet.label.toLowerCase(),
+        })}
       </Anchor>
       <Collapse expanded={opened} transitionDuration={150}>
         <Stack gap="xs">
@@ -61,22 +65,26 @@ export function TerraformHelperPanel({
 }: {
   snippets: TerraformSnippet[];
 }) {
+  const { t } = useTranslation('settings');
   return (
     <Stack gap="sm" data-testid="terraform-helper-panel">
       <Group gap="xs">
         <Text size="sm" fw={500}>
           Terraform
         </Text>
-        <Badge size="sm" text="Experimental" state="info" />
+        <Badge size="sm" text={t('iac.experimental')} state="info" />
       </Group>
       <Text size="xs" style={{ color: 'var(--color-text-muted)' }}>
-        ClickStack resources in the ClickHouse Terraform provider are in alpha —
-        behaviour may change between provider versions. Generate resource
-        configuration with{' '}
-        <Text span ff="monospace" size="xs">
-          terraform plan -generate-config-out
-        </Text>{' '}
-        rather than hand-writing it.
+        <Trans
+          i18nKey="iac.alphaNotice"
+          components={{
+            code: (
+              <Text span ff="monospace" size="xs">
+                terraform plan -generate-config-out
+              </Text>
+            ),
+          }}
+        />
       </Text>
       <ScrollArea.Autosize
         mah={SNIPPETS_MAX_HEIGHT}

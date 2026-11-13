@@ -1,4 +1,6 @@
 import * as React from 'react';
+import { useTranslation } from 'next-i18next/pages';
+import { Trans } from 'react-i18next';
 import {
   isRangeThresholdType,
   WebhookService,
@@ -45,6 +47,7 @@ type NotificationTarget = {
  * The query key is shared, so every row on the alerts page reads one fetch.
  */
 function useNotificationTargets(alert: AlertsPageItem): NotificationTarget[] {
+  const { t } = useTranslation('alerts');
   const { data: webhooks } = api.useWebhooks([
     WebhookService.Slack,
     WebhookService.Generic,
@@ -62,11 +65,11 @@ function useNotificationTargets(alert: AlertsPageItem): NotificationTarget[] {
         key: `${channel.webhookId || channel.type}-${index}`,
         // Falls back to the generic label while the webhooks load, and for
         // webhooks that have since been deleted.
-        name: webhook?.name ?? 'Webhook',
+        name: webhook?.name ?? t('webhook'),
         service: webhook?.service,
       };
     });
-  }, [alert, webhooks]);
+  }, [alert, webhooks, t]);
 }
 
 /**
@@ -81,6 +84,7 @@ function NotificationTargets({
   alert: AlertsPageItem;
   showNames: boolean;
 }) {
+  const { t } = useTranslation('alerts');
   const targets = useNotificationTargets(alert);
   const allNames = targets.map(target => target.name).join(', ');
 
@@ -97,7 +101,7 @@ function NotificationTargets({
           pos="relative"
           data-testid="alert-notification-targets"
         >
-          Notify via
+          {t('notifyVia')}
           {targets.map(target => (
             <React.Fragment key={target.key}>
               {getWebhookChannelIcon(target.service)}
@@ -121,7 +125,7 @@ function NotificationTargets({
 
   return (
     <Group gap={5} wrap="nowrap" data-testid="alert-notification-targets">
-      Notify via
+      {t('notifyVia')}
       {inline.map((target, index) => (
         <React.Fragment key={target.key}>
           {getWebhookChannelIcon(target.service)}
@@ -150,9 +154,12 @@ function NotificationTargets({
             fz="inherit"
             c="inherit"
             td="underline"
-            aria-label={`${overflow} more: ${overflowNames}`}
+            aria-label={t('moreNamesLabel', {
+              count: overflow,
+              names: overflowNames,
+            })}
           >
-            +{overflow} more
+            {t('moreCount', { count: overflow })}
           </UnstyledButton>
         </Tooltip>
       )}
@@ -172,6 +179,7 @@ export function AlertPropertiesSummary({
   alert,
   variant = 'row',
 }: AlertPropertiesSummaryProps) {
+  const { t } = useTranslation('alerts');
   const isDetail = variant === 'detail';
   const thresholdLabel =
     TILE_ALERT_THRESHOLD_TYPE_OPTIONS[alert.thresholdType] ??
@@ -180,12 +188,21 @@ export function AlertPropertiesSummary({
   return (
     <div className={`fs-8 ${styles.propertiesSummary}`}>
       <span className={styles.propertySegment}>
-        If value {thresholdLabel}{' '}
-        <span className="fw-bold">{alert.threshold}</span>
+        <Trans
+          ns="alerts"
+          i18nKey="ifValue"
+          values={{ operator: thresholdLabel, threshold: alert.threshold }}
+          components={{ bold: <span className="fw-bold" /> }}
+        />
         {isRangeThresholdType(alert.thresholdType) && (
           <>
             {' '}
-            and <span className="fw-bold">{alert.thresholdMax ?? '-'}</span>
+            <Trans
+              ns="alerts"
+              i18nKey="andValue"
+              values={{ max: alert.thresholdMax ?? '-' }}
+              components={{ bold: <span className="fw-bold" /> }}
+            />
           </>
         )}
       </span>
@@ -193,14 +210,16 @@ export function AlertPropertiesSummary({
         <>
           <span>&middot;</span>
           <span className={styles.propertySegment}>
-            Evaluates every {alert.interval}
+            {t('evaluatesEvery', { interval: alert.interval })}
           </span>
           {alert.numConsecutiveWindows != null &&
             alert.numConsecutiveWindows > 1 && (
               <>
                 <span>&middot;</span>
                 <span className={styles.propertySegment}>
-                  Fires after {alert.numConsecutiveWindows} consecutive windows
+                  {t('firesAfterWindows', {
+                    count: alert.numConsecutiveWindows,
+                  })}
                 </span>
               </>
             )}

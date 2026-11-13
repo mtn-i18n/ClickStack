@@ -1,5 +1,6 @@
 import * as React from 'react';
 import Link from 'next/link';
+import { useTranslation } from 'next-i18next/pages';
 import { isImportableAlert } from '@hyperdx/common-utils/dist/iac';
 import { AlertSource } from '@hyperdx/common-utils/dist/types';
 import { ActionIcon, Menu, Modal } from '@mantine/core';
@@ -62,10 +63,11 @@ export function AlertRowMenu({
   dateRange,
   onDeleted,
 }: AlertRowMenuProps) {
+  const { t } = useTranslation('alerts');
   // `||`, not `??`: the empty string these arrive as for an unresolvable
   // source is not nullish, and would read as "Open " and "Delete ?".
-  const name = alertName?.trim() || 'this alert';
-  const sourceLabel = linkTitle?.trim().toLowerCase() || 'source';
+  const name = alertName?.trim() || t('thisAlert');
+  const sourceLabel = linkTitle?.trim().toLowerCase() || t('source');
   const [terraformOpened, setTerraformOpened] = React.useState(false);
   const [editOpened, setEditOpened] = React.useState(false);
   const confirm = useConfirm();
@@ -120,9 +122,13 @@ export function AlertRowMenu({
     });
 
   const onDelete = React.useCallback(async () => {
-    const confirmed = await confirm(`Delete ${name}?`, 'Delete', {
-      variant: 'danger',
-    });
+    const confirmed = await confirm(
+      t('deleteConfirm', { name }),
+      t('actions.delete', { ns: 'common' }),
+      {
+        variant: 'danger',
+      },
+    );
     if (!confirmed) {
       return;
     }
@@ -130,7 +136,7 @@ export function AlertRowMenu({
       await deleteAlert.mutateAsync(alert._id);
       notifications.show({
         color: 'green',
-        message: 'Alert deleted!',
+        message: t('alertDeleted'),
         autoClose: 5000,
       });
       // The alerts list and the source-bound edit surfaces (saved search
@@ -143,7 +149,7 @@ export function AlertRowMenu({
       console.error('Failed to delete alert:', error);
       notifications.show({
         color: 'red',
-        message: `Something went wrong. Please contact ${brandName} team.`,
+        message: t('deleteFailed', { brand: brandName }),
         autoClose: 5000,
       });
     }
@@ -155,6 +161,7 @@ export function AlertRowMenu({
     name,
     onDeleted,
     queryClient,
+    t,
   ]);
 
   return (
@@ -164,7 +171,7 @@ export function AlertRowMenu({
           <ActionIcon
             variant="secondary"
             size="input-xs"
-            aria-label={`Actions for ${name}`}
+            aria-label={t('actionsFor', { name })}
             data-testid={`alert-row-menu-${alert._id}`}
           >
             <IconDots size={14} />
@@ -176,7 +183,7 @@ export function AlertRowMenu({
             onClick={() => setEditOpened(true)}
             data-testid={`alert-edit-${alert._id}`}
           >
-            Edit alert
+            {t('editAlert')}
           </Menu.Item>
           {alertUrl && (
             <Menu.Item
@@ -184,7 +191,7 @@ export function AlertRowMenu({
               href={alertUrl}
               leftSection={<IconExternalLink size={16} />}
             >
-              Open {sourceLabel}
+              {t('openSource', { source: sourceLabel })}
             </Menu.Item>
           )}
           {canExport && (
@@ -193,7 +200,7 @@ export function AlertRowMenu({
               onClick={() => setTerraformOpened(true)}
               data-testid={`terraform-menu-item-${alert._id}`}
             >
-              Export to Terraform
+              {t('exportTerraform')}
             </Menu.Item>
           )}
           <Menu.Item
@@ -202,7 +209,7 @@ export function AlertRowMenu({
             onClick={onDelete}
             data-testid={`alert-delete-${alert._id}`}
           >
-            Delete alert
+            {t('deleteAlert')}
           </Menu.Item>
         </Menu.Dropdown>
       </Menu>
@@ -227,7 +234,7 @@ export function AlertRowMenu({
       <Modal
         opened={terraformOpened}
         onClose={() => setTerraformOpened(false)}
-        title="Export to Terraform"
+        title="{t('exportTerraform')}"
         size="lg"
       >
         <TerraformHelperPanel snippets={snippets} />

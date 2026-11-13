@@ -1,4 +1,5 @@
 import { Fragment } from 'react';
+import { useTranslation } from 'next-i18next/pages';
 import { DashboardContainer } from '@hyperdx/common-utils/dist/types';
 import { Menu } from '@mantine/core';
 import { IconCornerDownRight, IconFolderSymlink } from '@tabler/icons-react';
@@ -41,6 +42,7 @@ export function MoveToGroupSubmenu({
   tabId?: string;
   onMoveToGroup: (containerId: string | undefined, tabId?: string) => void;
 }) {
+  const { t } = useTranslation('dashboards');
   const targets = moveTargets.filter(
     t => !(t.containerId === containerId && t.tabId === tabId),
   );
@@ -49,7 +51,7 @@ export function MoveToGroupSubmenu({
     <Menu.Sub>
       <Menu.Sub.Target>
         <Menu.Sub.Item leftSection={<IconFolderSymlink size={14} />}>
-          Move to group
+          {t('dashboard.moveToGroup')}
         </Menu.Sub.Item>
       </Menu.Sub.Target>
       <Menu.Sub.Dropdown mah={320} style={{ overflowY: 'auto' }}>
@@ -58,7 +60,7 @@ export function MoveToGroupSubmenu({
             leftSection={<IconCornerDownRight size={14} />}
             onClick={() => onMoveToGroup(undefined)}
           >
-            (Ungrouped)
+            {t('dashboard.ungrouped')}
           </Menu.Item>
         )}
         {containerId && targets.length > 0 && <Menu.Divider role="separator" />}

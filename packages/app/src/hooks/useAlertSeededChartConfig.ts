@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import { useTranslation } from 'next-i18next/pages';
 import { SavedChartConfig } from '@hyperdx/common-utils/dist/types';
 import { notifications } from '@mantine/notifications';
 
@@ -31,6 +32,7 @@ export function useAlertSeededChartConfig({
   setChartConfig: (config: SavedChartConfig) => void;
   clearAlertId: () => void;
 }): boolean {
+  const { t } = useTranslation('dashboards');
   const { data, isLoading, isError } = api.useAlert(alertId ?? undefined);
   // Applying the seed clears the param, which re-renders with alertId null
   // before the write lands; latch so the effect cannot run twice for one id.
@@ -50,10 +52,10 @@ export function useAlertSeededChartConfig({
     if (isError || chartConfig == null) {
       notifications.show({
         color: 'yellow',
-        title: 'Chart unavailable',
+        title: t('chart.alertChartUnavailableTitle'),
         // Covers all three: the alert is gone, it is not readable, or it is a
         // saved-search / tile alert, none of which carry their own config.
-        message: "This alert's chart could not be loaded.",
+        message: t('chart.alertChartUnavailableMessage'),
         autoClose: 5000,
       });
       clearAlertId();
@@ -62,7 +64,7 @@ export function useAlertSeededChartConfig({
 
     setChartConfig(chartConfig);
     clearAlertId();
-  }, [alertId, clearAlertId, data, isError, isLoading, setChartConfig]);
+  }, [alertId, clearAlertId, data, isError, isLoading, setChartConfig, t]);
 
   return alertId != null;
 }

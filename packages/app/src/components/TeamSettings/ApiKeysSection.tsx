@@ -1,3 +1,5 @@
+import { useTranslation } from 'next-i18next/pages';
+import { Trans } from 'react-i18next';
 import { Separator } from '@clickhouse/click-ui';
 import { Box, Button, Card, Group, Text } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
@@ -19,19 +21,21 @@ function APIKeyCopyButton({
   dataTestId?: string;
   ariaLabel?: string;
 }) {
+  const { t } = useTranslation('settings');
   return (
     <RevealSnippet value={value} secrets={[value]}>
       <RevealSnippet.Input
         aria-label={ariaLabel}
         data-testid={dataTestId}
-        revealLabel="Reveal key"
-        copyLabel="Copy key"
+        revealLabel={t('apiKeysSection.revealKey')}
+        copyLabel={t('apiKeysSection.copyKey')}
       />
     </RevealSnippet>
   );
 }
 
 export default function ApiKeysSection() {
+  const { t } = useTranslation('settings');
   const { data: team, refetch: refetchTeam } = api.useTeam();
   const { data: me, isLoading: isLoadingMe } = api.useMe();
   const rotateTeamApiKey = api.useRotateTeamApiKey();
@@ -43,11 +47,12 @@ export default function ApiKeysSection() {
   // during the modal's exit transition cannot fire a second rotation.
   const onRotateTeamApiKey = async () => {
     const confirmed = await confirm(
-      <>
-        Rotating the API key will invalidate your existing API key and generate
-        a new one for you. This action is <b>not reversible</b>.
-      </>,
-      'Rotate key',
+      <Trans
+        ns="settings"
+        i18nKey="apiKeysSection.rotateTeamConfirm"
+        components={{ b: <b /> }}
+      />,
+      t('apiKeysSection.rotateKey'),
       { variant: 'danger' },
     );
     if (!confirmed) {
@@ -58,7 +63,7 @@ export default function ApiKeysSection() {
       onSuccess: () => {
         notifications.show({
           color: 'green',
-          message: 'Revoked old API key and generated new key.',
+          message: t('apiKeysSection.rotateTeamSuccess'),
         });
         refetchTeam();
       },
@@ -74,15 +79,12 @@ export default function ApiKeysSection() {
 
   const onRotateAccessKey = async () => {
     const confirmed = await confirm(
-      <>
-        Rotating your personal access key immediately revokes the current one
-        and generates a new one. This action is <b>not reversible</b>. Anything
-        still using the old key will start failing with 401 until you update it,
-        including MCP / AI agent configs (Claude Code, Cursor, VS Code, Codex),
-        external API v2 clients, Terraform / IaC providers, and CI scripts. Your
-        browser session is not affected; you will stay signed in.
-      </>,
-      'Rotate key',
+      <Trans
+        ns="settings"
+        i18nKey="apiKeysSection.rotatePersonalConfirm"
+        components={{ b: <b /> }}
+      />,
+      t('apiKeysSection.rotateKey'),
       { variant: 'danger' },
     );
     if (!confirmed) {
@@ -93,8 +95,7 @@ export default function ApiKeysSection() {
       onSuccess: () => {
         notifications.show({
           color: 'green',
-          message:
-            'Revoked your old personal access key and generated a new one.',
+          message: t('apiKeysSection.rotatePersonalSuccess'),
         });
       },
       onError: e => {
@@ -109,17 +110,17 @@ export default function ApiKeysSection() {
 
   return (
     <Box id="api_keys" data-testid="api-keys-section">
-      <Text size="md">API keys</Text>
+      <Text size="md">{t('apiKeys')}</Text>
       <Separator size="lg" />
       <Card mb="md">
-        <Text mb="md">Ingestion API key</Text>
+        <Text mb="md">{t('apiKeysSection.ingestionKey')}</Text>
         <Group gap="xs" align="flex-start" wrap="nowrap">
           {team?.apiKey && (
             <Box flex={1} miw={0} maw={KEY_FIELD_MAX_WIDTH}>
               <APIKeyCopyButton
                 value={team.apiKey}
                 dataTestId="ingestion-api-key"
-                ariaLabel="Ingestion API key"
+                ariaLabel={t('apiKeysSection.ingestionKey')}
               />
             </Box>
           )}
@@ -129,7 +130,7 @@ export default function ApiKeysSection() {
               variant="danger"
               onClick={onRotateTeamApiKey}
             >
-              Rotate API key
+              {t('apiKeysSection.rotateApiKey')}
             </Button>
           )}
         </Group>
@@ -137,13 +138,13 @@ export default function ApiKeysSection() {
       {!isLoadingMe && me != null && (
         <Card>
           <Card.Section p="md">
-            <Text mb="md">Personal API access key</Text>
+            <Text mb="md">{t('apiKeysSection.personalKey')}</Text>
             <Group gap="xs" align="flex-start" wrap="nowrap">
               <Box flex={1} miw={0} maw={KEY_FIELD_MAX_WIDTH}>
                 <APIKeyCopyButton
                   value={me.accessKey}
                   dataTestId="personal-access-key"
-                  ariaLabel="Personal API access key"
+                  ariaLabel={t('apiKeysSection.personalKey')}
                 />
               </Box>
               <Button
@@ -151,7 +152,7 @@ export default function ApiKeysSection() {
                 variant="danger"
                 onClick={onRotateAccessKey}
               >
-                Rotate access key
+                {t('apiKeysSection.rotateAccessKey')}
               </Button>
             </Group>
           </Card.Section>

@@ -1,4 +1,6 @@
 import * as React from 'react';
+import { useTranslation } from 'next-i18next/pages';
+import { Trans } from 'react-i18next';
 import {
   ALERT_EVALUATION_GROUPS_LIMIT,
   ALERT_INTERVAL_TO_MINUTES,
@@ -11,8 +13,8 @@ import { Group, Stack, Table, Text, Tooltip } from '@mantine/core';
 import { IconChevronDown, IconChevronRight } from '@tabler/icons-react';
 
 import {
-  ALERT_ERROR_TYPE_LABELS,
   AlertErrorsContent,
+  useAlertErrorTypeLabels,
 } from '@/components/alerts/AlertHistoryCards';
 import { AlertStateBadge } from '@/components/alerts/AlertStateBadge';
 import { NotificationDurationCell } from '@/components/alerts/NotificationDurationCell';
@@ -86,6 +88,8 @@ export function AlertEvaluationRow({
   history,
   interval,
 }: AlertEvaluationRowProps) {
+  const { t } = useTranslation('alerts');
+  const errorTypeLabels = useAlertErrorTypeLabels();
   const [expanded, setExpanded] = React.useState(false);
   const errors = history.errors ?? [];
   const groups = history.groups ?? [];
@@ -138,10 +142,14 @@ export function AlertEvaluationRow({
             )}
             <Tooltip
               label={
-                <>
-                  Evaluated <FormatTime value={evaluatedSpanStart} /> –{' '}
-                  <FormatTime value={history.createdAt} />
-                </>
+                <Trans
+                  ns="alerts"
+                  i18nKey="evaluatedRange"
+                  components={{
+                    start: <FormatTime value={evaluatedSpanStart} />,
+                    end: <FormatTime value={history.createdAt} />,
+                  }}
+                />
               }
               withArrow
               color="dark"
@@ -158,8 +166,11 @@ export function AlertEvaluationRow({
             {hasGroups && (
               <Text size="xs" c="dimmed" span>
                 {firingGroups > 0
-                  ? `${firingGroups}/${groupsTotal} groups firing`
-                  : `${groupsTotal} groups`}
+                  ? t('groupsFiring', {
+                      firing: firingGroups,
+                      total: groupsTotal,
+                    })
+                  : t('groupsCount', { count: groupsTotal })}
               </Text>
             )}
           </Group>
@@ -169,7 +180,7 @@ export function AlertEvaluationRow({
         <Table.Td>
           {backfilledBuckets > 0 ? (
             <Tooltip
-              label={`${backfilledBuckets} earlier tick${backfilledBuckets === 1 ? ' was' : 's were'} missed (job delay or failed evaluations); the bucket${backfilledBuckets === 1 ? ' was' : 's were'} backfilled in this evaluation.`}
+              label={t('backfilledTooltip', { count: backfilledBuckets })}
               multiline
               maw={320}
               withArrow
@@ -190,7 +201,7 @@ export function AlertEvaluationRow({
         <Table.Td>
           {hasErrors ? (
             <Text size="sm" c="red">
-              {errorTypes.map(type => ALERT_ERROR_TYPE_LABELS[type]).join(', ')}
+              {errorTypes.map(type => errorTypeLabels[type]).join(', ')}
             </Text>
           ) : (
             '–'
@@ -206,9 +217,10 @@ export function AlertEvaluationRow({
             <Table.Tr className={styles.evaluationChildRow}>
               <Table.Td colSpan={TABLE_COLUMNS}>
                 <Text size="sm" c="dimmed" pl="md">
-                  Showing the top {ALERT_EVALUATION_GROUPS_LIMIT} of{' '}
-                  {groupsTotal} groups (firing first) — additional groups
-                  aren&apos;t fetched.
+                  {t('groupsTruncated', {
+                    limit: ALERT_EVALUATION_GROUPS_LIMIT,
+                    total: groupsTotal,
+                  })}
                 </Text>
               </Table.Td>
             </Table.Tr>

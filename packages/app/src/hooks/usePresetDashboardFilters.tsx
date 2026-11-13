@@ -1,4 +1,5 @@
 import { useCallback } from 'react';
+import { useTranslation } from 'next-i18next/pages';
 import { isQueryExpressionFilter } from '@hyperdx/common-utils/dist/filters';
 import {
   DashboardFilter,
@@ -19,6 +20,7 @@ export default function usePresetDashboardFilters({
   sourceId: string;
   enabled?: boolean;
 }) {
+  const { t } = useTranslation('dashboards');
   const createDashboardFilter = api.useCreatePresetDashboardFilter();
   const updateDashboardFilter = api.useUpdatePresetDashboardFilter();
   const deleteDashboardFilter = api.useDeletePresetDashboardFilter();
@@ -38,17 +40,17 @@ export default function usePresetDashboardFilters({
   const onSuccess = useCallback(() => {
     refetch();
     notifications.show({
-      message: 'Filters updated',
+      message: t('toast.filtersUpdated'),
       color: 'green',
     });
-  }, [refetch]);
+  }, [refetch, t]);
 
   const onError = useCallback(() => {
     notifications.show({
-      message: 'Error updating filters',
+      message: t('toast.filtersUpdateError'),
       color: 'red',
     });
-  }, []);
+  }, [t]);
 
   const handleSaveFilter = useCallback(
     (dashboardFilter: DashboardFilter) => {

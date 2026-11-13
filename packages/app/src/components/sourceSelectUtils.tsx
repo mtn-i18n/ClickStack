@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { useTranslation } from 'next-i18next/pages';
 import { SourceKind, TSource } from '@hyperdx/common-utils/dist/types';
 import { ComboboxItem, OptionsFilter } from '@mantine/core';
 import {
@@ -66,6 +67,7 @@ export function useFilteredSortedSourceItems({
   isSourceAllowed,
   groupBySection = false,
 }: FilteredSourceItemsArgs): ComboboxItem[] | SourceSelectGroup[] {
+  const { t } = useTranslation('settings');
   return useMemo(() => {
     const visible =
       sources?.filter(
@@ -101,7 +103,8 @@ export function useFilteredSortedSourceItems({
     }
 
     return sectionNames.sort(bySectionOrder).map(group => ({
-      group,
+      group:
+        group === UNSECTIONED_SOURCE_GROUP ? t('sourceSelect.other') : group,
       items: (bySection.get(group) ?? []).sort(byLabel),
     }));
   }, [
@@ -110,6 +113,7 @@ export function useFilteredSortedSourceItems({
     connectionId,
     isSourceAllowed,
     groupBySection,
+    t,
   ]);
 }
 

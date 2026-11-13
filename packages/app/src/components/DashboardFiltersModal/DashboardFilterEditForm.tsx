@@ -1,4 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { useTranslation } from 'next-i18next/pages';
+import type { TFunction } from 'i18next';
 import { useForm, useWatch } from 'react-hook-form';
 import {
   deriveVariableName,
@@ -42,17 +44,20 @@ import { PromqlLabelFilterEditForm } from './PromqlLabelFilterEditForm';
 import { QueryExpressionFilterEditForm } from './QueryExpressionFilterEditForm';
 import { StaticListFilterEditForm } from './StaticListFilterEditForm';
 
-const FILTER_TYPE_OPTIONS = [
+const getFilterTypeOptions = (t: TFunction) => [
   {
     value: DashboardFilterType.enum.QUERY_EXPRESSION,
-    label: 'Queried values',
+    label: t('filtersModal.filterTypes.queriedValues'),
   },
-  { value: DashboardFilterType.enum.STATIC_LIST, label: 'Static values' },
+  {
+    value: DashboardFilterType.enum.STATIC_LIST,
+    label: t('filtersModal.filterTypes.staticValues'),
+  },
   ...(IS_PROMQL_ENABLED
     ? [
         {
           value: DashboardFilterType.enum.PROMETHEUS_LABEL,
-          label: 'PromQL label values',
+          label: t('filtersModal.filterTypes.promqlLabelValues'),
         },
       ]
     : []),
@@ -60,7 +65,7 @@ const FILTER_TYPE_OPTIONS = [
     ? [
         {
           value: DashboardFilterType.enum.ADHOC,
-          label: 'Ad hoc keys and values',
+          label: t('filtersModal.filterTypes.adhocKeysValues'),
         },
       ]
     : []),
@@ -101,6 +106,7 @@ export const DashboardFilterEditForm = ({
   onClose,
   onCancel,
 }: DashboardFilterEditFormProps) => {
+  const { t } = useTranslation('dashboards');
   const {
     handleSubmit,
     register,
@@ -134,16 +140,15 @@ export const DashboardFilterEditForm = ({
       return;
     }
     isConfirmingRef.current = true;
-    confirm(
-      'You have unsaved changes. Discard them and close the editor?',
-      'Discard',
-    ).then(ok => {
-      isConfirmingRef.current = false;
-      if (ok) {
-        onClose();
-      }
-    });
-  }, [confirm, isDirty, onClose]);
+    confirm(t('filtersModal.discardConfirm'), t('filtersModal.discard')).then(
+      ok => {
+        isConfirmingRef.current = false;
+        if (ok) {
+          onClose();
+        }
+      },
+    );
+  }, [confirm, isDirty, onClose, t]);
 
   // Gates the auto-fill of Variable Name from Name below. The auto-fill itself
   // uses `setValue` without `shouldDirty`, so the field is dirty only once the
@@ -189,7 +194,7 @@ export const DashboardFilterEditForm = ({
 
   return (
     <Modal
-      title={isNew ? 'Add filter' : 'Edit filter'}
+      title={isNew ? t('filtersModal.addFilter') : t('filtersModal.editFilter')}
       opened
       onClose={handleClose}
       size={MODAL_SIZE}
@@ -203,18 +208,18 @@ export const DashboardFilterEditForm = ({
           } catch {
             // The field rules should make this unreachable
             setError('root', {
-              message: 'This filter is incomplete and could not be saved.',
+              message: t('filtersModal.incompleteError'),
             });
           }
         })}
       >
         <Stack>
           {showTypeInput && (
-            <CustomInputWrapper label="Type">
+            <CustomInputWrapper label={t('filtersModal.type')}>
               <SelectControlled
                 control={control}
                 name="type"
-                data={FILTER_TYPE_OPTIONS}
+                data={getFilterTypeOptions(t)}
                 data-testid="filter-type-picker"
                 allowDeselect={false}
                 comboboxProps={{ withinPortal: true }}
@@ -222,18 +227,18 @@ export const DashboardFilterEditForm = ({
             </CustomInputWrapper>
           )}
           <CustomInputWrapper
-            label="Display name"
+            label={t('filtersModal.displayName')}
             error={formState.errors.name}
           >
             <TextInput
-              placeholder="Name"
+              placeholder={t('filtersModal.namePlaceholder')}
               data-testid="filter-name-input"
               {...register('name', { required: true, minLength: 1 })}
             />
           </CustomInputWrapper>
           <ErrorBoundary
             key={formFilterType}
-            message="Failed to load filter"
+            message={t('filtersModal.failedToLoad')}
             showErrorMessage
           >
             {formFilterType === 'STATIC_LIST' ? (
@@ -276,16 +281,16 @@ export const DashboardFilterEditForm = ({
                 control={control}
                 name="isSingleSelect"
                 size="xs"
-                label="Single select"
-                description="Only one value can be selected at a time."
+                label={t('filtersModal.singleSelect')}
+                description={t('filtersModal.singleSelectDescription')}
                 data-testid="filter-single-select-checkbox"
               />
               <CheckBoxControlled
                 control={control}
                 name="isRequired"
                 size="xs"
-                label="Required"
-                description="Tiles will not load until this filter has a selection."
+                label={t('filtersModal.required')}
+                description={t('filtersModal.requiredDescription')}
                 data-testid="filter-required-checkbox"
               />
               {!!isRequired && (
@@ -294,8 +299,8 @@ export const DashboardFilterEditForm = ({
                     control={control}
                     name="isGlobalRequirement"
                     size="xs"
-                    label="Block every tile"
-                    description="Block every tile until the filter has a selection, instead of just the tiles that use this filter's value."
+                    label={t('filtersModal.blockEveryTile')}
+                    description={t('filtersModal.blockEveryTileDescription')}
                     data-testid="filter-global-requirement-checkbox"
                   />
                 </Box>
@@ -315,14 +320,14 @@ export const DashboardFilterEditForm = ({
 
           <Group justify="space-between" my="xs">
             <Button variant="secondary" onClick={onCancel}>
-              Cancel
+              {t('common:actions.cancel')}
             </Button>
             <Button
               type="submit"
               variant="primary"
               data-testid="save-filter-button"
             >
-              Save filter
+              {t('filtersModal.saveFilter')}
             </Button>
           </Group>
         </Stack>

@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import { useTranslation } from 'next-i18next/pages';
 import { useWatch } from 'react-hook-form';
 import { Stack } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
@@ -14,6 +15,7 @@ import { FormRow } from './FormRow';
 import { TableModelProps } from './types';
 
 export function SessionTableModelForm({ control }: TableModelProps) {
+  const { t } = useTranslation('settings');
   const brandName = useBrandDisplayName();
   const databaseName = useWatch({
     control,
@@ -40,7 +42,7 @@ export function SessionTableModelForm({ control }: TableModelProps) {
           if (!isValid) {
             notifications.show({
               color: 'red',
-              message: `${tableName} is not a valid Sessions schema.`,
+              message: t('sourceForm.session.invalidSchema', { tableName }),
             });
           }
         }
@@ -52,20 +54,22 @@ export function SessionTableModelForm({ control }: TableModelProps) {
         });
       }
     })();
-  }, [tableName, databaseName, connectionId, metadata]);
+  }, [tableName, databaseName, connectionId, metadata, t]);
 
   return (
     <>
       <Stack gap="sm">
         <FormRow
-          label={'Correlated Trace Source'}
-          helpText={`${brandName} Source for traces associated with sessions. Required`}
+          label={t('sourceForm.fields.correlatedTraceSource')}
+          helpText={t('sourceForm.helpTexts.correlatedTraceSourceSessions', {
+            brandName,
+          })}
         >
           <SourceSelectControlled control={control} name="traceSourceId" />
         </FormRow>
         <FormRow
-          label={'Timestamp Column'}
-          helpText="DateTime column or expression that is part of your table's primary key."
+          label={t('sourceForm.fields.timestampColumn')}
+          helpText={t('sourceForm.helpTexts.timestampColumn')}
         >
           <SQLInlineEditorControlled
             tableConnection={{
@@ -78,7 +82,7 @@ export function SessionTableModelForm({ control }: TableModelProps) {
             disableKeywordAutocomplete
           />
         </FormRow>
-        <FormRow label={'Resource Attributes Expression'}>
+        <FormRow label={t('sourceForm.fields.resourceAttributesExpression')}>
           <SQLInlineEditorControlled
             tableConnection={{
               databaseName,

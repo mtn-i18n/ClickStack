@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'next-i18next/pages';
 import {
   Box,
   Group,
@@ -51,6 +52,7 @@ export function MetricNameTree({
   onSelectedChange,
   onApply,
 }: MetricNameTreeProps) {
+  const { t } = useTranslation('charts');
   const { nodes, leafIndex, leafCount, truncatedLeafCount } = useMemo(
     () =>
       buildMetricNameTree(entries, {
@@ -141,7 +143,9 @@ export function MetricNameTree({
           </Text>
           {leafTotal != null && (
             <Text size="xxs" c="dimmed" style={{ flexShrink: 0 }}>
-              {leafTotal === 1 ? '1 metric' : `${leafTotal} metrics`}
+              {leafTotal === 1
+                ? t('metricExplorer.metricCount_one', { count: leafTotal })
+                : t('metricExplorer.metricCount_other', { count: leafTotal })}
             </Text>
           )}
         </Group>
@@ -195,8 +199,10 @@ export function MetricNameTree({
       {truncatedLeafCount > 0 && (
         <Box>
           <Text size="xxs" style={{ color: 'var(--color-text-muted)' }}>
-            Showing the first {leafCount} of {leafCount + truncatedLeafCount}{' '}
-            matches. Narrow your search to see the rest.
+            {t('metricExplorer.showingFirstMatches', {
+              shown: leafCount,
+              total: leafCount + truncatedLeafCount,
+            })}
           </Text>
         </Box>
       )}

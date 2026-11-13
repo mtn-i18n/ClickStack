@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'next-i18next/pages';
 import { notifications } from '@mantine/notifications';
 import {
   IconCopy,
@@ -36,6 +37,7 @@ const DBRowTableRowButtons: React.FC<DBRowTableRowButtonsProps> = ({
   onToggleWrap,
   onOpenSidePanel,
 }) => {
+  const { t } = useTranslation('common');
   const [isCopied, setIsCopied] = useState(false);
   const [isUrlCopied, setIsUrlCopied] = useState(false);
 
@@ -86,7 +88,7 @@ const DBRowTableRowButtons: React.FC<DBRowTableRowButtonsProps> = ({
         <DBRowTableIconButton
           onClick={onToggleWrap}
           variant="copy"
-          title="Wrap All Lines"
+          title={t('table.wrapAllLines')}
         >
           <IconTextWrap size={16} />
         </DBRowTableIconButton>
@@ -95,9 +97,7 @@ const DBRowTableRowButtons: React.FC<DBRowTableRowButtonsProps> = ({
         onClick={copyRowData}
         variant="copy"
         isActive={isCopied}
-        title={
-          isCopied ? 'Copied entire row as JSON!' : 'Copy entire row as JSON'
-        }
+        title={isCopied ? t('table.copiedRowJson') : t('table.copyRowJson')}
       >
         <IconCopy size={16} />
       </DBRowTableIconButton>
@@ -106,9 +106,7 @@ const DBRowTableRowButtons: React.FC<DBRowTableRowButtonsProps> = ({
         variant="copy"
         isActive={isUrlCopied}
         title={
-          isUrlCopied
-            ? 'Copied shareable link!'
-            : 'Copy shareable link to this specific row'
+          isUrlCopied ? t('table.copiedShareLink') : t('table.copyShareLink')
         }
       >
         <IconLink size={16} />
@@ -117,7 +115,7 @@ const DBRowTableRowButtons: React.FC<DBRowTableRowButtonsProps> = ({
         <DBRowTableIconButton
           onClick={onOpenSidePanel}
           variant="copy"
-          title="Open in side panel"
+          title={t('table.openInSidePanel')}
         >
           <IconLayoutSidebarRightExpand size={16} />
         </DBRowTableIconButton>

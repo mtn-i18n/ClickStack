@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { useTranslation } from 'next-i18next/pages';
 import { MetricsDataType } from '@hyperdx/common-utils/dist/types';
 import {
   Group,
@@ -65,6 +66,7 @@ export function MetricBrowser({
   onSelectedChange,
   onApply,
 }: MetricBrowserProps) {
+  const { t } = useTranslation('charts');
   const [search, setSearch] = useState('');
   const [debouncedSearch] = useDebouncedValue(search, 200);
   const isSearching = debouncedSearch.trim().length > 0;
@@ -87,7 +89,7 @@ export function MetricBrowser({
         <TextInput
           size="xs"
           variant="filled"
-          placeholder="Search metrics…"
+          placeholder={t('metricExplorer.searchPlaceholder')}
           leftSection={<IconSearch size={14} />}
           value={search}
           onChange={e => setSearch(e.currentTarget.value)}
@@ -99,8 +101,8 @@ export function MetricBrowser({
           value={viewMode}
           onChange={value => setViewMode(value as MetricViewMode)}
           data={[
-            { label: 'Tree', value: 'tree' },
-            { label: 'List', value: 'list' },
+            { label: t('metricExplorer.tree'), value: 'tree' },
+            { label: t('metricExplorer.list'), value: 'list' },
           ]}
           data-testid="metric-explorer-view-mode"
         />
@@ -112,9 +114,11 @@ export function MetricBrowser({
           style={{ color: 'var(--color-text-warning)' }}
           data-testid="metric-explorer-partial-failure"
         >
-          Could not load{' '}
-          {failedKinds.map(k => METRIC_KIND_LABELS[k].toLowerCase()).join(', ')}{' '}
-          metrics. The list below is incomplete.
+          {t('metricExplorer.partialFailure', {
+            kinds: failedKinds
+              .map(k => METRIC_KIND_LABELS[k].toLowerCase())
+              .join(', '),
+          })}
         </Text>
       )}
 
@@ -130,18 +134,22 @@ export function MetricBrowser({
         // looking for missing data instead of a broken query.
         <EmptyState
           icon={<IconAlertTriangle size={28} />}
-          title="Could not load metrics"
+          title={t('metricExplorer.couldNotLoad')}
           description={error.message}
           data-testid="metric-explorer-error"
         />
       ) : isEmpty ? (
         <EmptyState
           icon={<IconMoodEmpty size={28} />}
-          title={isSearching ? 'No matching metrics' : 'No metrics found'}
+          title={
+            isSearching
+              ? t('metricExplorer.noMatching')
+              : t('metricExplorer.noMetrics')
+          }
           description={
             isSearching
-              ? 'Try a shorter or different search term.'
-              : 'No metrics were reported to this source recently.'
+              ? t('metricExplorer.tryDifferentSearch')
+              : t('metricExplorer.noMetricsReported')
           }
         />
       ) : viewMode === 'list' ? (

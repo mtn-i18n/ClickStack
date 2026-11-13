@@ -1,4 +1,5 @@
 import { useCallback, useMemo } from 'react';
+import { useTranslation } from 'next-i18next/pages';
 import { UTC_TIME_ZONE } from '@hyperdx/common-utils/dist/core/utils';
 import {
   Box,
@@ -43,11 +44,14 @@ const DEFAULT_OPTION = '__default';
 
 type ZoneOption = { value: string; name: string; offset?: string };
 
-function getDefaultOption(preference: string): ZoneOption {
+function getDefaultOption(
+  preference: string,
+  defaultLabel: string,
+): ZoneOption {
   const timeZone = resolveTimeZonePreference(preference);
   return {
     value: DEFAULT_OPTION,
-    name: `Default (${getTimeZonePreferenceLabel(preference)})`,
+    name: `${defaultLabel} (${getTimeZonePreferenceLabel(preference)})`,
     offset:
       timeZone === UTC_TIME_ZONE
         ? undefined
@@ -70,6 +74,7 @@ export function TimeZoneSelect({
   defaultTimeZone,
   ...props
 }: TimeZoneSelectProps) {
+  const { t } = useTranslation('common');
   const selected =
     value == null && defaultTimeZone != null
       ? DEFAULT_OPTION
@@ -96,10 +101,12 @@ export function TimeZoneSelect({
   const { data, optionsByValue } = useMemo(() => {
     const localZone = getLocalTimeZone();
     const pinned: ZoneOption[] = [
-      ...(defaultTimeZone != null ? [getDefaultOption(defaultTimeZone)] : []),
+      ...(defaultTimeZone != null
+        ? [getDefaultOption(defaultTimeZone, t('timePicker.default'))]
+        : []),
       {
         value: LOCAL_TIME_ZONE,
-        name: `Local (${formatTimeZoneName(localZone)})`,
+        name: `${t('timePicker.local')} (${formatTimeZoneName(localZone)})`,
         offset: getTimeZoneShortName(localZone),
       },
       // UTC's name is already its offset.
@@ -114,13 +121,16 @@ export function TimeZoneSelect({
     return {
       data: [
         ...pinned.map(toComboboxItem),
-        { group: 'All time zones', items: listed.map(toComboboxItem) },
+        {
+          group: t('timePicker.allTimeZones'),
+          items: listed.map(toComboboxItem),
+        },
       ] satisfies ComboboxData,
       optionsByValue: new Map(
         [...pinned, ...listed].map(option => [option.value, option]),
       ),
     };
-  }, [zones, defaultTimeZone]);
+  }, [zones, defaultTimeZone, t]);
 
   const renderOption = useCallback(
     ({ option, checked }: { option: ComboboxItem; checked?: boolean }) => {
@@ -151,7 +161,7 @@ export function TimeZoneSelect({
       searchable
       allowDeselect={false}
       maxDropdownHeight={280}
-      nothingFoundMessage="No matching time zones"
+      nothingFoundMessage={t('timePicker.noMatchingTimeZones')}
       {...props}
       data={data}
       value={selected}
@@ -178,6 +188,7 @@ export function TimeZoneShortcuts({
   onSelectDefault?: () => void;
   testIdPrefix: string;
 }) {
+  const { t } = useTranslation('common');
   return (
     <Group gap={4}>
       {onSelectDefault && (
@@ -187,7 +198,7 @@ export function TimeZoneShortcuts({
           variant="secondary"
           onClick={onSelectDefault}
         >
-          Default
+          {t('timePicker.default')}
         </Button>
       )}
       <Button
@@ -204,7 +215,7 @@ export function TimeZoneShortcuts({
         variant="secondary"
         onClick={() => onSelect(LOCAL_TIME_ZONE)}
       >
-        Local
+        {t('timePicker.local')}
       </Button>
     </Group>
   );

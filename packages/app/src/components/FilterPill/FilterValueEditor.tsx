@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'next-i18next/pages';
 import { ActionIcon, Flex, Tooltip } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import {
@@ -38,6 +39,7 @@ export function FilterValueEditor({
   onTogglePolarity,
   onDone,
 }: FilterValueEditorProps) {
+  const { t } = useTranslation('search');
   // Starts empty, with the current value as the placeholder, so the full
   // suggestion list shows instead of being filtered down to the current value.
   const [draftValue, setDraftValue] = useState('');
@@ -86,7 +88,7 @@ export function FilterValueEditor({
         onSubmit={commitValue}
         onOptionSubmit={commitValue}
         placeholder={isLoadingValues ? 'Loading values...' : value}
-        aria-label="Change filter value"
+        aria-label={t('filterPill.changeValue')}
       />
       <Flex gap={4} align="center">
         <Tooltip label={copied ? 'Copied' : 'Copy value'}>
@@ -95,7 +97,7 @@ export function FilterValueEditor({
             variant="subtle"
             color="gray"
             onClick={handleCopy}
-            aria-label="Copy value"
+            aria-label={t('filterPill.copyValue')}
           >
             {copied ? <IconCheck size={14} /> : <IconCopy size={14} />}
           </ActionIcon>

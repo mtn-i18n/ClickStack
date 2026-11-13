@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { useTranslation } from 'next-i18next/pages';
 import { SourceKind, TTraceSource } from '@hyperdx/common-utils/dist/types';
 import { Select, SelectProps } from '@mantine/core';
 
@@ -37,6 +38,7 @@ export function DistinctValueSelect({
   onChange: (value: string) => void;
   dateRange: [Date, Date];
 } & Omit<SelectProps, 'data' | 'value' | 'onChange'>) {
+  const { t } = useTranslation('llm');
   const enabled =
     source?.kind === SourceKind.Trace && !!valueExpression && !!gateExpression;
 
@@ -98,7 +100,9 @@ export function DistinctValueSelect({
       clearable
       placeholder={allLabel}
       maxDropdownHeight={280}
-      nothingFoundMessage={isLoading ? 'Loading more...' : 'No matches found'}
+      nothingFoundMessage={
+        isLoading ? t('filters.loadingMore') : t('filters.noMatchesFound')
+      }
     />
   );
 }

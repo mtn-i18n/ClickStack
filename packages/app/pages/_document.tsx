@@ -12,7 +12,10 @@ export default function Document() {
   ].join(' ');
 
   return (
-    <Html lang="en" className={fontClasses}>
+    <Html
+      lang={process.env.NEXT_PUBLIC_DEFAULT_LOCALE === 'en' ? 'en' : 'zh-CN'}
+      className={fontClasses}
+    >
       <Head>
         {IS_NOINDEX && <meta name="robots" content="noindex, nofollow" />}
         {/* eslint-disable-next-line @next/next/no-sync-scripts */}

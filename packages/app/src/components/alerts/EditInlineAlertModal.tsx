@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { useTranslation } from 'next-i18next/pages';
 import {
   AlertSource,
   SavedChartConfig,
@@ -80,6 +81,7 @@ export function EditInlineAlertModal({
   /** Time range the editor's preview chart runs over. */
   dateRange: [Date, Date];
 }) {
+  const { t } = useTranslation('alerts');
   const brandName = useBrandDisplayName();
   const queryClient = useQueryClient();
   const confirm = useConfirm();
@@ -107,18 +109,12 @@ export function EditInlineAlertModal({
 
   const handleClose = React.useCallback(async () => {
     if (updateAlert.isPending) return;
-    if (
-      isDirty &&
-      !(await confirm(
-        'You have unsaved changes. Discard them and close the editor?',
-        'Discard',
-      ))
-    ) {
+    if (isDirty && !(await confirm(t('unsavedChanges'), t('discard')))) {
       return;
     }
     setIsDirty(false);
     onClose();
-  }, [confirm, isDirty, onClose, updateAlert.isPending]);
+  }, [confirm, isDirty, onClose, updateAlert.isPending, t]);
 
   const onSave = React.useCallback(
     async (config: SavedChartConfig) => {
@@ -126,8 +122,8 @@ export function EditInlineAlertModal({
       if (payload == null) {
         notifications.show({
           color: 'red',
-          title: 'Invalid alert',
-          message: 'This alert must keep an alert configured to be saved.',
+          title: t('invalidAlert'),
+          message: t('invalidAlertMessage'),
           autoClose: 5000,
         });
         return;
@@ -158,7 +154,7 @@ export function EditInlineAlertModal({
         });
         notifications.show({
           color: 'green',
-          message: 'Alert updated!',
+          message: t('alertUpdated'),
           autoClose: 5000,
         });
         queryClient.invalidateQueries({
@@ -176,13 +172,13 @@ export function EditInlineAlertModal({
           // specific, fixable reason; the generic line is for the rest.
           message: await getApiErrorMessage(
             error,
-            `Something went wrong. Please contact ${brandName} team.`,
+            t('saveFailed', { brand: brandName }),
           ),
           autoClose: 5000,
         });
       }
     },
-    [alert._id, brandName, fullAlert, onClose, queryClient, updateAlert],
+    [alert._id, brandName, fullAlert, onClose, queryClient, updateAlert, t],
   );
 
   return (
@@ -190,7 +186,7 @@ export function EditInlineAlertModal({
       data-testid="edit-inline-alert-modal"
       opened={opened}
       onClose={handleClose}
-      title="Edit alert"
+      title={t('editAlert')}
       size="90%"
       padding="xs"
       centered
@@ -204,8 +200,8 @@ export function EditInlineAlertModal({
       {!isLoading && chartConfig == null && (
         <EmptyState
           variant="card"
-          title="Alert query unavailable"
-          description="This alert's chart configuration could not be loaded."
+          title={t('alertQueryUnavailable')}
+          description={t('alertQueryUnavailableDescription')}
         />
       )}
       {!isLoading && chartConfig != null && (

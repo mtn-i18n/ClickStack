@@ -1,4 +1,5 @@
 import React, { useCallback } from 'react';
+import { useTranslation } from 'next-i18next/pages';
 import {
   DndContext,
   DragEndEvent,
@@ -80,6 +81,7 @@ function SortableRuleRow({
   onUpdate: (index: number, next: ColorRuleWithId) => void;
   onDelete: (index: number) => void;
 }) {
+  const { t } = useTranslation('charts');
   const {
     attributes,
     listeners,
@@ -158,11 +160,11 @@ function SortableRuleRow({
               value: [typeof v === 'number' ? v : 0, hi],
             } as ColorRuleWithId)
           }
-          aria-label={`Rule ${index + 1} lower bound`}
+          aria-label={t('colorRules.ruleLowerBound', { index: index + 1 })}
           w={72}
         />
         <Text size="xs" c="dimmed" style={{ flexShrink: 0 }}>
-          to
+          {t('colorRules.to')}
         </Text>
         <NumberInput
           size="xs"
@@ -174,7 +176,7 @@ function SortableRuleRow({
               value: [lo, typeof v === 'number' ? v : 0],
             } as ColorRuleWithId)
           }
-          aria-label={`Rule ${index + 1} upper bound`}
+          aria-label={t('colorRules.ruleUpperBound', { index: index + 1 })}
           w={72}
         />
       </Group>
@@ -202,7 +204,7 @@ function SortableRuleRow({
             value: coerced,
           } as ColorRuleWithId);
         }}
-        aria-label={`Rule ${index + 1} value`}
+        aria-label={t('colorRules.ruleValue', { index: index + 1 })}
         w={120}
       />
     );
@@ -218,7 +220,7 @@ function SortableRuleRow({
             value: typeof v === 'number' ? v : 0,
           } as ColorRuleWithId)
         }
-        aria-label={`Rule ${index + 1} value`}
+        aria-label={t('colorRules.ruleValue', { index: index + 1 })}
         w={120}
       />
     );
@@ -231,7 +233,7 @@ function SortableRuleRow({
         <ActionIcon
           variant="subtle"
           size="xs"
-          aria-label="Drag to reorder"
+          aria-label={t('colorRules.dragToReorder')}
           data-testid={`color-rule-drag-handle-${index}`}
           style={{ cursor: 'grab', touchAction: 'none', flexShrink: 0 }}
           {...attributes}
@@ -246,7 +248,7 @@ function SortableRuleRow({
           data={OPERATOR_OPTIONS.map(o => ({ value: o.value, label: o.label }))}
           value={rule.operator}
           onChange={handleOperatorChange}
-          aria-label={`Rule ${index + 1} operator`}
+          aria-label={t('colorRules.ruleOperator', { index: index + 1 })}
           data-testid={`color-rule-operator-${index}`}
           w={80}
           allowDeselect={false}
@@ -270,7 +272,7 @@ function SortableRuleRow({
           variant="subtle"
           size="xs"
           color="red"
-          aria-label={`Delete rule ${index + 1}`}
+          aria-label={t('colorRules.deleteRule', { index: index + 1 })}
           data-testid={`color-rule-delete-${index}`}
           onClick={handleDelete}
           style={{ flexShrink: 0 }}
@@ -287,6 +289,7 @@ function SortableRuleRow({
 const MAX_RULES = 10;
 
 export function ColorRulesEditor({ value, onChange }: ColorRulesEditorProps) {
+  const { t } = useTranslation('charts');
   const mouseSensor = useSensor(MouseSensor, {
     activationConstraint: { distance: 8 },
   });
@@ -333,10 +336,10 @@ export function ColorRulesEditor({ value, onChange }: ColorRulesEditorProps) {
     <Stack gap="xs">
       <Box>
         <Text size="xs" fw={500} mb={2}>
-          Conditional colors
+          {t('colorRules.conditionalColors')}
         </Text>
         <Text size="xs" c="dimmed">
-          Falls back to the tile color when no rule matches.
+          {t('colorRules.fallsBackToTileColor')}
         </Text>
       </Box>
 
@@ -369,7 +372,7 @@ export function ColorRulesEditor({ value, onChange }: ColorRulesEditorProps) {
           onClick={handleAdd}
           data-testid="color-rules-add-button"
         >
-          Add rule
+          {t('colorRules.addRule')}
         </Button>
       </Box>
     </Stack>

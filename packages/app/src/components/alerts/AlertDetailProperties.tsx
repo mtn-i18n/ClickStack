@@ -1,4 +1,6 @@
 import * as React from 'react';
+import { useTranslation } from 'next-i18next/pages';
+import { Trans } from 'react-i18next';
 import { Badge } from '@clickhouse/click-ui';
 import { Group, Text } from '@mantine/core';
 
@@ -36,6 +38,7 @@ function PropertyRow({
  * render only when the field is set.
  */
 export function AlertDetailProperties({ alert }: { alert: AlertsPageItem }) {
+  const { t } = useTranslation('alerts');
   const tags = alert.tags ?? [];
   const hasScheduleAnchor = alert.scheduleStartAt != null;
   const hasScheduleOffset =
@@ -46,53 +49,77 @@ export function AlertDetailProperties({ alert }: { alert: AlertsPageItem }) {
       <AlertPropertiesSummary alert={alert} variant="detail" />
       <div className="d-flex flex-column gap-1 mt-2">
         {alert.name && (
-          <PropertyRow label="Notification title" testId="alert-property-name">
+          <PropertyRow
+            label={t('notificationTitle')}
+            testId="alert-property-name"
+          >
             {alert.name}
           </PropertyRow>
         )}
         {alert.message && (
-          <PropertyRow label="Message template" testId="alert-property-message">
+          <PropertyRow
+            label={t('messageTemplate')}
+            testId="alert-property-message"
+          >
             {alert.message}
           </PropertyRow>
         )}
         {alert.groupBy && (
-          <PropertyRow label="Grouped by" testId="alert-property-group-by">
+          <PropertyRow label={t('groupedBy')} testId="alert-property-group-by">
             <Text size="xs" ff="monospace" component="span">
               {alert.groupBy}
             </Text>
           </PropertyRow>
         )}
         {(hasScheduleAnchor || hasScheduleOffset) && (
-          <PropertyRow label="Schedule" testId="alert-property-schedule">
+          <PropertyRow label={t('schedule')} testId="alert-property-schedule">
             {hasScheduleAnchor ? (
-              <>
-                Windows anchored at{' '}
-                <FormatTime value={alert.scheduleStartAt!} format="withYear" />
-              </>
+              <Trans
+                ns="alerts"
+                i18nKey="windowsAnchoredAt"
+                components={{
+                  time: (
+                    <FormatTime
+                      value={alert.scheduleStartAt!}
+                      format="withYear"
+                    />
+                  ),
+                }}
+              />
             ) : (
-              <>
-                Offset {alert.scheduleOffsetMinutes}m into each evaluation
-                window
-              </>
+              t('offsetIntoWindow', { minutes: alert.scheduleOffsetMinutes })
             )}
           </PropertyRow>
         )}
         {alert.silenced && (
-          <PropertyRow label="Acknowledged" testId="alert-property-silenced">
-            {alert.silenced.by ? <>by {alert.silenced.by} · </> : null}
+          <PropertyRow
+            label={t('acknowledged')}
+            testId="alert-property-silenced"
+          >
+            {alert.silenced.by ? (
+              <>{t('byUser', { name: alert.silenced.by })}</>
+            ) : null}
             {isAlertSilenceExpired(alert.silenced) ? (
-              <>
-                expired <FormatTime value={alert.silenced.until} />
-              </>
+              <Trans
+                ns="alerts"
+                i18nKey="expiredAt"
+                components={{
+                  time: <FormatTime value={alert.silenced.until} />,
+                }}
+              />
             ) : (
-              <>
-                silenced until <FormatTime value={alert.silenced.until} />
-              </>
+              <Trans
+                ns="alerts"
+                i18nKey="silencedUntil"
+                components={{
+                  time: <FormatTime value={alert.silenced.until} />,
+                }}
+              />
             )}
           </PropertyRow>
         )}
         {tags.length > 0 && (
-          <PropertyRow label="Tags" testId="alert-property-tags">
+          <PropertyRow label={t('tags')} testId="alert-property-tags">
             <Group gap={4}>
               {tags.map(tag => (
                 <Badge key={tag} size="sm" text={tag} state="neutral" />
@@ -106,13 +133,24 @@ export function AlertDetailProperties({ alert }: { alert: AlertsPageItem }) {
           settings above. */}
       <Text size="xs" c="dimmed" mt="xs" data-testid="alert-property-created">
         {alert.createdBy && (
-          <>Created by {alert.createdBy.name || alert.createdBy.email} · </>
+          <>
+            {t('createdBy', {
+              name: alert.createdBy.name || alert.createdBy.email,
+            })}{' '}
+          </>
         )}
         <FormatTime value={alert.createdAt} format="withYear" />
         {alert.updatedAt && alert.updatedAt !== alert.createdAt && (
           <>
             {' '}
-            · Updated <FormatTime value={alert.updatedAt} format="withYear" />
+            ·{' '}
+            <Trans
+              ns="alerts"
+              i18nKey="updatedAt"
+              components={{
+                time: <FormatTime value={alert.updatedAt} format="withYear" />,
+              }}
+            />
           </>
         )}
       </Text>

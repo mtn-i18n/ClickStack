@@ -1,9 +1,9 @@
 import type { Dashboard } from '@/dashboard';
 
 export const DASHBOARD_TABS = [
-  { value: 'all', label: 'All' },
-  { value: 'favorites', label: 'Favorites' },
-  { value: 'mine', label: 'My dashboards' },
+  { value: 'all', label: 'All', labelKey: 'tabs.all' },
+  { value: 'favorites', label: 'Favorites', labelKey: 'tabs.favorites' },
+  { value: 'mine', label: 'My dashboards', labelKey: 'tabs.mine' },
 ] as const;
 
 export type DashboardTab = (typeof DASHBOARD_TABS)[number]['value'];
@@ -11,9 +11,17 @@ export type DashboardTab = (typeof DASHBOARD_TABS)[number]['value'];
 export const DASHBOARD_TAB_VALUES = DASHBOARD_TABS.map(t => t.value);
 
 export const DASHBOARD_SORT_OPTIONS = [
-  { value: 'updated', label: 'Last updated' },
-  { value: 'name', label: 'Name (A–Z)' },
-  { value: 'created', label: 'Recently created' },
+  {
+    value: 'updated',
+    label: 'Last updated',
+    labelKey: 'sort.lastUpdated',
+  },
+  { value: 'name', label: 'Name (A–Z)', labelKey: 'sort.nameAsc' },
+  {
+    value: 'created',
+    label: 'Recently created',
+    labelKey: 'sort.recentlyCreated',
+  },
 ] as const;
 
 export type DashboardSort = (typeof DASHBOARD_SORT_OPTIONS)[number]['value'];

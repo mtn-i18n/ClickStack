@@ -1,3 +1,4 @@
+import { i18n } from 'next-i18next/pages';
 import { omit, pick } from 'lodash';
 import { Path, UseFormSetError } from 'react-hook-form';
 import { validateFormula } from '@hyperdx/common-utils/dist/core/formula';
@@ -51,6 +52,15 @@ import {
 import { toAlertChannels } from '@/utils/alerts';
 
 import { ChartEditorFormState } from './types';
+
+// Validation runs outside React, so it reads the shared i18n instance. English
+// literals keep direct unit tests that never boot i18n on the same copy.
+const t = (
+  key: string,
+  fallback: string,
+  values?: Record<string, string | number>,
+) =>
+  i18n?.isInitialized ? i18n.t(key, { ns: 'dashboards', ...values }) : fallback;
 
 /**
  * Autocomplete entries offered on top of columns/keywords in the raw SQL
@@ -630,12 +640,24 @@ export const validateChartForm = (
 
   // Validate connection is selected for raw SQL charts
   if (isRawSqlChart && !form.connection) {
-    errors.push({ path: `connection`, message: 'Connection is required' });
+    errors.push({
+      path: `connection`,
+      message: t(
+        'chartEditor.validation.connectionRequired',
+        'Connection is required',
+      ),
+    });
   }
 
   // Validate SQL is provided for raw SQL charts
   if (isRawSqlChart && !form.sqlTemplate) {
-    errors.push({ path: `sqlTemplate`, message: 'SQL query is required' });
+    errors.push({
+      path: `sqlTemplate`,
+      message: t(
+        'chartEditor.validation.sqlQueryRequired',
+        'SQL query is required',
+      ),
+    });
   }
 
   // Validate source is selected for builder charts
@@ -644,7 +666,10 @@ export const validateChartForm = (
     form.displayType !== DisplayType.Markdown &&
     (!form.source || !source)
   ) {
-    errors.push({ path: `source`, message: 'Source is required' });
+    errors.push({
+      path: `source`,
+      message: t('chartEditor.validation.sourceRequired', 'Source is required'),
+    });
   }
 
   // Validate that valueExpressions are specified for each series.
@@ -661,7 +686,11 @@ export const validateChartForm = (
       if (s.aggFn && s.aggFn !== 'count' && !s.valueExpression) {
         errors.push({
           path: `series.${index}.valueExpression`,
-          message: `Expression is required for series ${index + 1}`,
+          message: t(
+            'chartEditor.validation.expressionRequiredForSeries',
+            `Expression is required for series ${index + 1}`,
+            { index: index + 1 },
+          ),
         });
       }
     });
@@ -679,7 +708,10 @@ export const validateChartForm = (
       if (s.metricType && !s.metricName) {
         errors.push({
           path: `series.${index}.metricName`,
-          message: `Metric is required`,
+          message: t(
+            'chartEditor.validation.metricRequired',
+            'Metric is required',
+          ),
         });
       }
     });
@@ -715,7 +747,10 @@ export const validateChartForm = (
     if (form.displayType === DisplayType.Number && form.formulas.length > 1) {
       errors.push({
         path: `formulas`,
-        message: 'Number charts support a single formula',
+        message: t(
+          'chartEditor.validation.numberSingleFormula',
+          'Number charts support a single formula',
+        ),
       });
     }
   }
@@ -745,7 +780,10 @@ export const validateChartForm = (
   ) {
     errors.push({
       path: 'alert.displayName',
-      message: 'Alert name is required',
+      message: t(
+        'chartEditor.validation.alertNameRequired',
+        'Alert name is required',
+      ),
     });
   }
 
@@ -754,14 +792,18 @@ export const validateChartForm = (
     if (form.alert.thresholdMax == null) {
       errors.push({
         path: 'alert.thresholdMax',
-        message:
+        message: t(
+          'chartEditor.validation.upperBoundRequired',
           'Upper bound is required for between/not between threshold types',
+        ),
       });
     } else if (form.alert.thresholdMax < form.alert.threshold) {
       errors.push({
         path: 'alert.thresholdMax',
-        message:
+        message: t(
+          'chartEditor.validation.upperBoundGreater',
           'Alert threshold upper bound must be greater than or equal to the lower bound',
+        ),
       });
     }
   }
@@ -777,7 +819,11 @@ export const validateChartForm = (
   ) {
     errors.push({
       path: `series`,
-      message: `Only one series is allowed for ${form.displayType} charts`,
+      message: t(
+        'chartEditor.validation.onlyOneSeriesAllowed',
+        `Only one series is allowed for ${form.displayType} charts`,
+        { displayType: form.displayType },
+      ),
     });
   }
 
@@ -796,8 +842,14 @@ export const validateChartForm = (
       path: `series`,
       message:
         form.seriesReturnType === 'ratio'
-          ? 'Number charts support at most two series (ratio mode)'
-          : 'Number charts support a single series unless ratio mode (As Ratio) is enabled',
+          ? t(
+              'chartEditor.validation.numberTwoSeriesRatio',
+              'Number charts support at most two series (ratio mode)',
+            )
+          : t(
+              'chartEditor.validation.numberSingleSeries',
+              'Number charts support a single series unless ratio mode (As Ratio) is enabled',
+            ),
     });
   }
 
@@ -814,7 +866,10 @@ export const validateChartForm = (
   ) {
     errors.push({
       path: `series.0.valueExpression`,
-      message: 'Value expression is required for heatmap charts',
+      message: t(
+        'chartEditor.validation.heatmapValueExpressionRequired',
+        'Value expression is required for heatmap charts',
+      ),
     });
   }
 

@@ -1,3 +1,4 @@
+import { useTranslation } from 'next-i18next/pages';
 import { ActionIcon, Tooltip } from '@mantine/core';
 import { IconAlertTriangle } from '@tabler/icons-react';
 
@@ -10,9 +11,6 @@ interface HiddenSeriesIndicatorProps {
   reduceCardinalityHint?: string;
 }
 
-const DEFAULT_REDUCE_CARDINALITY_HINT =
-  'Add a stricter GROUP BY, a WHERE filter, or a series limit to reduce cardinality.';
-
 /**
  * Warns that the chart returned more series than the client renders. The
  * transform caps series to protect memory; this surfaces the dropped ones and,
@@ -22,20 +20,27 @@ export default function HiddenSeriesIndicator({
   hiddenSeriesCount,
   renderedSeriesCount,
   onLoadAll,
-  reduceCardinalityHint = DEFAULT_REDUCE_CARDINALITY_HINT,
+  reduceCardinalityHint,
 }: HiddenSeriesIndicatorProps) {
+  const { t } = useTranslation('charts');
+
   if (hiddenSeriesCount <= 0) {
     return null;
   }
 
   const total = renderedSeriesCount + hiddenSeriesCount;
-  const label =
-    `This query returned ${total.toLocaleString()} series. ` +
-    `${hiddenSeriesCount.toLocaleString()} low-value series were hidden to keep the page responsive; ` +
-    `showing the top ${renderedSeriesCount.toLocaleString()} by peak value. ` +
-    (onLoadAll
-      ? `Click to load all ${total.toLocaleString()} (may be slow).`
-      : reduceCardinalityHint);
+  const label = onLoadAll
+    ? t('hiddenSeriesWarningLoadAll', {
+        total: total.toLocaleString(),
+        hidden: hiddenSeriesCount.toLocaleString(),
+        rendered: renderedSeriesCount.toLocaleString(),
+      })
+    : t('hiddenSeriesWarningHint', {
+        total: total.toLocaleString(),
+        hidden: hiddenSeriesCount.toLocaleString(),
+        rendered: renderedSeriesCount.toLocaleString(),
+        hint: reduceCardinalityHint ?? t('reduceCardinalityHint'),
+      });
 
   const icon = (
     <IconAlertTriangle size={16} color="var(--color-text-warning)" />
@@ -51,7 +56,7 @@ export default function HiddenSeriesIndicator({
           // Toolbar sits in react-grid-layout's drag subtree; stop propagation
           // (as ChartContainer does) so a click doesn't start a tile drag.
           onMouseDown={e => e.stopPropagation()}
-          aria-label={`Load all ${total.toLocaleString()} series`}
+          aria-label={t('loadAllSeries', { total: total.toLocaleString() })}
         >
           {icon}
         </ActionIcon>

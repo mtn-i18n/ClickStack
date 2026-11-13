@@ -1,0 +1,22 @@
+{
+  "generic": "出错了，请重试。",
+  "loadFailed": "加载失败",
+  "saveFailed": "保存失败",
+  "deleteFailed": "删除失败",
+  "notFound": "未找到页面",
+  "unauthorized": "登录已过期，请重新登录。",
+  "network": "网络错误，请检查连接。",
+  "permissionDenied": "你没有执行此操作的权限。",
+  "somethingWentWrong": "出错了",
+  "knownColumnsTitle": "无法从 Distributed 或 Merge 表加载行详情",
+  "knownColumnsWithList": "为了显示一行的所有字段，{{brand}} 会使用此数据源上配置的<b>已知列列表</b>加载整行（而不是执行 <code>SELECT *</code> 查询）。失败的原因可能是该列表引用了 Distributed 或 Merge 表某些目标表中不存在的列。请更新<b>已知列列表</b>，只包含所有目标表都存在的列。",
+  "knownColumnsWithoutList": "为了显示此行的所有字段，{{brand}} 会使用 <code>SELECT *</code> 查询加载整行。失败的原因是父表（Distributed）声明的某个列在至少一个目标表中不存在。要修复此问题，请在此数据源上设置<b>已知列列表</b>，列出所有目标表都有的列。设置后，{{brand}} 将改为查询这些列。",
+  "editSourceSettings": "编辑数据源设置",
+  "materializedColumnsTitle": "物化列和别名列已启用",
+  "materializedColumnsBody": "行查询包含 MATERIALIZED 和 ALIAS 列。如果连接用户无法更改查询设置（例如只读用户），或其中一个列无法求值，整行都会加载失败。",
+  "hideMaterializedColumns": "隐藏物化列和别名列",
+  "rowLoadError": "加载行数据时出错",
+  "errorMessage": "错误信息：",
+  "sentQuery": "发送的查询：",
+  "editSource": "编辑数据源"
+}

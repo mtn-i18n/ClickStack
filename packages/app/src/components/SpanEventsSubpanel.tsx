@@ -1,4 +1,6 @@
 import React, { useMemo } from 'react';
+import { useTranslation } from 'next-i18next/pages';
+import type { TFunction } from 'i18next';
 import { ErrorBoundary } from 'react-error-boundary';
 import { Box, Button } from '@mantine/core';
 import { IconChevronDown, IconChevronUp } from '@tabler/icons-react';
@@ -17,10 +19,15 @@ interface SpanEventData extends Record<string, unknown> {
   Attributes: Record<string, string>;
 }
 
-const spanEventColumns: ColumnDef<SpanEventData>[] = [
+const EmptyCell = () => {
+  const { t } = useTranslation('common');
+  return <span className="text-muted">{t('states.empty')}</span>;
+};
+
+const getSpanEventColumns = (t: TFunction): ColumnDef<SpanEventData>[] => [
   {
     accessorKey: 'Timestamp',
-    header: 'Timestamp',
+    header: t('columnHeaders.timestamp'),
     size: 120,
     cell: ({ row }) => (
       <span className="text-muted" title={row.original.Timestamp}>
@@ -33,7 +40,7 @@ const spanEventColumns: ColumnDef<SpanEventData>[] = [
   },
   {
     accessorKey: 'Name',
-    header: 'Name',
+    header: t('columnHeaders.name'),
     size: 180,
     cell: ({ row }) => (
       <span className="d-flex align-items-center gap-2">
@@ -43,7 +50,7 @@ const spanEventColumns: ColumnDef<SpanEventData>[] = [
   },
   {
     accessorKey: 'Attributes',
-    header: 'Attributes',
+    header: t('columnHeaders.attributes'),
     size: 400,
     cell: ({ row }) => {
       const attributes = row.original.Attributes;
@@ -54,7 +61,7 @@ const spanEventColumns: ColumnDef<SpanEventData>[] = [
           </Box>
         );
       }
-      return <span className="text-muted">Empty</span>;
+      return <EmptyCell />;
     },
   },
 ];
@@ -64,6 +71,9 @@ export const SpanEventsSubpanel = ({
 }: {
   spanEvents?: Record<string, unknown>[] | null;
 }) => {
+  const { t } = useTranslation('common');
+  const { t: tSessions } = useTranslation('sessions');
+  const columns = useMemo(() => getSpanEventColumns(tSessions), [tSessions]);
   const sortedEvents = useMemo(() => {
     if (!spanEvents || spanEvents.length === 0) {
       return [];
@@ -95,7 +105,7 @@ export const SpanEventsSubpanel = ({
   if (!sortedEvents || sortedEvents.length === 0) {
     return (
       <div className="p-3 text-muted fs-7">
-        No span events available for this trace
+        {t('spanEvents.noEventsAvailable')}
       </div>
     );
   }
@@ -109,14 +119,14 @@ export const SpanEventsSubpanel = ({
           }}
           fallbackRender={() => (
             <div className="text-danger px-2 py-1 m-2 fs-7 font-monospace bg-danger-transparent p-4">
-              An error occurred while rendering span events
+              {t('spanEvents.renderError')}
             </div>
           )}
         >
           <Table
-            columns={spanEventColumns}
+            columns={columns}
             data={visibleRows}
-            emptyMessage="No span events found"
+            emptyMessage={t('spanEvents.noEventsFound')}
           />
         </ErrorBoundary>
 
@@ -129,12 +139,13 @@ export const SpanEventsSubpanel = ({
           >
             {isExpanded ? (
               <>
-                <IconChevronUp size={14} className="me-2" /> Hide events
+                <IconChevronUp size={14} className="me-2" />{' '}
+                {t('spanEvents.hideEvents')}
               </>
             ) : (
               <>
                 <IconChevronDown size={14} className="me-2" />
-                Show {hiddenRowsCount} more events
+                {t('spanEvents.showMoreEvents', { count: hiddenRowsCount })}
               </>
             )}
           </Button>

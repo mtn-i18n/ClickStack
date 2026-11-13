@@ -8,6 +8,7 @@ import {
 } from 'react';
 import dynamic from 'next/dynamic';
 import Head from 'next/head';
+import { useTranslation } from 'next-i18next/pages';
 import { sub } from 'date-fns';
 import {
   parseAsFloat,
@@ -16,6 +17,7 @@ import {
   useQueryStates,
 } from 'nuqs';
 import { useForm, useWatch } from 'react-hook-form';
+import { Trans } from 'react-i18next';
 import { tcFromSource } from '@hyperdx/common-utils/dist/core/metadata';
 import {
   SearchCondition,
@@ -80,6 +82,7 @@ function SessionCard({
   onClick: () => void;
   sessionId: string;
 }) {
+  const { t } = useTranslation('sessions');
   const timeAgo = formatDistanceToNowStrictShort(maxTime);
   const durationStr = new Date(maxTime.getTime() - minTime.getTime())
     .toISOString()
@@ -93,19 +96,29 @@ function SessionCard({
       role="button"
     >
       <div style={{ width: '50%', maxWidth: 500 }} className={styles.emailText}>
-        {email || `Anonymous Session ${sessionId}`}
+        {email || t('anonymousSession', { id: sessionId })}
       </div>
       <div>
-        <div className="text-muted fs-8">{numEvents} Events</div>
+        <div className="text-muted fs-8">
+          {t('eventsCount', { count: numEvents })}
+        </div>
         {numErrors > 0 && (
-          <div className="text-danger fs-8">{numErrors} Errors</div>
+          <div className="text-danger fs-8">
+            {t('errorsCount', { count: numErrors })}
+          </div>
         )}
-        <div className="text-muted fs-8">Duration {durationStr}</div>
+        <div className="text-muted fs-8">
+          {t('durationValue', { duration: durationStr })}
+        </div>
       </div>
       <div className="text-end">
-        <div>Last active {timeAgo} ago</div>
+        <div>{t('lastActive', { time: timeAgo })}</div>
         <div className="text-muted fs-8 mt-1">
-          Started on <FormatTime value={minTime} />
+          <Trans
+            ns="sessions"
+            i18nKey="startedOn"
+            components={{ time: <FormatTime value={minTime} /> }}
+          />
         </div>
       </div>
     </div>
@@ -121,6 +134,7 @@ function SessionCardList({
   isSessionLoading?: boolean;
   onClick: (session: Session) => void;
 }) {
+  const { t } = useTranslation('sessions');
   const brandName = useBrandDisplayName();
   const parentRef = useRef<HTMLDivElement>(null);
 
@@ -137,18 +151,15 @@ function SessionCardList({
       {isSessionLoading === true && (
         <Group mt="md" align="center" justify="center" gap="xs">
           <IconRefresh className="spin-animate" size={14} />
-          Searching sessions...
+          {t('searchingSessions')}
         </Group>
       )}
       {!isSessionLoading && sessions.length === 0 && (
         <div className="text-center align-items-center justify-content-center my-3">
-          No results found.
+          {t('common:states.noResults')}
+          <div className="text-muted mt-3">{t('noResultsHint')}</div>
           <div className="text-muted mt-3">
-            Try checking the query explainer in the search bar if there are any
-            search syntax issues.
-          </div>
-          <div className="text-muted mt-3">
-            Add new data sources by setting up a {brandName} integration.
+            {t('addDataSourceHint', { brand: brandName })}
           </div>
           <Button
             component="a"
@@ -157,7 +168,7 @@ function SessionCardList({
             target="_blank"
             href="/docs/install/browser"
           >
-            Install {brandName} Browser Integration
+            {t('installBrowserIntegration', { brand: brandName })}
           </Button>
         </div>
       )}
@@ -239,8 +250,10 @@ const appliedConfigMap = {
 const DEFAULT_INTERVAL = 'Past 1h';
 
 function SessionsPage() {
+  const { t } = useTranslation('sessions');
+  const { t: tNav } = useTranslation('nav');
   const defaultTimeRange = useDefaultTimeRange(DEFAULT_INTERVAL);
-  const title = usePageTitle('Client Sessions');
+  const title = usePageTitle(tNav('pages.clientSessions'));
   const [appliedConfig, setAppliedConfig] = useQueryStates(appliedConfigMap);
   // `?sessionSource=` accepts a source name as well as a source ID. The form
   // holds the resolved ID, so nothing downstream ever sees a name.
@@ -473,15 +486,20 @@ function SessionsPage() {
                   leftSection={<IconPlayerPlay size={16} />}
                   style={{ flexShrink: 0 }}
                 >
-                  Run
+                  {t('run')}
                 </Button>
-                <Tooltip withArrow label="Refresh results" fz="xs" color="gray">
+                <Tooltip
+                  withArrow
+                  label={t('refreshResults')}
+                  fz="xs"
+                  color="gray"
+                >
                   <ActionIcon
                     onClick={refresh}
                     loading={manualRefreshCooloff}
                     disabled={manualRefreshCooloff}
                     variant="secondary"
-                    title="Refresh results"
+                    title={t('refreshResults')}
                     size="input-sm"
                   >
                     <IconRefresh size={18} />
@@ -497,8 +515,8 @@ function SessionsPage() {
                 <Group mt="md" align="center" justify="center" gap="xs">
                   <IconRefresh className="spin-animate" size={14} />
                   {isSessionSourceLoading
-                    ? 'Loading...'
-                    : 'Searching sessions...'}
+                    ? t('loading')
+                    : t('searchingSessions')}
                 </Group>
               ) : (
                 <>
@@ -544,16 +562,18 @@ SessionsPageDynamic.getLayout = withAppNavForSurface('session-replay');
 export default SessionsPageDynamic;
 
 function SessionSetupInstructions() {
+  const { t } = useTranslation('sessions');
   const brandName = useBrandDisplayName();
   return (
     <EmptyState
       icon={<IconDeviceLaptop size={32} />}
-      title="Set up session replays"
+      title={t('setupTitle')}
       description={
-        <>
-          Follow these steps to start recording and viewing session replays with
-          the {brandName} Otel Collector.
-        </>
+        <Trans
+          ns="sessions"
+          i18nKey="setupDescription"
+          values={{ brand: brandName }}
+        />
       }
       maw={600}
     >
@@ -561,45 +581,54 @@ function SessionSetupInstructions() {
         <Stepper active={-1} orientation="vertical" size="md">
           <Stepper.Step
             label={
-              <>
-                Create a new source with <Code>Session</Code> type
-              </>
+              <Trans
+                ns="sessions"
+                i18nKey="step1Label"
+                components={{ code: <Code /> }}
+              />
             }
             description={
-              <>
-                Go to Team Settings, click <Code>Add Source</Code> under Sources
-                section, and select <Code>Session</Code> as the source type.
-              </>
+              <Trans
+                ns="sessions"
+                i18nKey="step1Description"
+                components={{ code: <Code /> }}
+              />
             }
           />
           <Stepper.Step
             label={
-              <>
-                Choose the <Code>hyperdx_sessions</Code> table
-              </>
+              <Trans
+                ns="sessions"
+                i18nKey="step2Label"
+                components={{ code: <Code /> }}
+              />
             }
             description={
-              <>
-                Select the <Code>hyperdx_sessions</Code> table from the
-                dropdown, and select the corresponding trace source.
-              </>
+              <Trans
+                ns="sessions"
+                i18nKey="step2Description"
+                components={{ code: <Code /> }}
+              />
             }
           />
           <Stepper.Step
-            label="Start recording sessions"
+            label={t('step3Label')}
             description={
-              <>
-                Install the{' '}
-                <Anchor
-                  href="https://clickhouse.com/docs/use-cases/observability/clickstack/sdks/browser"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  size="xs"
-                >
-                  {brandName} Browser Integration
-                </Anchor>{' '}
-                to start recording sessions.
-              </>
+              <Trans
+                ns="sessions"
+                i18nKey="step3Description"
+                values={{ brand: brandName }}
+                components={{
+                  link: (
+                    <Anchor
+                      href="https://clickhouse.com/docs/use-cases/observability/clickstack/sdks/browser"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      size="xs"
+                    />
+                  ),
+                }}
+              />
             }
           />
         </Stepper>

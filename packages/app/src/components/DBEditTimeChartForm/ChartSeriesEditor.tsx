@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo } from 'react';
+import { useTranslation } from 'next-i18next/pages';
 import {
   Control,
   FieldErrors,
@@ -103,6 +104,7 @@ export function ChartSeriesEditor({
   errors,
   clearErrors,
 }: ChartSeriesEditorProps) {
+  const { t } = useTranslation('dashboards');
   const aggFn = useWatch({ control, name: `${namePrefix}aggFn` });
   const aggConditionLanguage = useWatch({
     control,
@@ -295,7 +297,7 @@ export function ChartSeriesEditor({
       <ChartSeriesControls
         control={control}
         aliasName={`${namePrefix}alias`}
-        aliasPlaceholder="Series alias"
+        aliasPlaceholder={t('chartEditor.seriesAlias')}
         index={index}
         length={length}
         numberFormat={seriesNumberFormat}
@@ -308,7 +310,7 @@ export function ChartSeriesEditor({
         }
         leadingSection={
           isFormulaSourceKind(tableSource?.kind) ? (
-            <Tooltip label="Reference this series in a formula by this letter">
+            <Tooltip label={t('chartEditor.referenceInFormula')}>
               <Badge
                 size="sm"
                 text={indexToSeriesRef(index) ?? index + 1}
@@ -320,13 +322,13 @@ export function ChartSeriesEditor({
         }
         trailingSection={
           showColor ? (
-            <Tooltip label="Edit column color">
+            <Tooltip label={t('chartEditor.editColumnColor')}>
               <ActionIcon
                 variant="subtle"
                 color="gray"
                 size="xs"
                 onClick={openSeriesColor}
-                aria-label="Edit column color"
+                aria-label={t('chartEditor.editColumnColor')}
                 data-testid="series-color-button"
               >
                 <IconPalette
@@ -380,12 +382,12 @@ export function ChartSeriesEditor({
                   onFocus={() => clearErrors(`${namePrefix}metricName`)}
                 />
               </div>
-              <Tooltip label="Browse metrics" withArrow>
+              <Tooltip label={t('chartEditor.browseMetrics')} withArrow>
                 <ActionIcon
                   variant="subtle"
                   size="input-sm"
                   onClick={openMetricExplorer}
-                  aria-label="Browse metrics"
+                  aria-label={t('chartEditor.browseMetrics')}
                   data-testid="metric-explorer-open"
                 >
                   <IconListSearch size={16} />
@@ -405,7 +407,7 @@ export function ChartSeriesEditor({
               <CheckBoxControlled
                 control={control}
                 name={`${namePrefix}isDelta`}
-                label="Delta"
+                label={t('chartEditor.delta')}
                 size="xs"
                 className="mt-2"
               />
@@ -425,7 +427,7 @@ export function ChartSeriesEditor({
               dateRange={dateRange}
               control={control}
               name={`${namePrefix}valueExpression`}
-              placeholder="SQL Column"
+              placeholder={t('chartEditor.sqlColumn')}
               onSubmit={onSubmit}
               enableVariables
             />
@@ -443,7 +445,7 @@ export function ChartSeriesEditor({
             {showWhere && (
               <>
                 <Flex h={`${EDITOR_INPUT_HEIGHTS.sm}px`} align="center">
-                  <Text size="sm">Where</Text>
+                  <Text size="sm">{t('chartEditor.where')}</Text>
                 </Flex>
                 <div
                   style={{
@@ -469,7 +471,7 @@ export function ChartSeriesEditor({
               <>
                 <Flex h={`${EDITOR_INPUT_HEIGHTS.sm}px`} align="center">
                   <Text size="sm" style={{ whiteSpace: 'nowrap' }}>
-                    Group By
+                    {t('chartEditor.groupBy')}
                   </Text>
                 </Flex>
                 <div
@@ -487,7 +489,7 @@ export function ChartSeriesEditor({
                     dateRange={dateRange}
                     control={control}
                     name={`groupBy`}
-                    placeholder="SQL Columns"
+                    placeholder={t('chartEditor.sqlColumns')}
                     disableKeywordAutocomplete
                     onSubmit={onSubmit}
                     enableVariables
@@ -497,7 +499,7 @@ export function ChartSeriesEditor({
                   <>
                     <Flex h={`${EDITOR_INPUT_HEIGHTS.sm}px`} align="center">
                       <Text size="sm" style={{ whiteSpace: 'nowrap' }}>
-                        Having
+                        {t('chartEditor.having')}
                       </Text>
                     </Flex>
                     <div style={{ minWidth: 300, maxWidth: '100%' }}>
@@ -507,7 +509,7 @@ export function ChartSeriesEditor({
                         dateRange={dateRange}
                         control={control}
                         name="having"
-                        placeholder="SQL HAVING clause (ex. count() > 100)"
+                        placeholder={t('chartEditor.sqlHavingPlaceholder')}
                         disableKeywordAutocomplete
                         onSubmit={onSubmit}
                         enableVariables

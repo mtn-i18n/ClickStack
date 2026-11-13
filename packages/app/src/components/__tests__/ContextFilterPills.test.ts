@@ -398,7 +398,9 @@ describe('getAvailablePresets', () => {
     const presets = getAvailablePresets([]);
     expect(presets.map(p => p.value)).toContain('all');
     expect(presets.map(p => p.value)).toContain('custom');
-    expect(presets.find(p => p.value === 'all')!.label).toBe('Anything');
+    expect(presets.find(p => p.value === 'all')!.labelKey).toBe(
+      'contextPanel.presets.anything',
+    );
   });
 
   it('includes Service when svc filter exists', () => {

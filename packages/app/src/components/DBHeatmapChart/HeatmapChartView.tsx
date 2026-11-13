@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { useTranslation } from 'next-i18next/pages';
 import cx from 'classnames';
 import { Text, useMantineColorScheme } from '@mantine/core';
 
@@ -46,6 +47,7 @@ export function HeatmapChartView({
   onClearFilter?: () => void;
   selectionBounds?: SelectionBounds | null;
 }) {
+  const { t } = useTranslation('charts');
   const { colorScheme } = useMantineColorScheme();
   const palette = colorScheme === 'light' ? lightPalette : darkPalette;
 
@@ -97,7 +99,7 @@ export function HeatmapChartView({
     >
       {isLoading ? (
         <Text size="sm" ta="center" p="xl">
-          Loading...
+          {t('loadingData')}
         </Text>
       ) : error ? (
         <ChartErrorState error={error} variant={errorVariant} />
@@ -108,8 +110,7 @@ export function HeatmapChartView({
           p="xl"
           className={cx({ 'effect-pulse': isRefreshing })}
         >
-          Not enough data points to render heatmap. Try expanding your search
-          criteria.
+          {t('notEnoughHeatmapData')}
         </Text>
       ) : (
         <HeatmapPlot

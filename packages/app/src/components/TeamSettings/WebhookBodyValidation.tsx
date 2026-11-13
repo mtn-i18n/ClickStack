@@ -1,12 +1,14 @@
+import { useTranslation } from 'next-i18next/pages';
+import type { TFunction } from 'i18next';
 import { WebhookTemplateError } from '@hyperdx/common-utils/dist/core/handlebarsEnv';
 import { Alert, Code } from '@mantine/core';
 import { IconAlertTriangle } from '@tabler/icons-react';
 
-const errorTitle = ({ line, column }: WebhookTemplateError) => {
-  if (line == null) return 'Template error';
+const errorTitle = ({ line, column }: WebhookTemplateError, t: TFunction) => {
+  if (line == null) return t('webhookValidation.templateError');
   return column == null
-    ? `Template error on line ${line}`
-    : `Template error on line ${line}, column ${column}`;
+    ? t('webhookValidation.templateErrorLine', { line })
+    : t('webhookValidation.templateErrorLineColumn', { line, column });
 };
 
 export function WebhookBodyValidationAlert({
@@ -14,11 +16,12 @@ export function WebhookBodyValidationAlert({
 }: {
   error: WebhookTemplateError;
 }) {
+  const { t } = useTranslation('settings');
   return (
     <Alert
       variant="danger"
       icon={<IconAlertTriangle size={16} />}
-      title={errorTitle(error)}
+      title={errorTitle(error, t)}
       data-testid="webhook-body-error"
     >
       <Code block>{error.message}</Code>

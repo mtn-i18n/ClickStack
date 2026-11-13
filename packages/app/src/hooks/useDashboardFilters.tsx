@@ -1,4 +1,5 @@
 import { useCallback, useMemo } from 'react';
+import { useTranslation } from 'next-i18next/pages';
 import { partition, uniqBy } from 'lodash';
 import { useQueryState } from 'nuqs';
 import {
@@ -129,6 +130,7 @@ const rebuildEntries = (
 };
 
 const useDashboardFilters = (filters: DashboardFilter[]) => {
+  const { t } = useTranslation('dashboards');
   const [filterValueEntries, setFilterValueEntries] = useQueryState(
     'filters',
     dashboardFilterValuesParser,
@@ -341,7 +343,7 @@ const useDashboardFilters = (filters: DashboardFilter[]) => {
             .success,
       );
       if (!isStorable) {
-        if (targets[0]) notifyAdhocConditionTooLong(targets[0]);
+        if (targets[0]) notifyAdhocConditionTooLong(targets[0], t);
         return;
       }
 
@@ -353,14 +355,14 @@ const useDashboardFilters = (filters: DashboardFilter[]) => {
           action,
         );
         if (merged.length > ADHOC_FILTER_MAX_CONDITIONS) {
-          notifyAdhocFilterFull(filter);
+          notifyAdhocFilterFull(filter, t);
           continue;
         }
         next.set(filter.id, merged);
       }
       if (next.size > 0) setAdhocConditionsByFilterId(next);
     },
-    [filters, adhocConditionsByFilterId, setAdhocConditionsByFilterId],
+    [filters, adhocConditionsByFilterId, setAdhocConditionsByFilterId, t],
   );
 
   // Its consumers apply it as SQL; PromQL conditions reach tiles by source only.

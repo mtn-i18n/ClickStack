@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { useTranslation } from 'next-i18next/pages';
 import { ClickHouseQueryError } from '@hyperdx/common-utils/dist/clickhouse';
 import {
   BuilderChartConfigWithDateRange,
@@ -42,6 +43,7 @@ export default function PatternTable({
   totalCountQueryKeyPrefix: string;
   source?: TSource;
 }) {
+  const { t } = useTranslation('charts');
   const SAMPLES = 10_000;
 
   const [selectedPattern, setSelectedPattern] = useState<Pattern | null>(null);
@@ -110,7 +112,7 @@ export default function PatternTable({
         <Container style={{ overflow: 'auto' }}>
           <Box mt="lg">
             <Text my="sm" size="sm">
-              Error Message:
+              {t('errorMessage')}
             </Text>
             <Code
               block
@@ -124,7 +126,7 @@ export default function PatternTable({
           {error instanceof ClickHouseQueryError && (
             <Box mt="lg">
               <Text my="sm" size="sm">
-                Original Query:
+                {t('originalQuery')}
               </Text>
               <Code
                 block

@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { useTranslation } from 'next-i18next/pages';
 import {
   Control,
   Controller,
@@ -39,6 +40,7 @@ export function ChartFormulaEditor({
   onSubmit,
   setValue,
 }: ChartFormulaEditorProps) {
+  const { t } = useTranslation('dashboards');
   const series = useWatch({ control, name: 'series' });
   const seriesCount = Array.isArray(series) ? series.length : 0;
 
@@ -76,13 +78,15 @@ export function ChartFormulaEditor({
       <ChartSeriesControls
         control={control}
         aliasName={`${namePrefix}alias`}
-        aliasPlaceholder="Formula alias"
+        aliasPlaceholder={t('chartEditor.formulaAlias')}
         index={index}
         numberFormat={numberFormat}
         onSubmit={onSubmit}
         onRemove={onRemoveFormula}
         onOpenNumberFormat={openNumberFormat}
-        leadingSection={<Badge size="sm" text="Formula" state="success" />}
+        leadingSection={
+          <Badge size="sm" text={t('chartEditor.formula')} state="success" />
+        }
       />
       <Controller
         control={control}
@@ -96,7 +100,7 @@ export function ChartFormulaEditor({
             error={validationError ?? error?.message}
             description={
               validationError == null && !error
-                ? 'Arithmetic over series letters (A = series 1, B = series 2, ...)'
+                ? t('chartEditor.formulaDescription')
                 : undefined
             }
             inputWrapperOrder={['label', 'input', 'description', 'error']}

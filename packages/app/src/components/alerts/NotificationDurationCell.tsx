@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { useTranslation } from 'next-i18next/pages';
 import type { AlertHistoryAnalytics } from '@hyperdx/common-utils/dist/types';
 import { Collapse, Group, Stack, Text, UnstyledButton } from '@mantine/core';
 import { IconChevronDown, IconChevronRight } from '@tabler/icons-react';
@@ -15,6 +16,7 @@ export function NotificationDurationCell({
 }: {
   analytics?: AlertHistoryAnalytics;
 }) {
+  const { t } = useTranslation('alerts');
   const [expanded, setExpanded] = React.useState(false);
   const total = analytics?.webhookDurationMs;
   const targets = analytics?.notificationTargets ?? [];
@@ -64,7 +66,7 @@ export function NotificationDurationCell({
               )}
               {target.failures > 0 && (
                 <Text size="xs" c="var(--color-text-danger)">
-                  {target.failures} failed
+                  {t('failedCount', { count: target.failures })}
                 </Text>
               )}
             </Group>

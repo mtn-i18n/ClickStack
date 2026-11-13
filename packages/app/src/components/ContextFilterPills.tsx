@@ -1,3 +1,4 @@
+import { useTranslation } from 'next-i18next/pages';
 import {
   isLogSource,
   isTraceSource,
@@ -215,7 +216,7 @@ export function getPresetFilterIds(
 
 export function getAvailablePresets(
   available: QuickFilterItem[],
-): { label: string; value: string }[] {
+): { labelKey: string; value: string }[] {
   const ids = new Set(available.map(f => f.id));
   const hasService = ids.has('svc') || ids.has('ra:service.name');
   const hasHost = ids.has('ra:host.name');
@@ -223,12 +224,18 @@ export function getAvailablePresets(
   const hasNode = ids.has('ra:k8s.node.name');
 
   return [
-    { label: 'Anything', value: 'all' },
-    ...(hasService ? [{ label: 'Service', value: 'service' }] : []),
-    ...(hasHost ? [{ label: 'Host', value: 'host' }] : []),
-    ...(hasPod ? [{ label: 'Pod', value: 'pod' }] : []),
-    ...(hasNode ? [{ label: 'Node', value: 'node' }] : []),
-    { label: 'Custom', value: 'custom' },
+    { labelKey: 'contextPanel.presets.anything', value: 'all' },
+    ...(hasService
+      ? [{ labelKey: 'contextPanel.presets.service', value: 'service' }]
+      : []),
+    ...(hasHost
+      ? [{ labelKey: 'contextPanel.presets.host', value: 'host' }]
+      : []),
+    ...(hasPod ? [{ labelKey: 'contextPanel.presets.pod', value: 'pod' }] : []),
+    ...(hasNode
+      ? [{ labelKey: 'contextPanel.presets.node', value: 'node' }]
+      : []),
+    { labelKey: 'contextPanel.presets.custom', value: 'custom' },
   ];
 }
 
@@ -324,6 +331,8 @@ export function FilterPill({
 }
 
 export function FilterLegend() {
+  const { t } = useTranslation('search');
+
   return (
     <Flex gap="md" align="center" mt={6}>
       <Group gap={4}>
@@ -337,7 +346,7 @@ export function FilterLegend() {
           }}
         />
         <Text size="xxs" c="dimmed">
-          matching
+          {t('contextPanel.legendMatching')}
         </Text>
       </Group>
       <Group gap={4}>
@@ -351,7 +360,7 @@ export function FilterLegend() {
           }}
         />
         <Text size="xxs" c="dimmed">
-          available — tap to add
+          {t('contextPanel.legendAvailableTapToAdd')}
         </Text>
       </Group>
     </Flex>

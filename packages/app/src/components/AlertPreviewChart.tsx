@@ -1,4 +1,5 @@
 import React, { useMemo } from 'react';
+import { useTranslation } from 'next-i18next/pages';
 import {
   ALERT_COUNT_DEFAULT_SELECT,
   buildSearchChartConfig,
@@ -58,6 +59,7 @@ export const AlertPreviewChart = ({
   annotations,
   height = 200,
 }: AlertPreviewChartProps) => {
+  const { t } = useTranslation('alerts');
   const resolvedSelect =
     (select && select.trim().length > 0
       ? select
@@ -116,8 +118,9 @@ export const AlertPreviewChart = ({
         threshold,
         thresholdMax,
         thresholdType,
+        thresholdLabel: t('alertThresholdLine'),
       }),
-    [threshold, thresholdMax, thresholdType],
+    [threshold, thresholdMax, thresholdType, t],
   );
   const referenceLineValues = useMemo(
     () =>

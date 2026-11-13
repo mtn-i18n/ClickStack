@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { add, differenceInSeconds } from 'date-fns';
+import { Trans } from 'react-i18next';
 import SqlString from 'sqlstring';
 import { z } from 'zod';
 import {
@@ -66,24 +67,37 @@ import { getColorProps, getLogLevelColorOrder, logLevelColor } from './utils';
 
 type SortOrder = 'asc' | 'desc';
 
+// Labels resolve against the charts namespace at the render site.
 export const AGG_FNS = [
-  { value: 'count' as const, label: 'Count of Events', isAttributable: false },
-  { value: 'sum' as const, label: 'Sum', isAttributable: false },
-  { value: 'p99' as const, label: '99th Percentile' },
-  { value: 'p95' as const, label: '95th Percentile' },
-  { value: 'p90' as const, label: '90th Percentile' },
-  { value: 'p50' as const, label: 'Median' },
-  { value: 'avg' as const, label: 'Average' },
-  { value: 'max' as const, label: 'Maximum' },
-  { value: 'min' as const, label: 'Minimum' },
   {
-    value: 'count_distinct' as const,
-    label: 'Count Distinct',
+    value: 'count' as const,
+    labelKey: 'aggregations.countOfEvents',
     isAttributable: false,
   },
-  { value: 'any' as const, label: 'Any' },
-  { value: 'increase' as const, label: 'Increase', isAttributable: false },
-  { value: 'none' as const, label: 'Custom' },
+  {
+    value: 'sum' as const,
+    labelKey: 'aggregations.sum',
+    isAttributable: false,
+  },
+  { value: 'p99' as const, labelKey: 'aggregations.p99' },
+  { value: 'p95' as const, labelKey: 'aggregations.p95' },
+  { value: 'p90' as const, labelKey: 'aggregations.p90' },
+  { value: 'p50' as const, labelKey: 'aggregations.p50' },
+  { value: 'avg' as const, labelKey: 'aggregations.avg' },
+  { value: 'max' as const, labelKey: 'aggregations.max' },
+  { value: 'min' as const, labelKey: 'aggregations.min' },
+  {
+    value: 'count_distinct' as const,
+    labelKey: 'aggregations.countDistinct',
+    isAttributable: false,
+  },
+  { value: 'any' as const, labelKey: 'aggregations.any' },
+  {
+    value: 'increase' as const,
+    labelKey: 'aggregations.increase',
+    isAttributable: false,
+  },
+  { value: 'none' as const, labelKey: 'aggregations.custom' },
 ];
 
 export const DEFAULT_CHART_CONFIG: Omit<
@@ -1284,8 +1298,7 @@ export function buildEventsSearchUrl({
       if (isNoLogSourceWarningDismissed()) return null;
       notifications.show({
         color: 'yellow',
-        message:
-          'Drill-down is unavailable for metric sources that lack correlated log sources',
+        message: <Trans ns="dashboards" i18nKey="chart.drilldownNoLogSource" />,
         id: 'no-log-source-associated',
         closeButtonProps: {
           onClick: () => {

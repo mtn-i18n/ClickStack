@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { useTranslation } from 'next-i18next/pages';
 import { ComboboxProps, Group, Stack, Text } from '@mantine/core';
 
 import { TimeZoneSelect, TimeZoneShortcuts } from '@/components/TimeZoneSelect';
@@ -66,6 +67,7 @@ export function TimePickerTimeZoneSelect({
   comboboxProps: ComboboxProps;
 }) {
   const override = useTimeZoneOverride();
+  const { t } = useTranslation('common');
   const {
     userPreferences: { timeZone: userTimeZone },
   } = useUserPreferences();
@@ -84,7 +86,7 @@ export function TimePickerTimeZoneSelect({
       style={{ borderTop: '1px solid var(--color-border)' }}
     >
       <Text size="xs" c="dimmed" lh="30px">
-        Time zone
+        {t('timePicker.timeZone')}
       </Text>
       <Stack gap={4} flex={1}>
         <TimeZoneSelect

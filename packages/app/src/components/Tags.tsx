@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { Trans, useTranslation } from 'next-i18next/pages';
 import { TagResourceType } from '@hyperdx/common-utils/dist/types';
 import {
   ActionIcon,
@@ -32,6 +33,7 @@ export const Tags = React.memo(
     resourceType?: TagResourceType;
     children?: React.ReactNode;
   }) => {
+    const { t } = useTranslation('common');
     const {
       data: prefetchedOptionsData,
       isLoading,
@@ -110,11 +112,13 @@ export const Tags = React.memo(
           )}
         </Popover.Target>
         <Popover.Dropdown p={0}>
-          {isLoading && 'Loading'}
-          {isError && 'Error'}
+          {isLoading && t('states.loading')}
+          {isError && t('states.error')}
           <Input
             size="xs"
-            placeholder={allowCreate ? 'Search or create tag' : 'Search tag'}
+            placeholder={
+              allowCreate ? t('tags.searchOrCreate') : t('tags.searchTag')
+            }
             variant="filled"
             leftSection={<IconSearch size={16} />}
             autoFocus
@@ -135,11 +139,12 @@ export const Tags = React.memo(
             {filtered.length === 0 && (
               <div className="pt-3 px-4 fs-8 text-center">
                 {allowCreate ? (
-                  <>
-                    Type and press <span>Enter</span> to create new tag
-                  </>
+                  <Trans
+                    i18nKey="tags.typeAndPressEnter"
+                    components={{ kbd: <kbd /> }}
+                  />
                 ) : (
-                  'No tags found'
+                  t('tags.noTagsFound')
                 )}
               </div>
             )}
@@ -166,7 +171,7 @@ export const Tags = React.memo(
                           onChange([tag]);
                         }}
                       >
-                        Only
+                        {t('tags.only')}
                       </Button>
                     )}
                   </Group>
@@ -175,7 +180,11 @@ export const Tags = React.memo(
             </Checkbox.Group>
           </ScrollArea>
           <div className="p-2 border-top border-dark d-flex justify-content-between align-items-center">
-            <div className="ms-2 fs-8 ">{values.length || 'None'} selected</div>
+            <div className="ms-2 fs-8 ">
+              {values.length
+                ? t('tags.selected', { count: values.length })
+                : t('tags.noneSelected')}
+            </div>
             {values.length >= 1 && (
               <Button
                 variant="secondary"
@@ -183,7 +192,7 @@ export const Tags = React.memo(
                 fw="normal"
                 onClick={handleClearAll}
               >
-                Clear all
+                {t('tags.clearAll')}
               </Button>
             )}
           </div>

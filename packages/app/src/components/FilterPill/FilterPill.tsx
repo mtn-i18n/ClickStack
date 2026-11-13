@@ -1,4 +1,5 @@
 import { CSSProperties, useState } from 'react';
+import { useTranslation } from 'next-i18next/pages';
 import { ActionIcon, Popover, Text, Tooltip } from '@mantine/core';
 import { IconX } from '@tabler/icons-react';
 
@@ -55,6 +56,7 @@ export function FilterPill({
   onOpenedChange,
   'data-testid': testId,
 }: FilterPillProps) {
+  const { t } = useTranslation('search');
   const [opened, setOpened] = useState(false);
   const changeOpened = (next: boolean) => {
     setOpened(next);
@@ -147,7 +149,7 @@ export function FilterPill({
               ? 'var(--mantine-color-red-light-color)'
               : undefined,
           }}
-          aria-label="Remove filter"
+          aria-label={t('filterPill.removeFilter')}
         >
           <IconX size={9} />
         </ActionIcon>

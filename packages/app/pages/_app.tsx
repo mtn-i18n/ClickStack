@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import type { NextPage } from 'next';
 import type { AppProps } from 'next/app';
 import Head from 'next/head';
+import { appWithTranslation } from 'next-i18next/pages';
 import randomUUID from 'crypto-randomuuid';
 import { enableMapSet } from 'immer';
 import {
@@ -16,6 +17,7 @@ import { usePageTitle } from '@/brand';
 import { MANTINE_FONT_MAP } from '@/config/fonts';
 import { ibmPlexMono, inter, roboto, robotoMono } from '@/fonts';
 import { fetchServerVersion, installHdxDebug } from '@/hdxDebug';
+import { LocaleInitializer } from '@/i18n/LocaleInitializer';
 import { ThemeWrapper } from '@/ThemeWrapper';
 import { ConfirmProvider } from '@/useConfirm';
 import {
@@ -23,6 +25,9 @@ import {
   useContentFontSize,
   useResolvedColorScheme,
 } from '@/useUserPreferences';
+
+// eslint-disable-next-line no-restricted-imports -- the config lives at the package root, outside src
+import nextI18NextConfig from '../next-i18next.config.js';
 
 import '@mantine/core/styles.css';
 import '@mantine/dates/styles.css';
@@ -111,7 +116,7 @@ function AppContent({
   );
 }
 
-export default function MyApp({ Component, pageProps }: AppPropsWithLayout) {
+function MyApp({ Component, pageProps }: AppPropsWithLayout) {
   // Expose build identity + debug helpers on window.hdx (all environments).
   // Installed once; the backend/API version (deployed separately) is fetched
   // from /api/health and read live via window.hdx's getters.
@@ -137,6 +142,7 @@ export default function MyApp({ Component, pageProps }: AppPropsWithLayout) {
 
   return (
     <React.Fragment>
+      <LocaleInitializer />
       <AppHeadContent />
       <QueryClientProvider client={queryClient}>
         <AppContent Component={Component} pageProps={pageProps} />
@@ -145,3 +151,5 @@ export default function MyApp({ Component, pageProps }: AppPropsWithLayout) {
     </React.Fragment>
   );
 }
+
+export default appWithTranslation(MyApp, nextI18NextConfig);

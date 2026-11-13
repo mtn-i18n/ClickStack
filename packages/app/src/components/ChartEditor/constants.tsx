@@ -1,4 +1,6 @@
 import { ReactNode } from 'react';
+import { Trans } from 'next-i18next/pages';
+import type { TFunction } from 'i18next';
 import { DisplayType } from '@hyperdx/common-utils/dist/types';
 import { Code, List, Text } from '@mantine/core';
 
@@ -53,76 +55,78 @@ WHERE TimestampTime >= fromUnixTimestamp64Milli({startDateMilliseconds:Int64})
   [DisplayType.EventPatterns]: '',
 };
 
-const TIMESERIES_INSTRUCTIONS = (
+const timeseriesInstructions = (t: TFunction) => (
   <>
     <Text size="xs" fw="bold">
-      Result columns are plotted as follows:
+      {t('chartEditor.resultsPlotted')}
     </Text>
     <List size="xs" withPadding spacing={3} mb="xs">
       <List.Item>
         <Text span size="xs" fw={600}>
-          Timestamp
+          {t('chartEditor.timestamp')}
         </Text>
         <Text span size="xs">
           {' '}
-          — The first <Code fz="xs">Date</Code> or <Code fz="xs">DateTime</Code>{' '}
-          column.
+          <Trans
+            ns="dashboards"
+            i18nKey="chartEditor.timestampDescription"
+            components={{
+              date: <Code fz="xs" />,
+              dateTime: <Code fz="xs" />,
+            }}
+          />
         </Text>
       </List.Item>
       <List.Item>
         <Text span size="xs" fw={600}>
-          Series Value
+          {t('chartEditor.seriesValue')}
         </Text>
         <Text span size="xs">
           {' '}
-          — Each numeric column will be plotted as a separate series. These
-          columns are generally aggregate function values.
+          {t('chartEditor.seriesValueDescription')}
         </Text>
       </List.Item>
       <List.Item>
         <Text span size="xs" fw={600}>
-          Group Names
+          {t('chartEditor.groupNames')}
         </Text>
         <Text span size="xs">
           {' '}
-          (optional) — Any string, map, or array type result column will be
-          treated as a group column. Result rows with different group column
-          values will be plotted as separate series.
+          {t('chartEditor.groupNamesDescription')}
         </Text>
       </List.Item>
     </List>
   </>
 );
 
-export const DISPLAY_TYPE_INSTRUCTIONS: Partial<
-  Record<DisplayType, ReactNode>
-> = {
-  [DisplayType.Line]: TIMESERIES_INSTRUCTIONS,
-  [DisplayType.StackedBar]: TIMESERIES_INSTRUCTIONS,
-  [DisplayType.StackedLine]: TIMESERIES_INSTRUCTIONS,
+export const getDisplayTypeInstructions = (
+  t: TFunction,
+): Partial<Record<DisplayType, ReactNode>> => ({
+  [DisplayType.Line]: timeseriesInstructions(t),
+  [DisplayType.StackedBar]: timeseriesInstructions(t),
+  [DisplayType.StackedLine]: timeseriesInstructions(t),
   [DisplayType.Pie]: (
     <>
       <Text size="xs" fw="bold">
-        Result columns are plotted as follows:
+        {t('chartEditor.resultsPlotted')}
       </Text>
       <List size="xs" withPadding spacing={3} mb="xs">
         <List.Item>
           <Text span size="xs" fw={600}>
-            Slice Value
+            {t('chartEditor.sliceValue')}
           </Text>
           <Text span size="xs">
             {' '}
-            — The first numeric column determines each slice&apos;s size.
+            {t('chartEditor.sliceValueDescription')}
           </Text>
         </List.Item>
         <List.Item>
           <Text span size="xs" fw={600}>
-            Slice Label
+            {t('chartEditor.sliceLabel')}
           </Text>
           <Text span size="xs">
             {' '}
-            (optional) — Each unique value of each string, map, and array type
-            columns will be used as a slice label.
+            {t('chartEditor.sliceLabelDescription')}
           </Text>
         </List.Item>
       </List>
@@ -131,26 +135,25 @@ export const DISPLAY_TYPE_INSTRUCTIONS: Partial<
   [DisplayType.Bar]: (
     <>
       <Text size="xs" fw="bold">
-        Result columns are plotted as follows:
+        {t('chartEditor.resultsPlotted')}
       </Text>
       <List size="xs" withPadding spacing={3} mb="xs">
         <List.Item>
           <Text span size="xs" fw={600}>
-            Bar Value
+            {t('chartEditor.barValue')}
           </Text>
           <Text span size="xs">
             {' '}
-            — The first numeric column determines each bar&apos;s height.
+            {t('chartEditor.barValueDescription')}
           </Text>
         </List.Item>
         <List.Item>
           <Text span size="xs" fw={600}>
-            Bar Label
+            {t('chartEditor.barLabel')}
           </Text>
           <Text span size="xs">
             {' '}
-            (optional) — Each unique value of each string, map, and array type
-            columns will be used as a bar label.
+            {t('chartEditor.barLabelDescription')}
           </Text>
         </List.Item>
       </List>
@@ -159,20 +162,19 @@ export const DISPLAY_TYPE_INSTRUCTIONS: Partial<
   [DisplayType.Number]: (
     <>
       <Text size="xs" fw="bold">
-        Result columns are displayed as follows:
+        {t('chartEditor.resultsDisplayed')}
       </Text>
       <List size="xs" withPadding spacing={3} mb="xs">
         <List.Item>
           <Text span size="xs" fw={600}>
-            Number
+            {t('chartEditor.number')}
           </Text>
           <Text span size="xs">
             {' '}
-            — The value of the first numeric column in the first result row is
-            displayed as the number.
+            {t('chartEditor.numberDescription')}
           </Text>
         </List.Item>
       </List>
     </>
   ),
-};
+});

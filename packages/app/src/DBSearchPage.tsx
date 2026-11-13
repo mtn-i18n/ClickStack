@@ -14,7 +14,9 @@ import dynamic from 'next/dynamic';
 import Head from 'next/head';
 import Link from 'next/link';
 import router from 'next/router';
+import { useTranslation } from 'next-i18next/pages';
 import { formatDistanceToNow } from 'date-fns';
+import type { TFunction } from 'i18next';
 import {
   parseAsBoolean,
   parseAsInteger,
@@ -24,6 +26,7 @@ import {
   useQueryStates,
 } from 'nuqs';
 import { useForm, useWatch } from 'react-hook-form';
+import { Trans } from 'react-i18next';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
@@ -259,8 +262,14 @@ function SourceEditModal({
   onClose: () => void;
   inputSource: string | undefined;
 }) {
+  const { t } = useTranslation('search');
   return (
-    <Modal size="xl" opened={opened} onClose={onClose} title="Edit Source">
+    <Modal
+      size="xl"
+      opened={opened}
+      onClose={onClose}
+      title={t('sourceModal.editTitle')}
+    >
       <TableSourceForm sourceId={inputSource} />
     </Modal>
   );
@@ -275,14 +284,19 @@ function NewSourceModal({
   onClose: () => void;
   onCreate: (source: TSource) => void;
 }) {
+  const { t } = useTranslation('search');
   return (
     <Modal
       size="xl"
       opened={opened}
       onClose={onClose}
-      title="Configure New Source"
+      title={t('sourceModal.configureTitle')}
     >
-      <TableSourceForm isNew defaultName="My New Source" onCreate={onCreate} />
+      <TableSourceForm
+        isNew
+        defaultName={t('sourceModal.defaultNewName')}
+        onCreate={onCreate}
+      />
     </Modal>
   );
 }
@@ -292,6 +306,7 @@ function ResumeLiveTailButton({
 }: {
   handleResumeLiveTail: () => void;
 }) {
+  const { t } = useTranslation('search');
   return (
     <Button
       size="compact-xs"
@@ -299,7 +314,7 @@ function ResumeLiveTailButton({
       onClick={handleResumeLiveTail}
       leftSection={<IconBolt size={14} />}
     >
-      Resume Live Tail
+      {t('liveTail.resume')}
     </Button>
   );
 }
@@ -309,6 +324,7 @@ function SearchSubmitButton({
 }: {
   isFormStateDirty: boolean;
 }) {
+  const { t } = useTranslation('search');
   return (
     <Button
       data-testid="search-submit-button"
@@ -318,19 +334,20 @@ function SearchSubmitButton({
       style={{ flexShrink: 0 }}
       size="xs"
     >
-      Run
+      {t('actions.run')}
     </Button>
   );
 }
 
 function ExpandFiltersButton({ onExpand }: { onExpand: () => void }) {
+  const { t } = useTranslation('search');
   return (
-    <Tooltip label="Show filters" position="bottom">
+    <Tooltip label={t('filter.showFilters')} position="bottom">
       <ActionIcon
         variant="subtle"
         size="xs"
         onClick={onExpand}
-        aria-label="Show filters"
+        aria-label={t('filter.showFilters')}
       >
         <IconArrowBarToRight size={14} />
       </ActionIcon>
@@ -383,6 +400,7 @@ export function SearchNumRows({
   isSearching: boolean;
   isLiveTail?: boolean;
 }) {
+  const { t } = useTranslation('search');
   const [statsOpened, { open: openStats, close: closeStats }] =
     useDisclosure(false);
   const { data, isLoading, error } = useExplainQuery(config, {
@@ -411,7 +429,11 @@ export function SearchNumRows({
       <Modal
         opened={statsOpened}
         onClose={closeStats}
-        title={sqlConfig != null ? 'Generated SQL (Timeline)' : 'Generated SQL'}
+        title={
+          sqlConfig != null
+            ? t('table.generatedSqlTimeline')
+            : t('table.generatedSql')
+        }
         size="xl"
       >
         <ChartSQLPreview config={sqlConfig ?? config} enableCopy />
@@ -419,10 +441,12 @@ export function SearchNumRows({
       <Group gap={4} align="center">
         <Text size="xs">
           {isLoading
-            ? 'Scanned Rows ...'
+            ? t('numRows.scannedRowsLoading')
             : error || numRows == null
               ? ''
-              : `Scanned Rows: ${Number(numRows).toLocaleString()}`}
+              : t('numRows.scannedRows', {
+                  rows: Number(numRows).toLocaleString(),
+                })}
         </Text>
         {showElapsed && (
           <>
@@ -433,8 +457,10 @@ export function SearchNumRows({
             )}
             <Text size="xs">
               {showElapsedLoading
-                ? 'Elapsed Time: ...'
-                : `Elapsed Time: ${formatDurationMs(searchElapsedMs!)}`}
+                ? t('numRows.elapsedTimeLoading')
+                : t('numRows.elapsedTime', {
+                    duration: formatDurationMs(searchElapsedMs!),
+                  })}
             </Text>
           </>
         )}
@@ -442,13 +468,13 @@ export function SearchNumRows({
             explain query, so it renders unconditionally. Gating it on explain
             loading/data would make it flicker on every live-tail poll, since
             each poll changes the dateRange (and thus the explain queryKey). */}
-        <Tooltip label="Show Generated SQL" position="top">
+        <Tooltip label={t('table.showGeneratedSql')} position="top">
           <ActionIcon
             variant="subtle"
             size="sm"
             color="gray"
             onClick={openStats}
-            aria-label="Show Generated SQL"
+            aria-label={t('table.showGeneratedSql')}
           >
             <IconCode size={16} />
           </ActionIcon>
@@ -473,6 +499,7 @@ function SaveSearchModalComponent({
   isUpdate: boolean;
   savedSearchId: string | undefined | null;
 }) {
+  const { t } = useTranslation('search');
   const { data: savedSearch } = useSavedSearch(
     { id: savedSearchId ?? '' },
     {
@@ -554,9 +581,8 @@ function SaveSearchModalComponent({
               console.error('Error updating saved search:', error);
               notifications.show({
                 color: 'red',
-                title: 'Error',
-                message:
-                  'An error occurred while updating your saved search. Please try again.',
+                title: t('notices.title'),
+                message: t('saveSearchModal.updateError'),
               });
             },
           },
@@ -581,9 +607,8 @@ function SaveSearchModalComponent({
           console.error('Error creating saved search:', error);
           notifications.show({
             color: 'red',
-            title: 'Error',
-            message:
-              'An error occurred while saving your search. Please try again.',
+            title: t('notices.title'),
+            message: t('saveSearchModal.saveError'),
           });
         }
       }
@@ -599,7 +624,7 @@ function SaveSearchModalComponent({
       data-testid="save-search-modal"
       opened={opened}
       onClose={closeAndReset}
-      title="Save Search"
+      title={t('saveSearchModal.title')}
       centered
       size="lg"
     >
@@ -624,7 +649,7 @@ function SaveSearchModalComponent({
                 <Text size="xs">{chartConfig.where}</Text>
               ) : (
                 <Text size="xxs" fs="italic">
-                  None
+                  {t('saveSearchModal.none')}
                 </Text>
               )}
               <Text size="xs" mb="xs" mt="sm">
@@ -649,11 +674,11 @@ function SaveSearchModalComponent({
               )}
             </Card>
           ) : (
-            <Text>Loading Chart Config...</Text>
+            <Text>{t('saveSearchModal.loadingChartConfig')}</Text>
           )}
           <Box>
             <Text size="xs" mb="xs">
-              Name
+              {t('saveSearchModal.name')}
             </Text>
             <InputControlled
               data-testid="save-search-name-input"
@@ -664,7 +689,7 @@ function SaveSearchModalComponent({
           </Box>
           <Box mb="sm">
             <Text size="xs" mb="xs">
-              Tags
+              {t('saveSearchModal.tags')}
             </Text>
             <Group gap="xs" align="center" mb="xs">
               {tags.map(tag => (
@@ -696,7 +721,7 @@ function SaveSearchModalComponent({
                   size="xs"
                 >
                   <IconPlus size={14} className="me-1" />
-                  Add Tag
+                  {t('saveSearchModal.addTag')}
                 </Button>
               </Tags>
             </Group>
@@ -708,7 +733,7 @@ function SaveSearchModalComponent({
             disabled={!formState.isValid}
             loading={isPending}
           >
-            {isUpdate ? 'Update' : 'Save'}
+            {isUpdate ? t('common:actions.update') : t('common:actions.save')}
           </Button>
         </Stack>
       </form>
@@ -894,15 +919,15 @@ export function useDefaultOrderBy(sourceID: string | undefined | null) {
   }, [source, tableMetadata]);
 }
 
-function formatDroppedFiltersMessage(count: number): string {
-  const noun = count === 1 ? 'filter' : 'filters';
-  const verb = count === 1 ? 'was' : 'were';
-  return `${count} ${noun} didn't apply to this source and ${verb} removed.`;
+function formatDroppedFiltersMessage(count: number, t: TFunction): string {
+  return t('notices.droppedFilters', { count });
 }
 
-function formatDroppedGroupByMessage(dropped: string[]): string {
-  const verb = dropped.length === 1 ? 'was' : 'were';
-  return `Group by ${dropped.join(', ')} didn't apply to this source and ${verb} removed.`;
+function formatDroppedGroupByMessage(dropped: string[], t: TFunction): string {
+  return t('notices.droppedGroupBy', {
+    count: dropped.length,
+    fields: dropped.join(', '),
+  });
 }
 
 // This is outside as it needs to be a stable reference
@@ -1052,6 +1077,8 @@ export function DBSearchPage() {
 }
 
 function DBSearchPageContent() {
+  const { t } = useTranslation('search');
+  const { t: tNav } = useTranslation('nav');
   // Read again here, not passed down: this component re-renders from its own
   // query-state hooks without the wrapper, and must see the current path.
   const savedSearchId = getSavedSearchIdFromPath();
@@ -1084,7 +1111,9 @@ function DBSearchPageContent() {
     },
   );
   const title = usePageTitle(
-    savedSearch ? `${savedSearch.name} Search` : 'Search',
+    savedSearch
+      ? t('documentTitle.savedSearch', { name: savedSearch.name })
+      : tNav('search'),
   );
 
   const { data: sources } = useSources();
@@ -1242,12 +1271,13 @@ function DBSearchPageContent() {
   const { data: inputSourceObjs } = useSources();
   const inputSourceObj = inputSourceObjs?.find(s => s.id === inputSource);
 
-  const [displayedTimeInputValue, setDisplayedTimeInputValue] =
-    useState('Live Tail');
+  const [displayedTimeInputValue, setDisplayedTimeInputValue] = useState(
+    t('liveTail.label'),
+  );
 
   const { isReady, searchedTimeRange, onSearch, onTimeRangeSelect } =
     useNewTimeQuery({
-      initialDisplayValue: 'Live Tail',
+      initialDisplayValue: t('liveTail.label'),
       initialTimeRange: defaultTimeRange,
       showRelativeInterval: isLive ?? true,
       setDisplayedTimeInputValue,
@@ -1549,7 +1579,7 @@ function DBSearchPageContent() {
         if (dropped.length > 0) {
           notifications.show({
             color: 'yellow',
-            message: formatDroppedFiltersMessage(dropped.length),
+            message: formatDroppedFiltersMessage(dropped.length, t),
           });
         }
       }
@@ -1561,7 +1591,7 @@ function DBSearchPageContent() {
           setGroupByParam(kept);
           notifications.show({
             color: 'yellow',
-            message: formatDroppedGroupByMessage(dropped),
+            message: formatDroppedGroupByMessage(dropped, t),
           });
         }
       }
@@ -1683,16 +1713,18 @@ function DBSearchPageContent() {
             onSuccess: () => {
               notifications.show({
                 color: 'green',
-                message: 'Tags updated successfully',
+                message: t('savedSearch.tagsUpdated'),
               });
             },
             onError: () => {
               notifications.show({
                 color: 'red',
                 message: (
-                  <>
-                    An error occurred. <ContactSupportText />
-                  </>
+                  <Trans
+                    ns="search"
+                    i18nKey="notices.genericError"
+                    components={{ support: <ContactSupportText /> }}
+                  />
                 ),
               });
             },
@@ -1700,7 +1732,7 @@ function DBSearchPageContent() {
         );
       }
     },
-    [savedSearch, searchedConfig, updateSavedSearch],
+    [savedSearch, searchedConfig, updateSavedSearch, t],
   );
 
   const [newSourceModalOpened, setNewSourceModalOpened] = useState(false);
@@ -1986,10 +2018,10 @@ function DBSearchPageContent() {
         !searchParams.has('from') &&
         !searchParams.has('to')
       ) {
-        onSearch('Live Tail');
+        onSearch(t('liveTail.label'));
       }
     }
-  }, [directTraceId, isReady, queryReady, isChartConfigLoading, onSearch]);
+  }, [directTraceId, isReady, queryReady, isChartConfigLoading, onSearch, t]);
 
   const { data: aliasMap } = useAliasMapFromChartConfig(dbSqlRowTableConfig);
 
@@ -2320,7 +2352,9 @@ function DBSearchPageContent() {
         control={control}
         name="select"
         defaultValue={defaultSearchConfig.select}
-        placeholder={defaultSearchConfig.select || 'SELECT Columns'}
+        placeholder={
+          defaultSearchConfig.select || t('searchPage.selectColumns')
+        }
         onSubmit={onSubmit}
         label="SELECT"
         size="xs"
@@ -2383,7 +2417,7 @@ function DBSearchPageContent() {
           <Group justify="space-between">
             <Breadcrumbs fz="sm">
               <Anchor component={Link} href="/search/list" fz="sm" c="dimmed">
-                Saved Searches
+                {tNav('pages.savedSearches')}
               </Anchor>
               <Text fz="sm" c="dimmed" maw={400} truncate="end">
                 {savedSearch.name}
@@ -2392,8 +2426,10 @@ function DBSearchPageContent() {
             <Text size="xs" c="dimmed">
               {savedSearch.createdBy && (
                 <span>
-                  Created by{' '}
-                  {savedSearch.createdBy.name || savedSearch.createdBy.email}.{' '}
+                  {t('searchPage.createdBy', {
+                    name:
+                      savedSearch.createdBy.name || savedSearch.createdBy.email,
+                  })}{' '}
                 </span>
               )}
               {savedSearch.updatedAt && (
@@ -2405,12 +2441,23 @@ function DBSearchPageContent() {
                         format="short"
                       />
                       {savedSearch.updatedBy
-                        ? ` by ${savedSearch.updatedBy.name || savedSearch.updatedBy.email}`
+                        ? ` ${t('searchPage.by', {
+                            name:
+                              savedSearch.updatedBy.name ||
+                              savedSearch.updatedBy.email,
+                          })}`
                         : ''}
                     </>
                   }
                 >
-                  <span>{`Updated ${formatDistanceToNow(new Date(savedSearch.updatedAt), { addSuffix: true })}.`}</span>
+                  <span>
+                    {t('searchPage.updatedAt', {
+                      relative: formatDistanceToNow(
+                        new Date(savedSearch.updatedAt),
+                        { addSuffix: true },
+                      ),
+                    })}
+                  </span>
                 </Tooltip>
               )}
             </Text>
@@ -2419,8 +2466,8 @@ function DBSearchPageContent() {
             <InlineNameInput
               key={savedSearch.id}
               value={savedSearch.name ?? ''}
-              placeholder="Untitled search"
-              aria-label="Saved search name"
+              placeholder={t('savedSearch.untitled')}
+              aria-label={t('savedSearch.nameAria')}
               size="md"
               headingLevel={3}
               data-testid="saved-search-name"
@@ -2433,11 +2480,11 @@ function DBSearchPageContent() {
                   .catch(error => {
                     notifications.show({
                       color: 'red',
-                      title: 'Unable to save search',
+                      title: t('savedSearch.unableToSave'),
                       message:
                         error instanceof Error
                           ? error.message.slice(0, 100)
-                          : 'An error occurred while renaming your saved search.',
+                          : t('savedSearch.renameError'),
                     });
                     throw error;
                   })
@@ -2535,7 +2582,7 @@ function DBSearchPageContent() {
                 onClick={onSaveSearch}
                 style={{ flexShrink: 0 }}
               >
-                Save
+                {t('common:actions.save')}
               </Button>
             ) : (
               <Button
@@ -2547,7 +2594,7 @@ function DBSearchPageContent() {
                 }}
                 style={{ flexShrink: 0 }}
               >
-                Update
+                {t('common:actions.update')}
               </Button>
             )}
             {!IS_LOCAL_MODE && (
@@ -2559,7 +2606,7 @@ function DBSearchPageContent() {
                 style={{ flexShrink: 0 }}
               >
                 <Group gap={4}>
-                  Alerts
+                  {t('searchPage.alerts')}
                   <AlertStatusIcon alerts={savedSearch?.alerts} />
                 </Group>
               </Button>
@@ -2572,7 +2619,9 @@ function DBSearchPageContent() {
                 aria-expanded={columnsOpen}
                 onClick={() => setColumnsOpen(open => !open)}
               >
-                {columnsOpen ? 'Hide columns' : 'Columns'}
+                {columnsOpen
+                  ? t('searchPage.hideColumns')
+                  : t('searchPage.columns')}
               </Button>
             )}
           </>
@@ -2633,7 +2682,7 @@ function DBSearchPageContent() {
               size="xs"
             />
             {isLive && (
-              <Tooltip label="Live tail refresh interval">
+              <Tooltip label={t('liveTail.refreshInterval')}>
                 <Box style={{ width: 80, minWidth: 80, flexShrink: 0 }}>
                   <Select
                     size="xs"
@@ -2691,8 +2740,8 @@ function DBSearchPageContent() {
           <EmptyState
             h="100%"
             icon={<IconStack2 size={32} />}
-            title="No data to display"
-            description="Select a source and click the play button to query data."
+            title={t('empty.noDataTitle')}
+            description={t('empty.noDataDescription')}
           />
         ) : (
           <>
@@ -2700,9 +2749,9 @@ function DBSearchPageContent() {
               className={searchPageStyles.searchPageContainer}
               opened={!filtersCollapsed}
               onClose={collapseFilters}
-              title="Filters"
+              title={t('filter.title')}
               panel={
-                <ErrorBoundary message="Unable to render search filters">
+                <ErrorBoundary message={t('searchPage.filtersError')}>
                   <DBSearchPageFilters
                     denoiseResults={denoiseResults}
                     setDenoiseResults={setDenoiseResults}
@@ -2904,7 +2953,7 @@ function DBSearchPageContent() {
                         {whereSuggestions && whereSuggestions.length > 0 && (
                           <Box mb="xl">
                             <Text size="lg">
-                              <b>Query Helper</b>
+                              <b>{t('queryError.queryHelper')}</b>
                             </Text>
                             <Grid>
                               {whereSuggestions!.map(s => (
@@ -2918,7 +2967,7 @@ function DBSearchPageContent() {
                                         setValue('where', s.corrected())
                                       }
                                     >
-                                      Accept
+                                      {t('queryError.accept')}
                                     </Button>
                                   </Grid.Col>
                                 </Fragment>
@@ -2928,7 +2977,7 @@ function DBSearchPageContent() {
                         )}
                         <Box mt="sm">
                           <Text my="sm" size="sm">
-                            Error encountered for query with inputs:
+                            {t('queryError.withInputs')}
                           </Text>
                           <Paper
                             flex="auto"
@@ -2959,7 +3008,7 @@ function DBSearchPageContent() {
                               <Grid.Col span={2}>
                                 <Text>
                                   {chartConfig.whereLanguage === 'lucene'
-                                    ? 'Searched For'
+                                    ? t('queryError.searchedFor')
                                     : 'WHERE'}
                                 </Text>
                               </Grid.Col>
@@ -2986,7 +3035,7 @@ function DBSearchPageContent() {
                         </Box>
                         <Box mt="lg">
                           <Text my="sm" size="sm">
-                            Error Message:
+                            {t('queryError.message')}
                           </Text>
                           <Code
                             block
@@ -3000,7 +3049,7 @@ function DBSearchPageContent() {
                         {queryError instanceof ClickHouseQueryError && (
                           <Box mt="lg">
                             <Text my="sm" size="sm">
-                              Original Query:
+                              {t('queryError.originalQuery')}
                             </Text>
                             <Code
                               block

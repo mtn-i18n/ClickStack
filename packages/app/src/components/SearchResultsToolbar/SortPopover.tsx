@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react';
+import { useTranslation } from 'next-i18next/pages';
 import { TableConnection } from '@hyperdx/common-utils/dist/core/metadata';
 import {
   ActionIcon,
@@ -29,10 +30,7 @@ import {
   toRows,
 } from './sortClause';
 
-const DIRECTION_OPTIONS = [
-  { label: 'Asc', value: 'asc' },
-  { label: 'Desc', value: 'desc' },
-];
+const DIRECTION_OPTIONS = ['asc', 'desc'] as const;
 
 export function SortPopover({
   value,
@@ -53,6 +51,7 @@ export function SortPopover({
   sourceId?: string;
   dateRange?: [Date, Date];
 }) {
+  const { t } = useTranslation('search');
   const shown = value || defaultValue;
   const [draft, setDraft] = useState(shown);
   const [keys, setKeys] = useState<SortRow[] | null>(() =>
@@ -64,7 +63,7 @@ export function SortPopover({
   const ignoreNextChangeRef = useRef(false);
 
   const baseline = value || defaultValue;
-  const shownSort = sortSummary(baseline);
+  const shownSort = sortSummary(baseline, t);
   const used = new Set((keys ?? []).map(key => key.id));
   const addOptions = fieldOptions.filter(option => !used.has(option));
 
@@ -98,7 +97,7 @@ export function SortPopover({
 
   return (
     <ClausePopover
-      name="Sort"
+      name={t('toolbar.sort')}
       summary={shownSort.summary}
       count={shownSort.count}
       dimmed={value.trim() === ''}
@@ -118,7 +117,7 @@ export function SortPopover({
         <Stack gap="xs">
           {keys == null && (
             <Text size="xs" c="dimmed" data-testid="search-sort-custom">
-              Custom sort. Edit it in SQL.
+              {t('toolbar.customSort')}
             </Text>
           )}
           {keys != null && keys.length > 0 && (
@@ -133,8 +132,10 @@ export function SortPopover({
                   >
                     <Autocomplete
                       size="xs"
-                      label={index === 0 ? 'Field' : undefined}
-                      aria-label={`Sort field ${index + 1}`}
+                      label={index === 0 ? t('toolbar.field') : undefined}
+                      aria-label={t('toolbar.sortField', {
+                        index: index + 1,
+                      })}
                       value={key.id}
                       onChange={id => {
                         const next = keys.slice();
@@ -156,7 +157,13 @@ export function SortPopover({
                         next[index] = { ...key, desc: direction === 'desc' };
                         commitKeys(next);
                       }}
-                      data={DIRECTION_OPTIONS}
+                      data={DIRECTION_OPTIONS.map(direction => ({
+                        value: direction,
+                        label:
+                          direction === 'asc'
+                            ? t('toolbar.ascending')
+                            : t('toolbar.descending'),
+                      }))}
                       data-testid="search-sort-direction"
                     />
                     <ActionIcon
@@ -165,7 +172,7 @@ export function SortPopover({
                       onClick={() =>
                         commitKeys(keys.filter((_, i) => i !== index))
                       }
-                      aria-label={`Remove ${key.id}`}
+                      aria-label={t('toolbar.removeField', { name: key.id })}
                     >
                       <IconX size={12} />
                     </ActionIcon>
@@ -177,7 +184,7 @@ export function SortPopover({
           {keys != null && (
             <Autocomplete
               size="xs"
-              placeholder="Add sort"
+              placeholder={t('toolbar.addSort')}
               value={search}
               onChange={next => {
                 if (ignoreNextChangeRef.current) {

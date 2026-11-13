@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
 import Head from 'next/head';
 import Link from 'next/link';
+import { useTranslation } from 'next-i18next/pages';
 import {
   parseAsString,
   parseAsStringEnum,
@@ -75,8 +76,9 @@ const queryParamMap = {
  * time — no ingestion changes required.
  */
 function LLMDashboardPage() {
+  const { t } = useTranslation(['llm', 'nav', 'common']);
   const defaultTimeRange = useDefaultTimeRange(DEFAULT_INTERVAL);
-  const title = usePageTitle('LLM Dashboard');
+  const title = usePageTitle(t('nav:pages.llmDashboard'));
 
   const [rawTab, setTab] = useQueryState(
     'tab',
@@ -216,13 +218,13 @@ function LLMDashboardPage() {
       </Head>
       <Breadcrumbs mb="sm" mt="xs" fz="sm">
         <Anchor component={Link} href="/dashboards/list" fz="sm" c="dimmed">
-          Dashboards
+          {t('nav:dashboards')}
         </Anchor>
         <Group gap="xs" wrap="nowrap">
           <Text fz="sm" c="dimmed">
-            LLM
+            {t('title')}
           </Text>
-          <Badge size="sm" text="Beta" state="info" />
+          <Badge size="sm" text={t('nav:beta')} state="info" />
           <HoverCard
             width={420}
             shadow="md"
@@ -241,29 +243,13 @@ function LLMDashboardPage() {
             </HoverCard.Target>
             <HoverCard.Dropdown>
               <Text size="sm" fw={500} mb="xs">
-                About this dashboard
+                {t('aboutThisDashboard')}
               </Text>
               <List size="xs" c="dimmed" spacing="xs">
-                <List.Item>
-                  This dashboard is experimental — charts and metrics may change
-                  between releases.
-                </List.Item>
-                <List.Item>
-                  Works with traces from the OpenTelemetry GenAI semantic
-                  conventions, OpenLLMetry, OpenInference, and the Vercel AI
-                  SDK. No ingestion changes needed — spans are interpreted at
-                  query time.
-                </List.Item>
-                <List.Item>
-                  Costs are estimates from a bundled model price catalog and can
-                  lag provider pricing. A cost reported by the instrumentation
-                  itself always takes precedence.
-                </List.Item>
-                <List.Item>
-                  When an app emits several instrumentations for the same calls,
-                  spans reporting their own cost are counted once as the source
-                  of truth.
-                </List.Item>
+                <List.Item>{t('betaInfo.experimental')}</List.Item>
+                <List.Item>{t('betaInfo.integrations')}</List.Item>
+                <List.Item>{t('betaInfo.costEstimates')}</List.Item>
+                <List.Item>{t('betaInfo.deduplication')}</List.Item>
               </List>
             </HoverCard.Dropdown>
           </HoverCard>
@@ -329,7 +315,7 @@ function LLMDashboardPage() {
             onSearch={onSearch}
           />
           <Button variant="primary" type="submit" size="sm">
-            Search
+            {t('common:actions.search')}
           </Button>
         </Group>
       </form>
@@ -339,10 +325,10 @@ function LLMDashboardPage() {
           <LLMSessionPanel {...chartProps} />
           <Tabs keepMounted={false} onChange={setTab} value={tab}>
             <Tabs.List mb="sm">
-              <Tabs.Tab value="overview">Overview</Tabs.Tab>
-              <Tabs.Tab value="latency">Latency</Tabs.Tab>
-              <Tabs.Tab value="sessions">Sessions</Tabs.Tab>
-              <Tabs.Tab value="errors">Errors</Tabs.Tab>
+              <Tabs.Tab value="overview">{t('tabs.overview')}</Tabs.Tab>
+              <Tabs.Tab value="latency">{t('tabs.latency')}</Tabs.Tab>
+              <Tabs.Tab value="sessions">{t('tabs.sessions')}</Tabs.Tab>
+              <Tabs.Tab value="errors">{t('tabs.errors')}</Tabs.Tab>
             </Tabs.List>
             <Tabs.Panel value="overview">
               <Grid grow={false} w="100%" maw="100%">

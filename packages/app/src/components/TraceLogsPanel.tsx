@@ -1,5 +1,6 @@
 import { use, useCallback, useMemo } from 'react';
 import { useRouter } from 'next/router';
+import { useTranslation } from 'next-i18next/pages';
 import { buildSearchChartConfig } from '@hyperdx/common-utils/dist/core/searchChartConfig';
 import {
   BuilderChartConfigWithDateRange,
@@ -34,6 +35,7 @@ export default function TraceLogsPanel({
   ) => void;
   'data-testid'?: string;
 }) {
+  const { t } = useTranslation('search');
   const { data: logSource, isLoading } = useSource({
     id: logSourceId,
     kinds: [SourceKind.Log],
@@ -78,10 +80,10 @@ export default function TraceLogsPanel({
       onNavigateToLog(
         rowWhere.where,
         rowWhere.aliasWith,
-        typeof body === 'string' && body.length > 0 ? body : 'Log',
+        typeof body === 'string' && body.length > 0 ? body : t('sidePanel.log'),
       );
     },
-    [logSource, onNavigateToLog],
+    [logSource, onNavigateToLog, t],
   );
 
   const parentContext = use(RowSidePanelContext);
@@ -107,8 +109,8 @@ export default function TraceLogsPanel({
     return (
       <EmptyState
         icon={<IconLogs size={24} />}
-        title="Correlated logs unavailable"
-        description="This trace's log source is missing, or has no trace ID expression configured. Check the source's settings."
+        title={t('traceLogs.unavailableTitle')}
+        description={t('traceLogs.unavailableDescription')}
         variant="card"
         m="sm"
       />
@@ -153,7 +155,7 @@ export default function TraceLogsPanel({
             rightSection={<IconExternalLink size={14} />}
             data-testid="trace-logs-open-in-search"
           >
-            Open in search
+            {t('traceLogs.openInSearch')}
           </Button>
         </Group>
         <div style={{ height: '100%', overflow: 'auto' }}>

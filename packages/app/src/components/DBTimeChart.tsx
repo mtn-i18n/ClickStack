@@ -7,6 +7,7 @@ import React, {
   useRef,
   useState,
 } from 'react';
+import { useTranslation } from 'next-i18next/pages';
 import { add, differenceInSeconds } from 'date-fns';
 import {
   convertGranularityToSeconds,
@@ -422,6 +423,7 @@ function DBTimeChartComponent({
   onFocusSeries,
   onFilter,
 }: DBTimeChartComponentProps) {
+  const { t } = useTranslation('charts');
   const [selectedSeriesSet, setSelectedSeriesSet] = useState<Set<string>>(
     new Set(),
   );
@@ -1032,22 +1034,22 @@ function DBTimeChartComponent({
           options={[
             {
               value: DisplayType.Line,
-              label: 'Display as line chart',
+              label: t('displayAsLine'),
               icon: <IconChartLine />,
             },
             {
               value: DisplayType.StackedBar,
               label: config.compareToPreviousPeriod
-                ? 'Stacked bar chart unavailable when comparing to previous period'
-                : 'Display as stacked bar chart',
+                ? t('stackedBarUnavailableCompare')
+                : t('displayAsStackedBar'),
               icon: <IconChartBar />,
               disabled: config.compareToPreviousPeriod,
             },
             {
               value: DisplayType.StackedLine,
               label: config.compareToPreviousPeriod
-                ? 'Stacked line chart unavailable when comparing to previous period'
-                : 'Display as stacked line chart',
+                ? t('stackedLineUnavailableCompare')
+                : t('displayAsStackedLine'),
               icon: <IconChartAreaLine />,
               disabled: config.compareToPreviousPeriod,
             },
@@ -1096,6 +1098,7 @@ function DBTimeChartComponent({
     hiddenSeriesCount,
     renderedSeriesCount,
     loadAllHandler,
+    t,
   ]);
 
   return (

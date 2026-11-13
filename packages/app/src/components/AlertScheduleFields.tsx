@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'next-i18next/pages';
 import {
   Control,
   Controller,
@@ -51,6 +52,7 @@ export function AlertScheduleFields<T extends FieldValues>({
   numConsecutiveWindowsName,
   numConsecutiveWindows,
 }: AlertScheduleFieldsProps<T>) {
+  const { t } = useTranslation('alerts');
   const showScheduleOffsetInput = maxScheduleOffsetMinutes > 0;
   const scheduleStartAtValue = useWatch({
     control,
@@ -98,23 +100,23 @@ export function AlertScheduleFields<T extends FieldValues>({
             <IconChevronRight size={14} opacity={0.5} />
           )}
           <Text size="xs" c="dimmed">
-            Advanced Settings
+            {t('advancedSettings')}
           </Text>
         </Group>
       </UnstyledButton>
       <Collapse expanded={opened}>
         <Box data-testid="alert-advanced-settings-panel">
           <Text size="xs" c="dimmed" mt="xs">
-            Optional schedule controls for aligning alert windows.
+            {t('scheduleControlsHint')}
           </Text>
           {numConsecutiveWindowsName && (
             <Group gap="xs" mt="xs">
               <Group gap={4}>
                 <Text size="sm" opacity={0.7}>
-                  Consecutive windows
+                  {t('consecutiveWindows')}
                 </Text>
                 <Tooltip
-                  label="Number of consecutive evaluation windows that must breach the threshold before an alert fires. Useful for reducing noise from transient spikes."
+                  label={t('consecutiveWindowsTooltip')}
                   multiline
                   w={260}
                   withArrow
@@ -144,8 +146,8 @@ export function AlertScheduleFields<T extends FieldValues>({
               />
               <Text size="sm" opacity={0.7}>
                 {(numConsecutiveWindows ?? 1) === 1
-                  ? 'window'
-                  : 'consecutive windows'}
+                  ? t('window')
+                  : t('consecutiveWindows')}
               </Text>
             </Group>
           )}
@@ -154,10 +156,10 @@ export function AlertScheduleFields<T extends FieldValues>({
               <Group gap="xs" mt="xs">
                 <Group gap={4}>
                   <Text size="sm" opacity={0.7}>
-                    Start offset (min)
+                    {t('startOffset')}
                   </Text>
                   <Tooltip
-                    label="Delays the start of each evaluation window by this many minutes. Useful when data is ingested with a lag."
+                    label={t('startOffsetTooltip')}
                     multiline
                     w={260}
                     withArrow
@@ -189,7 +191,7 @@ export function AlertScheduleFields<T extends FieldValues>({
               </Group>
               {hasScheduleStartAtAnchor && (
                 <Text size="xs" opacity={0.6} mt={4}>
-                  Start offset is ignored while an anchor start time is set.
+                  {t('startOffsetIgnored')}
                 </Text>
               )}
             </>
@@ -197,10 +199,10 @@ export function AlertScheduleFields<T extends FieldValues>({
           <Group gap="xs" mt="xs" align="start">
             <Group gap={4} mt={6}>
               <Text size="sm" opacity={0.7}>
-                Anchor start time
+                {t('anchorStartTime')}
               </Text>
               <Tooltip
-                label="Pins alert windows to a fixed starting point instead of the default rolling schedule. Windows repeat at the configured interval from this time."
+                label={t('anchorStartTimeTooltip')}
                 multiline
                 w={260}
                 withArrow
@@ -234,7 +236,7 @@ export function AlertScheduleFields<T extends FieldValues>({
               )}
             />
             <Text size="xs" opacity={0.6} mt={6}>
-              Displayed in local time, stored as UTC
+              {t('localTimeHint')}
             </Text>
           </Group>
         </Box>

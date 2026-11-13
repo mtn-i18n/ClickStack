@@ -1,4 +1,5 @@
 import { useCallback, useMemo } from 'react';
+import { useTranslation } from 'next-i18next/pages';
 import { pick } from 'lodash';
 import { parseAsString, useQueryState } from 'nuqs';
 import {
@@ -36,6 +37,7 @@ export default function ServiceDashboardEndpointSidePanel({
   service?: string;
   searchedTimeRange: [Date, Date];
 }) {
+  const { t } = useTranslation('services');
   const { data: source } = useSource({
     id: sourceId,
     kinds: [SourceKind.Trace],
@@ -92,7 +94,7 @@ export default function ServiceDashboardEndpointSidePanel({
             <DrawerHeader
               header={
                 <>
-                  Details for {endpoint}
+                  {t('detailsFor', { name: endpoint })}
                   {service && (
                     <Text component="span" c="gray" fz="xs">
                       <IconServer size={14} className="ms-3 me-1" />
@@ -109,7 +111,7 @@ export default function ServiceDashboardEndpointSidePanel({
                   <ChartCard style={{ height: 350 }}>
                     {source && expressions && (
                       <DBTimeChart
-                        title="Request Error Rate"
+                        title={t('requestErrorRate')}
                         sourceId={source.id}
                         hiddenSeries={['total_count', 'error_count']}
                         config={{
@@ -154,7 +156,7 @@ export default function ServiceDashboardEndpointSidePanel({
                   <ChartCard style={{ height: 350 }}>
                     {source && expressions && (
                       <DBTimeChart
-                        title="Request Throughput"
+                        title={t('requestThroughput')}
                         sourceId={source.id}
                         config={{
                           source: source.id,
@@ -206,7 +208,7 @@ export default function ServiceDashboardEndpointSidePanel({
                   {/* Ensure expressions exists to ensure that endpointFilters has set */}
                   {expressions && (
                     <SlowestEventsTile
-                      title="Slowest 5% of Transactions"
+                      title={t('slowestTransactions')}
                       source={source}
                       dateRange={searchedTimeRange}
                       extraFilters={endpointFilters}

@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { useTranslation } from 'next-i18next/pages';
 import { JSDataType } from '@hyperdx/common-utils/dist/clickhouse';
 import { TSource } from '@hyperdx/common-utils/dist/types';
 import { Button, Card, Drawer, Stack, Text } from '@mantine/core';
@@ -35,6 +36,7 @@ export default function PatternSidePanel({
   bodyValueExpression: string;
   source: TSource;
 }) {
+  const { t } = useTranslation('search');
   const contextZIndex = useZIndex();
   const drawerZIndex = contextZIndex + 100;
 
@@ -54,12 +56,12 @@ export default function PatternSidePanel({
 
   const columnNameMap = React.useMemo(
     () => ({
-      [TIMESTAMP_COLUMN_ALIAS]: 'Timestamp',
-      [SERVICE_NAME_COLUMN_ALIAS]: 'Service',
-      [LEVEL_COLUMN_ALIAS]: 'Level',
-      [PATTERN_COLUMN_ALIAS]: 'Body',
+      [TIMESTAMP_COLUMN_ALIAS]: t('columnHeaders.timestamp'),
+      [SERVICE_NAME_COLUMN_ALIAS]: t('columnHeaders.service'),
+      [LEVEL_COLUMN_ALIAS]: t('columnHeaders.level'),
+      [PATTERN_COLUMN_ALIAS]: t('columnHeaders.body'),
     }),
-    [],
+    [t],
   );
 
   const displayedColumns = React.useMemo(() => {
@@ -129,7 +131,7 @@ export default function PatternSidePanel({
         <IsolatedChartSyncProvider>
           <div className={styles.panel} data-testid="pattern-side-panel">
             <DrawerHeader
-              header="Pattern"
+              header={t('pattern.title')}
               onClose={selectedRowWhere ? handleCloseRowSidePanel : onClose}
             />
             <DrawerBody>
@@ -140,7 +142,9 @@ export default function PatternSidePanel({
                 </Card>
                 <Card p="md">
                   <Card.Section p="md" py="xs">
-                    ~{pattern.count?.toLocaleString()} Sample Events
+                    {t('pattern.sampleEvents', {
+                      sampleCount: pattern.count?.toLocaleString(),
+                    })}
                   </Card.Section>
                   <RawLogTable
                     rows={displayedSamples}
@@ -161,7 +165,9 @@ export default function PatternSidePanel({
                       mt="xs"
                       onClick={() => setShowAll(true)}
                     >
-                      Show all {pattern.samples.length.toLocaleString()} samples
+                      {t('pattern.showAllSamples', {
+                        sampleCount: pattern.samples.length.toLocaleString(),
+                      })}
                     </Button>
                   )}
                 </Card>

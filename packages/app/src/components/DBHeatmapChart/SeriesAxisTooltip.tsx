@@ -1,4 +1,5 @@
 import { useCallback, useState } from 'react';
+import { i18n } from 'next-i18next/pages';
 import type uPlot from 'uplot';
 import { Tooltip } from '@mantine/core';
 
@@ -34,7 +35,12 @@ export function useSeriesAxisHover(
       const row = Math.floor(u.posToVal(e.clientY - over.top, 'y'));
       const rowLabel = onAxis ? labels[row] : undefined;
       if (rowLabel == null) return clear();
-      const label = rowLabel === '' ? '(blank)' : rowLabel;
+      const label =
+        rowLabel === ''
+          ? i18n?.isInitialized
+            ? i18n.t('blankLabel', { ns: 'charts' })
+            : '(blank)'
+          : rowLabel;
 
       const container = e.currentTarget.getBoundingClientRect();
       const top = u.valToPos(row + 0.5, 'y') + over.top - container.top;

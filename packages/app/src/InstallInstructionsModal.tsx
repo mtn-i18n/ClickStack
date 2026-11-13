@@ -1,3 +1,4 @@
+import { useTranslation } from 'next-i18next/pages';
 import cx from 'classnames';
 import { Button, Group, Modal } from '@mantine/core';
 import { IconClipboard, IconClipboardCheck } from '@tabler/icons-react';
@@ -12,6 +13,7 @@ function CopyableValue({
   label?: React.ReactNode;
   value: string;
 }) {
+  const { t } = useTranslation('settings');
   return (
     <Clipboard text={value} className="d-flex mx-auto p-0 w-100">
       {({ isCopied }) => {
@@ -36,7 +38,9 @@ function CopyableValue({
               ) : (
                 <IconClipboard size={14} />
               )}
-              {isCopied ? 'Copied!' : 'Copy'}
+              {isCopied
+                ? t('installInstructions.copied')
+                : t('installInstructions.copy')}
             </Group>
           </div>
         );
@@ -52,13 +56,14 @@ export default function InstallInstructionModal({
   show: boolean;
   onHide: () => void;
 }) {
+  const { t } = useTranslation('settings');
   const { data: team } = api.useTeam();
 
   return (
     <Modal
       opened={show}
       onClose={onHide}
-      title="Start Sending Telemetry"
+      title={t('installInstructions.title')}
       size="lg"
       centered
     >
@@ -68,18 +73,15 @@ export default function InstallInstructionModal({
             <CopyableValue
               label={
                 <span className="text-muted me-2">
-                  Your Ingestion API Key:{' '}
+                  {t('installInstructions.ingestionKey')}{' '}
                 </span>
               }
               value={team.apiKey}
             />
           </div>
         )}
-        <div className="fs-7 mb-4">
-          Click on a link below to view installation instructions for your
-          application.
-        </div>
-        <div className="fs-6 mb-2">Backend</div>
+        <div className="fs-7 mb-4">{t('installInstructions.description')}</div>
+        <div className="fs-6 mb-2">{t('installInstructions.backend')}</div>
         <div className="mb-2">
           <a
             href="https://clickhouse.com/docs/use-cases/observability/clickstack/sdks/nodejs"
@@ -89,7 +91,9 @@ export default function InstallInstructionModal({
           >
             Node.js
           </a>
-          <span className="ms-2 text-muted">(Logs + Traces)</span>
+          <span className="ms-2 text-muted">
+            {t('installInstructions.logsTraces')}
+          </span>
         </div>
         <div className="mb-2">
           <a
@@ -100,7 +104,9 @@ export default function InstallInstructionModal({
           >
             Go
           </a>
-          <span className="ms-2 text-muted">(Logs + Traces)</span>
+          <span className="ms-2 text-muted">
+            {t('installInstructions.logsTraces')}
+          </span>
         </div>
         <div className="mb-2">
           <a
@@ -111,7 +117,9 @@ export default function InstallInstructionModal({
           >
             Python
           </a>
-          <span className="ms-2 text-muted">(Logs + Traces)</span>
+          <span className="ms-2 text-muted">
+            {t('installInstructions.logsTraces')}
+          </span>
         </div>
         <div className="mb-2">
           <a
@@ -122,7 +130,9 @@ export default function InstallInstructionModal({
           >
             Java
           </a>
-          <span className="ms-2 text-muted">(Logs + Traces)</span>
+          <span className="ms-2 text-muted">
+            {t('installInstructions.logsTraces')}
+          </span>
         </div>
         <div className="mb-2">
           <a
@@ -133,7 +143,9 @@ export default function InstallInstructionModal({
           >
             Elixir
           </a>
-          <span className="ms-2 text-muted">(Logs)</span>
+          <span className="ms-2 text-muted">
+            {t('installInstructions.logs')}
+          </span>
         </div>
         <div className="mb-2">
           <a
@@ -144,9 +156,13 @@ export default function InstallInstructionModal({
           >
             Ruby on Rails
           </a>
-          <span className="ms-2 text-muted">(Traces)</span>
+          <span className="ms-2 text-muted">
+            {t('installInstructions.traces')}
+          </span>
         </div>
-        <div className="fs-6 mb-2 mt-4">Platform</div>
+        <div className="fs-6 mb-2 mt-4">
+          {t('installInstructions.platform')}
+        </div>
         <div className="mb-2">
           <a
             href="https://clickhouse.com/docs/use-cases/observability/clickstack/ingesting-data/kubernetes"
@@ -156,9 +172,11 @@ export default function InstallInstructionModal({
           >
             Kubernetes
           </a>
-          <span className="ms-2 text-muted">(Logs + Metrics)</span>
+          <span className="ms-2 text-muted">
+            {t('installInstructions.logsMetrics')}
+          </span>
         </div>
-        <div className="fs-6 mb-2 mt-4">Browser</div>
+        <div className="fs-6 mb-2 mt-4">{t('installInstructions.browser')}</div>
         <div className="mb-2">
           <a
             href="https://clickhouse.com/docs/use-cases/observability/clickstack/sdks/browser"
@@ -168,9 +186,13 @@ export default function InstallInstructionModal({
           >
             JavaScript/TypeScript
           </a>
-          <span className="ms-2 text-muted">(Logs + Traces)</span>
+          <span className="ms-2 text-muted">
+            {t('installInstructions.logsTraces')}
+          </span>
         </div>
-        <div className="fs-6 mb-2 mt-4">Data Collector</div>
+        <div className="fs-6 mb-2 mt-4">
+          {t('installInstructions.dataCollector')}
+        </div>
         <div className="mb-2">
           <a
             href="https://clickhouse.com/docs/use-cases/observability/clickstack/ingesting-data/opentelemetry#sending-otel-data"
@@ -180,11 +202,13 @@ export default function InstallInstructionModal({
           >
             OpenTelemetry
           </a>
-          <span className="ms-2 text-muted">(Logs + Traces)</span>
+          <span className="ms-2 text-muted">
+            {t('installInstructions.logsTraces')}
+          </span>
         </div>
         <div className="mt-4">
           <Button variant="secondary" onClick={() => onHide()}>
-            Cancel
+            {t('cancel')}
           </Button>
         </div>
       </div>

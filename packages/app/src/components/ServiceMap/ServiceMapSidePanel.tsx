@@ -1,3 +1,4 @@
+import { useTranslation } from 'next-i18next/pages';
 import { Badge } from '@clickhouse/click-ui';
 import { SourceKind } from '@hyperdx/common-utils/dist/types';
 import { Group, Stack, Text } from '@mantine/core';
@@ -17,17 +18,18 @@ export default function ServiceMapSidePanel({
   dateRange,
   traceTableSourceId,
 }: ServiceMapSidePanelProps) {
+  const { t } = useTranslation('services');
   const { data: traceTableSource } = useSource({ id: traceTableSourceId });
 
   return (
     <Stack w="100%">
       <Group gap={0}>
         <Text size="sm" ps="sm">
-          Service Map
+          {t('serviceMap')}
         </Text>
         <Badge
           size="sm"
-          text="Beta"
+          text={t('beta', { ns: 'nav' })}
           state="info"
           style={{ marginInlineStart: 'var(--mantine-spacing-xs)' }}
         />

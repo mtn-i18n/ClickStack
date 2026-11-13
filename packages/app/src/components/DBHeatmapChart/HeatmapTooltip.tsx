@@ -1,3 +1,4 @@
+import { useTranslation } from 'next-i18next/pages';
 import { createPortal } from 'react-dom';
 import { Divider, Text } from '@mantine/core';
 
@@ -45,6 +46,7 @@ export function HeatmapTooltip({
   containerRect,
   showDragHint,
 }: HeatmapTooltipProps) {
+  const { t } = useTranslation('charts');
   const zIndex = useChartTooltipZIndex();
   const anchor = toViewportPoint(containerRect, {
     x: point.xCoord,
@@ -97,7 +99,7 @@ export function HeatmapTooltip({
           {showDragHint && (
             <>
               <Text size="10px" pt="4px">
-                Drag to Compare · Click to Clear
+                {t('dragToCompareClickToClear')}
               </Text>
               <Divider my="xs" />
             </>
@@ -108,10 +110,10 @@ export function HeatmapTooltip({
           {cell.kind === 'series' ? (
             <>
               <div>
-                <b>Series:</b> {cell.name}
+                <b>{t('seriesColon')}</b> {cell.name}
               </div>
               <div>
-                <b>Value:</b> {cell.formattedValue}
+                <b>{t('valueColon')}</b> {cell.formattedValue}
               </div>
             </>
           ) : (
@@ -119,11 +121,11 @@ export function HeatmapTooltip({
               <div>
                 {cell.kind === 'bucket' ? (
                   <>
-                    <b>Bucket:</b> {cell.formattedRange}
+                    <b>{t('bucketColon')}</b> {cell.formattedRange}
                   </>
                 ) : (
                   <>
-                    <b>Y Value:</b> {cell.formattedY}
+                    <b>{t('yValueColon')}</b> {cell.formattedY}
                   </>
                 )}
                 {cell.percentile != null &&
@@ -132,7 +134,8 @@ export function HeatmapTooltip({
                   }).format(cell.percentile)})`}
               </div>
               <div>
-                <b>Count Value:</b> {COUNT_FORMAT.format(point.countVal)}
+                <b>{t('countValueColon')}</b>{' '}
+                {COUNT_FORMAT.format(point.countVal)}
               </div>
             </>
           )}

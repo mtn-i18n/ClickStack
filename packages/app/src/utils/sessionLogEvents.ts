@@ -1,3 +1,4 @@
+import type { TFunction } from 'i18next';
 import sortBy from 'lodash/sortBy';
 import uniqBy from 'lodash/uniqBy';
 import SqlString from 'sqlstring';
@@ -246,12 +247,14 @@ export function buildSessionLogEventsQuery({
 
 export function toSessionLogEvents(
   rows: Record<string, unknown>[],
+  t?: TFunction,
 ): SessionLogEvent[] {
   return rows.map((row, index) => ({
     ...getBrowserEventLabel({
       eventName: String(row.event_name ?? ''),
       body: row.body,
       attributes: row.attributes,
+      t,
     }),
     id: `log-${index}`,
     timestamp: new Date(String(row.timestamp)),

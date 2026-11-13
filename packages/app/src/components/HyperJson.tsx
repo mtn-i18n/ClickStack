@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { useTranslation } from 'next-i18next/pages';
 import cx from 'classnames';
 import { atom, Provider, useAtomValue, useSetAtom } from 'jotai';
 import { useHydrateAtoms } from 'jotai/utils';
@@ -68,6 +69,7 @@ const hyperJsonAtom = atom<HyperJsonAtom>({
 
 const ValueRenderer = React.memo(
   ({ value, ref }: { value: any; ref?: React.Ref<HTMLSpanElement> }) => {
+    const { t } = useTranslation('common');
     if (isNull(value)) {
       return (
         <span ref={ref} className={styles.null}>
@@ -99,14 +101,14 @@ const ValueRenderer = React.memo(
     if (isPlainObject(value)) {
       return (
         <span ref={ref} className={styles.object}>
-          {'{}'} {Object.keys(value).length} keys
+          {'{}'} {t('json.keys', { count: Object.keys(value).length })}
         </span>
       );
     }
     if (isArray(value)) {
       return (
         <span ref={ref} className={styles.array}>
-          {'[]'} {value.length} items
+          {'[]'} {t('json.items', { count: value.length })}
         </span>
       );
     }
@@ -186,6 +188,7 @@ const Line = React.memo(
     isInParsedJson?: boolean;
     parsedJsonRootPath?: string[];
   }) => {
+    const { t } = useTranslation('common');
     const { normallyExpanded } = useAtomValue(hyperJsonAtom);
 
     // For performance reasons, render LineMenu only when hovered instead of
@@ -315,11 +318,13 @@ const Line = React.memo(
           <div className={styles.valueContainer}>
             {isStringValueValidJson ? (
               isExpanded ? (
-                <div className={styles.object}>{'{}'} Parsed JSON</div>
+                <div className={styles.object}>
+                  {'{}'} {t('json.parsedJson')}
+                </div>
               ) : (
                 <>
                   <ValueRenderer value={value} ref={valueRef} />
-                  <div className={styles.jsonBtn}>Expand JSON</div>
+                  <div className={styles.jsonBtn}>{t('json.expandJson')}</div>
                 </>
               )
             ) : formattedLeafValue !== undefined ? (
@@ -368,6 +373,7 @@ function TreeNode({
   isInParsedJson?: boolean;
   parsedJsonRootPath?: string[];
 }) {
+  const { t } = useTranslation('common');
   const [isExpanded, setIsExpanded] = React.useState(false);
 
   const keyPath = React.useMemo(() => _keyPath ?? [], [_keyPath]);
@@ -420,7 +426,9 @@ function TreeNode({
         >
           <div className={styles.keyContainer}>
             <div className={styles.jsonBtn}>
-              Expand {originalLength - MAX_TREE_NODE_ITEMS} more properties
+              {t('json.expandMoreProperties', {
+                count: originalLength - MAX_TREE_NODE_ITEMS,
+              })}
             </div>
           </div>
         </div>
@@ -464,6 +472,7 @@ const HyperJson = ({
   getLineActions,
   formatLeafValue,
 }: HyperJsonProps) => {
+  const { t } = useTranslation('common');
   const isEmpty = React.useMemo(() => Object.keys(data).length === 0, [data]);
 
   const initialValues = React.useMemo(
@@ -480,7 +489,7 @@ const HyperJson = ({
             [styles.withPreWrap]: whiteSpace === 'pre-wrap',
           })}
         >
-          {isEmpty ? <div>Empty</div> : <TreeNode data={data} />}
+          {isEmpty ? <div>{t('states.empty')}</div> : <TreeNode data={data} />}
         </div>
       </HydrateAtoms>
     </Provider>

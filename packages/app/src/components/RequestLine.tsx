@@ -1,3 +1,4 @@
+import { useTranslation } from 'next-i18next/pages';
 import type { CSSProperties } from 'react';
 import { Badge, type BadgeProps } from '@clickhouse/click-ui';
 import { Button, Group, Text } from '@mantine/core';
@@ -26,8 +27,9 @@ const TARGET_STYLE: CSSProperties = {
 export function formatHttpStatus(
   statusCode: number,
   statusText?: string,
+  noResponseLabel = 'No response',
 ): string {
-  const text = statusText || (statusCode === 0 ? 'No response' : undefined);
+  const text = statusText || (statusCode === 0 ? noResponseLabel : undefined);
   return text ? `${statusCode} ${text}` : `${statusCode}`;
 }
 
@@ -42,9 +44,10 @@ function httpStatusState(statusCode: number): BadgeProps['state'] {
 export function getHttpStatusBadge(
   statusCode: number,
   statusText?: string,
+  noResponseLabel?: string,
 ): RequestStatusBadge {
   return {
-    text: formatHttpStatus(statusCode, statusText),
+    text: formatHttpStatus(statusCode, statusText, noResponseLabel),
     state: httpStatusState(statusCode),
   };
 }
@@ -56,21 +59,22 @@ export function getHttpStatusBadge(
 export function getRpcStatusBadge(
   status: RpcStatus | undefined,
   hasError: boolean,
+  errorLabel = 'Error',
 ): RequestStatusBadge | undefined {
   if (status != null) {
     return { text: status.label, state: status.isOk ? 'success' : 'danger' };
   }
-  return hasError ? { text: 'Error', state: 'danger' } : undefined;
+  return hasError ? { text: errorLabel, state: 'danger' } : undefined;
 }
 
-async function copyCurl(curl: string) {
+async function copyCurl(curl: string, copiedMessage: string) {
   if (!(await copyTextToClipboard(curl))) {
     notifications.show({ color: 'red', message: CLIPBOARD_ERROR_MESSAGE });
     return;
   }
   notifications.show({
     color: 'green',
-    message: 'cURL command copied to clipboard',
+    message: copiedMessage,
   });
 }
 
@@ -92,6 +96,7 @@ export function RequestLine({
   /** Omit to hide the copy action, e.g. when curl can't replay the call. */
   getCurl?: () => string;
 }) {
+  const { t } = useTranslation('common');
   return (
     <Group gap="xs" wrap="wrap" align="baseline">
       {label != null && (
@@ -117,9 +122,9 @@ export function RequestLine({
           leftSection={<IconTerminal size={14} />}
           style={NO_SHRINK}
           styles={BUTTON_STYLES}
-          onClick={() => copyCurl(getCurl())}
+          onClick={() => copyCurl(getCurl(), t('curlCopied'))}
         >
-          Copy as cURL
+          {t('copyAsCurl')}
         </Button>
       )}
     </Group>

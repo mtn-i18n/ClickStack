@@ -1,4 +1,5 @@
 import { useEffect, useMemo } from 'react';
+import { useTranslation } from 'next-i18next/pages';
 import { SourceKind, TSource } from '@hyperdx/common-utils/dist/types';
 import { notifications } from '@mantine/notifications';
 
@@ -32,6 +33,7 @@ export function useResolvedSourceParam(
   paramValue: string | null | undefined,
   { kinds }: { kinds?: SourceKind[] } = {},
 ) {
+  const { t } = useTranslation('dashboards');
   const { data: sources } = useSources();
   const resolution = resolveSourceParam(paramValue, sources, { kinds });
 
@@ -56,10 +58,13 @@ export function useResolvedSourceParam(
     notifications.show({
       id: 'ambiguous-source-name-' + ambiguousName,
       color: 'yellow',
-      title: 'Multiple sources share this name',
-      message: `${ambiguousMatchCount} sources are named "${ambiguousName}". Using the first match — link with the source ID to be unambiguous.`,
+      title: t('sourceParam.multipleSourcesTitle'),
+      message: t('sourceParam.multipleSourcesMessage', {
+        matchCount: ambiguousMatchCount,
+        name: ambiguousName,
+      }),
     });
-  }, [ambiguousName, ambiguousMatchCount]);
+  }, [ambiguousName, ambiguousMatchCount, t]);
 
   // Warn when the param doesn't match a source of the requested kind, or any source at all.
   useEffect(() => {
@@ -67,12 +72,17 @@ export function useResolvedSourceParam(
     notifications.show({
       id: 'source-param-unresolved-' + unresolvedParamValue,
       color: 'yellow',
-      title: wrongKindMatch ? "Source can't be used here" : 'Source not found',
+      title: wrongKindMatch
+        ? t('sourceParam.wrongKindTitle')
+        : t('sourceParam.notFoundTitle'),
       message: wrongKindMatch
-        ? `"${unresolvedParamValue}" is a ${wrongKindMatch} source, which this page can't show. Pick a source to continue.`
-        : `No source matches "${unresolvedParamValue}". It may have been renamed or deleted — pick a source to continue.`,
+        ? t('sourceParam.wrongKindMessage', {
+            name: unresolvedParamValue,
+            kind: wrongKindMatch,
+          })
+        : t('sourceParam.notFoundMessage', { name: unresolvedParamValue }),
     });
-  }, [unresolvedParamValue, wrongKindMatch]);
+  }, [unresolvedParamValue, wrongKindMatch, t]);
 
   return useMemo(() => ({ source: resolvedSource }), [resolvedSource]);
 }

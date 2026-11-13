@@ -1,3 +1,4 @@
+import { useTranslation } from 'next-i18next/pages';
 import { FieldError, Merge } from 'react-hook-form';
 import { Input, Tooltip } from '@mantine/core';
 import { IconInfoCircle } from '@tabler/icons-react';
@@ -15,10 +16,13 @@ export const CustomInputWrapper = ({
   tooltipText,
   error,
 }: CustomInputWrapperProps) => {
+  const { t } = useTranslation('dashboards');
   const errorMessage =
     error &&
     (error.message ||
-      (error?.type === 'required' ? 'This field is required' : 'Error'));
+      (error?.type === 'required'
+        ? t('filtersModal.customInput.required')
+        : t('filtersModal.customInput.error')));
 
   return (
     <div>

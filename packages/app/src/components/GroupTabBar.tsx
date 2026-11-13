@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Trans, useTranslation } from 'next-i18next/pages';
 import { DashboardContainer } from '@hyperdx/common-utils/dist/types';
 import {
   ActionIcon,
@@ -54,6 +55,7 @@ export default function GroupTabBar({
   alertingTabIds,
   hoverControlStyle,
 }: GroupTabBarProps) {
+  const { t } = useTranslation('dashboards');
   const [renamingTabId, setRenamingTabId] = useState<string | null>(null);
   const [tabRenameValue, setTabRenameValue] = useState('');
   const [hoveredTabId, setHoveredTabId] = useState<string | null>(null);
@@ -98,7 +100,7 @@ export default function GroupTabBar({
                     e.stopPropagation();
                     setDeletingTabId(tab.id);
                   }}
-                  title="Delete tab"
+                  title={t('groupTabs.deleteTab')}
                   data-testid={`tab-delete-${tab.id}`}
                 >
                   <IconTrash size={12} />
@@ -164,7 +166,7 @@ export default function GroupTabBar({
       </Tabs.List>
       {/* Rename active tab button */}
       {onRenameTab && activeTabId && (
-        <Tooltip label="Rename Tab" position="top" withArrow>
+        <Tooltip label={t('groupTabs.renameTab')} position="top" withArrow>
           <ActionIcon
             variant="subtle"
             size="sm"
@@ -192,11 +194,12 @@ export default function GroupTabBar({
         withCloseButton={false}
       >
         <Text size="sm" opacity={0.7}>
-          Delete tab{' '}
-          <Text component="span" fw={700}>
-            {deletingTab?.title ?? 'this tab'}
-          </Text>
-          ?
+          <Trans
+            ns="dashboards"
+            i18nKey="groupTabs.deleteTabConfirm"
+            values={{ name: deletingTab?.title ?? t('groupTabs.thisTab') }}
+            components={{ bold: <Text component="span" fw={700} /> }}
+          />
         </Text>
         <Group justify="flex-end" mt="md" gap="xs">
           <Button
@@ -205,7 +208,7 @@ export default function GroupTabBar({
             variant="secondary"
             onClick={() => setDeletingTabId(null)}
           >
-            Cancel
+            {t('common:actions.cancel')}
           </Button>
           {firstRemainingTab && (
             <Button
@@ -219,7 +222,9 @@ export default function GroupTabBar({
                 setDeletingTabId(null);
               }}
             >
-              Move Tiles to {firstRemainingTab.title}
+              {t('groupTabs.moveTilesTo', {
+                name: firstRemainingTab.title,
+              })}
             </Button>
           )}
           <Button
@@ -233,7 +238,7 @@ export default function GroupTabBar({
               setDeletingTabId(null);
             }}
           >
-            Delete Tab & Tiles
+            {t('groupTabs.deleteTabAndTiles')}
           </Button>
         </Group>
       </Modal>

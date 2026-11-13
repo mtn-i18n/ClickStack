@@ -1,3 +1,4 @@
+import { useTranslation } from 'next-i18next/pages';
 import { Tooltip } from '@mantine/core';
 import { IconAlertTriangle } from '@tabler/icons-react';
 
@@ -12,20 +13,27 @@ export default function MultipleValuesIndicator({
   seriesCount,
   multipleSeriesHint,
 }: MultipleValuesIndicatorProps) {
+  const { t } = useTranslation('charts');
+
   if (seriesCount <= 1) {
     return null;
   }
 
-  const label =
-    `This query returned ${seriesCount.toLocaleString()} series, each with its own value. A number chart shows one, so the first is displayed.` +
-    (multipleSeriesHint ? ` ${multipleSeriesHint}` : '');
+  const label = multipleSeriesHint
+    ? t('multipleValuesWithHint', {
+        total: seriesCount.toLocaleString(),
+        hint: multipleSeriesHint,
+      })
+    : t('multipleValues', { total: seriesCount.toLocaleString() });
 
   return (
     <Tooltip multiline maw={500} label={label}>
       <IconAlertTriangle
         size={16}
         color="var(--color-text-warning)"
-        aria-label={`Query returned ${seriesCount.toLocaleString()} series`}
+        aria-label={t('queryReturnedSeries', {
+          total: seriesCount.toLocaleString(),
+        })}
         data-testid="multiple-values-indicator"
       />
     </Tooltip>

@@ -1,4 +1,5 @@
 import { useCallback } from 'react';
+import { useTranslation } from 'next-i18next/pages';
 import SqlString from 'sqlstring';
 import { DisplayType } from '@hyperdx/common-utils/dist/types';
 import { Grid } from '@mantine/core';
@@ -33,6 +34,7 @@ const CHART_HEIGHT = 320;
  * (gen_ai.agent.name) for agent frameworks.
  */
 export function AgentToolCharts(props: LLMChartProps) {
+  const { t } = useTranslation('llm');
   const { source, expressions, dateRange } = props;
   const base = baseLLMChartConfig(props);
   const toolFilters = [
@@ -82,7 +84,7 @@ export function AgentToolCharts(props: LLMChartProps) {
       <Grid.Col span={6}>
         <ChartCard style={{ height: CHART_HEIGHT }}>
           <DBTimeChart
-            title="Tool Calls by Tool"
+            title={t('agentTools.toolCallsByTool')}
             sourceId={source.id}
             config={{
               ...base,
@@ -98,7 +100,7 @@ export function AgentToolCharts(props: LLMChartProps) {
       <Grid.Col span={6}>
         <ChartCard style={{ height: CHART_HEIGHT }}>
           <DBTableChart
-            title="Top Tools"
+            title={t('agentTools.topTools')}
             getRowSearchLink={getToolSearchLink}
             hiddenColumns={['error_count', 'p95_duration']}
             config={{
@@ -151,7 +153,7 @@ export function AgentToolCharts(props: LLMChartProps) {
       <Grid.Col span={6}>
         <ChartCard style={{ height: CHART_HEIGHT }}>
           <DBTimeChart
-            title="LLM Calls by Agent"
+            title={t('agentTools.llmCallsByAgent')}
             sourceId={source.id}
             config={{
               ...base,
@@ -172,7 +174,7 @@ export function AgentToolCharts(props: LLMChartProps) {
       <Grid.Col span={6}>
         <ChartCard style={{ height: CHART_HEIGHT }}>
           <DBTableChart
-            title="Agents"
+            title={t('agentTools.agents')}
             getRowSearchLink={getAgentSearchLink}
             hiddenColumns={['error_count', 'span_count']}
             config={{

@@ -1,4 +1,5 @@
 import React, { useCallback, useMemo } from 'react';
+import { useTranslation } from 'next-i18next/pages';
 import { Button, Menu } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import {
@@ -26,6 +27,7 @@ const RowSelectionMenuItems = ({
   columns: CsvColumn[];
   onClear: () => void;
 }) => {
+  const { t } = useTranslation('common');
   const selectedRows = useMemo(() => getSelectedRows(), [getSelectedRows]);
   const { csvData, maxRows, isLimited } = useCsvExport(selectedRows, columns);
   const exportRows = useMemo(
@@ -49,18 +51,23 @@ const RowSelectionMenuItems = ({
         copied
           ? {
               color: 'green',
-              message: `Copied ${exportRows.length} row${exportRows.length === 1 ? '' : 's'} as ${format.toUpperCase()}`,
+              message: t('table.copiedRows', {
+                count: exportRows.length,
+                format: format.toUpperCase(),
+              }),
             }
           : { color: 'red', message: CLIPBOARD_ERROR_MESSAGE },
       );
     },
-    [columns, csvData, exportRows],
+    [columns, csvData, exportRows, t],
   );
 
   return (
     <>
       {isLimited && (
-        <Menu.Label>First {maxRows.toLocaleString()} rows only</Menu.Label>
+        <Menu.Label>
+          {t('table.rowsLimit', { count: maxRows.toLocaleString() })}
+        </Menu.Label>
       )}
       <Menu.Item
         leftSection={<IconDownload size={14} />}
@@ -69,28 +76,28 @@ const RowSelectionMenuItems = ({
         }
         data-testid="row-selection-download-csv"
       >
-        Download CSV
+        {t('table.downloadCsv')}
       </Menu.Item>
       <Menu.Item
         leftSection={<IconCopy size={14} />}
         onClick={() => copy('csv')}
         data-testid="row-selection-copy-csv"
       >
-        Copy as CSV
+        {t('table.copyAsCsv')}
       </Menu.Item>
       <Menu.Item
         leftSection={<IconCopy size={14} />}
         onClick={() => copy('json')}
         data-testid="row-selection-copy-json"
       >
-        Copy as JSON
+        {t('table.copyAsJson')}
       </Menu.Item>
       <Menu.Item
         leftSection={<IconX size={14} />}
         onClick={onClear}
         data-testid="row-selection-clear"
       >
-        Clear selection
+        {t('table.clearSelection')}
       </Menu.Item>
     </>
   );
@@ -108,6 +115,8 @@ export const RowSelectionMenu = ({
   columns: CsvColumn[];
   onClear: () => void;
 }) => {
+  const { t } = useTranslation('common');
+
   if (selectedCount === 0) {
     return null;
   }
@@ -121,7 +130,7 @@ export const RowSelectionMenu = ({
           rightSection={<IconChevronDown size={14} />}
           data-testid="row-selection-count"
         >
-          {selectedCount} selected
+          {t('table.selected', { count: selectedCount })}
         </Button>
       </Menu.Target>
       <Menu.Dropdown>

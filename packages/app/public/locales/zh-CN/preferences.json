@@ -1,0 +1,29 @@
+{
+  "title": "用户偏好",
+  "subtitle": "自定义你的使用体验",
+  "appearance": "外观",
+  "language": "语言",
+  "languageDescription": "界面显示语言",
+  "dateAndTime": "日期与时间",
+  "timeFormat": "时间格式",
+  "timeZone": "时区",
+  "timeZoneDescription": "时间按此时区显示和输入。",
+  "searchResults": "搜索结果",
+  "rowClick": "行点击",
+  "rowClickDescription": "点击结果行时的行为。右侧箭头始终展开行。",
+  "colorMode": "颜色模式",
+  "colorModeDescription": "跟随系统设置，或选择浅色、深色",
+  "light": "浅色",
+  "dark": "深色",
+  "system": "跟随系统",
+  "contentFontSize": "内容字号",
+  "contentFontSizeDescription": "日志表格、数据表格和图表的文字大小",
+  "fontSizes": {
+    "sm": "小",
+    "md": "中",
+    "lg": "大"
+  },
+  "expand": "就地展开",
+  "sidePanel": "打开侧边栏",
+  "experimental": "实验性"
+}

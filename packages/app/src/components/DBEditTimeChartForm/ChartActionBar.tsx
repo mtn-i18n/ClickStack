@@ -1,3 +1,4 @@
+import { useTranslation } from 'next-i18next/pages';
 import { Control, useWatch } from 'react-hook-form';
 import { TableConnection } from '@hyperdx/common-utils/dist/core/metadata';
 import { isRangeQuery } from '@hyperdx/common-utils/dist/core/promql';
@@ -37,16 +38,17 @@ function DashboardFiltersToggle({
   disabledReason,
   onChange,
 }: DashboardFiltersToggleProps) {
+  const { t } = useTranslation('dashboards');
   const isDisabled = disabledReason != null;
   const tooltip = isDisabled
     ? disabledReason
-    : 'Apply dashboard-level filter and variable selections to the chart preview';
+    : t('chartEditor.applyFiltersTooltip');
 
   return (
     <Tooltip label={tooltip} position="top" multiline maw={320}>
       <Box data-testid="apply-dashboard-filters">
         <Switch
-          label="Apply filters"
+          label={t('chartEditor.applyFilters')}
           size="sm"
           labelPosition="left"
           checked={checked}
@@ -101,6 +103,7 @@ export function ChartActionBar({
   filtersToggle,
   setSaveToDashboardModalOpen,
 }: ChartActionBarProps) {
+  const { t } = useTranslation('dashboards');
   const configType = useWatch({ control, name: 'configType' });
   const displayType = useWatch({ control, name: 'displayType' });
   const promqlExpressions = useWatch({ control, name: 'promqlExpressions' });
@@ -176,7 +179,7 @@ export function ChartActionBar({
             leftSection={<IconPlayerPlay size={16} />}
             style={{ flexShrink: 0 }}
           >
-            Run
+            {t('dashboard.queryToolbar.run')}
           </Button>
         )}
         {!IS_LOCAL_MODE && (showSaveToDashboard ?? !dashboardId) && (
@@ -191,7 +194,7 @@ export function ChartActionBar({
                 leftSection={<IconLayoutGrid size={16} />}
                 onClick={() => setSaveToDashboardModalOpen(true)}
               >
-                Save to Dashboard
+                {t('saveToDashboard.title')}
               </Menu.Item>
             </Menu.Dropdown>
           </Menu>

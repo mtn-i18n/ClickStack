@@ -1,3 +1,4 @@
+import { useTranslation } from 'next-i18next/pages';
 import { Button, Tooltip } from '@mantine/core';
 import { IconAlertTriangle, IconBell } from '@tabler/icons-react';
 
@@ -22,6 +23,7 @@ export function AlertPanelButton({
   error?: string;
   warning?: string;
 }) {
+  const { t } = useTranslation('dashboards');
   const alertPanel = useAlertPanel();
   const isConfirmed = hasAlert && !alertPanel?.isDraft;
   const issue =
@@ -65,7 +67,9 @@ export function AlertPanelButton({
         ) : (
           <IconBell size={14} className="me-2" />
         )}
-        {isConfirmed ? 'Edit alert' : 'Add alert'}
+        {isConfirmed
+          ? t('chartEditor.alert.editAlert')
+          : t('chartEditor.alert.addAlert')}
       </Button>
     </Tooltip>
   );

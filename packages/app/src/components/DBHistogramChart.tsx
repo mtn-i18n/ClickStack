@@ -1,4 +1,5 @@
 import { memo, useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'next-i18next/pages';
 import { omit } from 'lodash';
 import { useHotkeys } from 'react-hotkeys-hook';
 import {
@@ -182,6 +183,7 @@ export const HistogramChartTooltip = memo(
       payload: { lower: number; upper: number; height: number };
     }[];
   }) => {
+    const { t } = useTranslation('charts');
     if (!active || !payload?.length) {
       return null;
     }
@@ -194,12 +196,12 @@ export const HistogramChartTooltip = memo(
       <ChartTooltipContainer
         header={
           <span>
-            Bucket: {lower} - {upper}
+            {t('bucketColon')} {lower} - {upper}
           </span>
         }
         footer={
           <Text size="xs" c="dimmed">
-            Click to pin tooltip • Approx value via SPDT algorithm
+            {t('approxValueHint')}
           </Text>
         }
       >
@@ -207,7 +209,7 @@ export const HistogramChartTooltip = memo(
           <ChartTooltipItem
             key={p.name ?? index}
             color={p.color ?? HISTOGRAM_BAR_COLOR}
-            name="Number of events"
+            name={t('numberOfEvents')}
             value={p.value}
             numberFormat={INTEGER_NUMBER_FORMAT}
             indicator="square"

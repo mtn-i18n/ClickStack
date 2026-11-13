@@ -1,4 +1,5 @@
 import { type ReactNode, useState } from 'react';
+import { useTranslation } from 'next-i18next/pages';
 import { Button, Group, Popover, SegmentedControl, Stack } from '@mantine/core';
 
 import { SplitValueButton } from '@/components/SplitValueButton/SplitValueButton';
@@ -28,10 +29,7 @@ export const clauseResetDisabled = matchesDefault;
 
 export const clauseApplyDisabled = (draft: string) => draft.trim() === '';
 
-const MODE_OPTIONS = [
-  { label: 'Fields', value: 'pick' },
-  { label: 'SQL', value: 'sql' },
-];
+const MODE_OPTIONS = ['pick', 'sql'] as const;
 
 /**
  * A toolbar button that edits one query clause in a popover. Edits stay in a
@@ -77,6 +75,7 @@ export function ClausePopover({
   renderSql: (apply: () => void) => ReactNode;
   'data-testid': string;
 }) {
+  const { t } = useTranslation('search');
   const [opened, setOpened] = useState(false);
   const [mode, setMode] = useState<ClauseMode>(initialMode);
 
@@ -119,7 +118,10 @@ export function ClausePopover({
             fullWidth
             value={mode}
             onChange={value => setMode(value === 'sql' ? 'sql' : 'pick')}
-            data={MODE_OPTIONS}
+            data={MODE_OPTIONS.map(mode => ({
+              value: mode,
+              label: t(mode === 'pick' ? 'toolbar.fields' : 'toolbar.sql'),
+            }))}
             data-testid={`${testId}-mode`}
           />
           {mode === 'pick' ? renderPick(apply) : renderSql(apply)}
@@ -131,7 +133,7 @@ export function ClausePopover({
               disabled={resetDisabled}
               data-testid={`${testId}-reset`}
             >
-              Reset to default
+              {t('toolbar.resetToDefault')}
             </Button>
             <Group gap="xs" wrap="nowrap">
               <Button
@@ -139,7 +141,7 @@ export function ClausePopover({
                 size="xs"
                 onClick={() => setOpened(false)}
               >
-                Cancel
+                {t('common:actions.cancel')}
               </Button>
               <Button
                 variant="primary"
@@ -148,7 +150,7 @@ export function ClausePopover({
                 disabled={applyDisabled}
                 data-testid={`${testId}-apply`}
               >
-                Apply
+                {t('common:actions.apply')}
               </Button>
             </Group>
           </Group>

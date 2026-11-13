@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { useTranslation } from 'next-i18next/pages';
 import type { AdhocConditionEntry } from '@hyperdx/common-utils/dist/filters';
 import {
   ActionIcon,
@@ -106,6 +107,7 @@ function SeriesRow({
   /** z-index for the action tooltips, so they sit above the pinned popover. */
   actionTooltipZIndex?: number;
 }) {
+  const { t } = useTranslation('charts');
   const clipboard = useClipboard({ timeout: 1500 });
 
   const item = (
@@ -129,7 +131,7 @@ function SeriesRow({
       <Group gap={2} wrap="nowrap" justify="flex-end" style={{ flexShrink: 0 }}>
         {actions.drillInUrl != null && (
           <Tooltip
-            label="Search (Opens in New Tab)"
+            label={t('searchOpensInNewTab')}
             withArrow
             withinPortal
             color="gray"
@@ -145,7 +147,7 @@ function SeriesRow({
               variant="subtle"
               size="xs"
               data-testid={`chart-view-events-link-${dataKey}`}
-              aria-label="Search (Opens in New Tab)"
+              aria-label={t('searchOpensInNewTab')}
               onClick={actions.onDrillIn}
             >
               <IconSearch size={13} />
@@ -153,7 +155,7 @@ function SeriesRow({
           </Tooltip>
         )}
         <Tooltip
-          label={clipboard.copied ? 'Copied!' : 'Copy Label'}
+          label={clipboard.copied ? t('copied') : t('copyLabel')}
           withArrow
           withinPortal
           color="gray"
@@ -163,7 +165,7 @@ function SeriesRow({
           <ActionIcon
             variant="subtle"
             size="xs"
-            aria-label="Copy Label"
+            aria-label={t('copyLabel')}
             data-testid={`chart-copy-name-${dataKey}`}
             onClick={() => clipboard.copy(name)}
           >
@@ -176,7 +178,7 @@ function SeriesRow({
         </Tooltip>
         {actions.onFilter != null && (
           <SeriesAction
-            label="Filter for this series"
+            label={t('filterForThisSeries')}
             testId={`chart-filter-series-${dataKey}`}
             icon={<IconFilter size={13} />}
             onClick={actions.onFilter}
@@ -185,7 +187,7 @@ function SeriesRow({
         )}
         {actions.onExclude != null && (
           <SeriesAction
-            label="Exclude this series"
+            label={t('excludeThisSeries')}
             testId={`chart-exclude-series-${dataKey}`}
             icon={<IconFilterX size={13} />}
             onClick={actions.onExclude}
@@ -194,7 +196,7 @@ function SeriesRow({
         )}
         {actions.onFocus != null && (
           <SeriesAction
-            label="Focus"
+            label={t('focus')}
             testId={`chart-focus-series-${dataKey}`}
             icon={<IconFocusCentered size={13} />}
             onClick={actions.onFocus}
@@ -291,6 +293,7 @@ export function ChartSeriesTooltip({
   expandedRowCap = MAX_EXPANDED_TOOLTIP_ROWS,
 }: ChartSeriesTooltipProps) {
   // Called before any early return to keep hook order stable.
+  const { t } = useTranslation('charts');
   const actionTooltipZIndex = useChartTooltipActionZIndex();
 
   // Exclude previous-period series from the row list; their comparison is
@@ -349,7 +352,7 @@ export function ChartSeriesTooltip({
       >
         <Group gap={8} py={2}>
           <IconArrowsMaximize size={14} />
-          <Text size="xs">Show All Series</Text>
+          <Text size="xs">{t('showAllSeries')}</Text>
         </Group>
       </UnstyledButton>
     ) : null;
@@ -366,7 +369,7 @@ export function ChartSeriesTooltip({
     >
       <Group gap={8} py={2}>
         <IconSearch size={14} />
-        <Text size="xs">View All Events</Text>
+        <Text size="xs">{t('viewAllEvents')}</Text>
       </Group>
     </Link>
   ) : null;
@@ -448,15 +451,19 @@ export function ChartSeriesTooltip({
           (onLoadAllSeries ? (
             <UnstyledButton
               onClick={onLoadAllSeries}
-              aria-label={`Load all ${totalHidden.toLocaleString()} more series`}
+              aria-label={t('loadAllMoreSeries', {
+                total: totalHidden.toLocaleString(),
+              })}
             >
               <Text size="xs" c="dimmed" fs="italic" pt={2}>
-                +{totalHidden.toLocaleString()} more (click to load all)
+                {t('moreClickToLoadAll', {
+                  total: totalHidden.toLocaleString(),
+                })}
               </Text>
             </UnstyledButton>
           ) : (
             <Text size="xs" c="dimmed" fs="italic" pt={2}>
-              +{totalHidden.toLocaleString()} more
+              {t('more', { total: totalHidden.toLocaleString() })}
             </Text>
           ))}
       </Stack>

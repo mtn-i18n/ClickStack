@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'next-i18next/pages';
 import { Box, Button, Flex, Paper, Text } from '@mantine/core';
 import {
   IconArrowsDiagonal,
@@ -42,6 +43,7 @@ export default function DBRowSidePanelHeader({
   severityText?: string;
   rowData?: Record<string, any>;
 }) {
+  const { t } = useTranslation('search');
   const [bodyExpanded, setBodyExpanded] = React.useState(false);
 
   const isContentTruncated = mainContent.length > MAX_MAIN_CONTENT_LENGTH;
@@ -133,14 +135,16 @@ export default function DBRowSidePanelHeader({
                 setBodyExpanded(prev => !prev);
               }}
             >
-              {bodyExpanded ? 'Collapse' : 'Expand'}
+              {bodyExpanded
+                ? t('sidePanel.collapseBody')
+                : t('sidePanel.expandBody')}
             </Button>
           )}
         </Paper>
       ) : (
         <Paper p="xs" mt="sm">
           <Text size="xs" c="dimmed">
-            No body for this event.
+            {t('sidePanel.noBody')}
           </Text>
         </Paper>
       )}

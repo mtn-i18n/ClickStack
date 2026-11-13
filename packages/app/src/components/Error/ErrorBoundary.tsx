@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'next-i18next/pages';
 import { ErrorBoundary as ReactErrorBoundary } from 'react-error-boundary';
 import { Alert, Button, Stack, Text } from '@mantine/core';
 import { IconExclamationCircle } from '@tabler/icons-react';
@@ -21,6 +22,7 @@ export const ErrorBoundary = ({
   showErrorMessage,
   message,
 }: ErrorBoundaryProps) => {
+  const { t } = useTranslation(['errors', 'common']);
   const showRetry = allowReset || !!onRetry;
 
   return (
@@ -33,7 +35,7 @@ export const ErrorBoundary = ({
           p="xs"
           color="red"
           icon={<IconExclamationCircle size={16} />}
-          title={message || 'Something went wrong'}
+          title={message || t('somethingWentWrong')}
         >
           {(showErrorMessage || showRetry) && (
             <Stack align="flex-start" gap="xs">
@@ -44,7 +46,7 @@ export const ErrorBoundary = ({
                   size="compact-xs"
                   variant="danger"
                 >
-                  Retry
+                  {t('actions.retry')}
                 </Button>
               )}
             </Stack>

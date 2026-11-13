@@ -1,4 +1,6 @@
 import { useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'next-i18next/pages';
+import { Trans } from 'react-i18next';
 import {
   DndContext,
   type DragEndEvent,
@@ -24,7 +26,6 @@ import {
   Text,
 } from '@mantine/core';
 
-import { fieldListSummary } from '@/components/SplitValueButton/SplitValueButton';
 import SQLInlineEditor from '@/components/SQLEditor/SQLInlineEditor';
 import { isColumnInSelect, withMapKeyAlias } from '@/utils';
 
@@ -60,6 +61,7 @@ export function ColumnsPopover({
   sourceId?: string;
   dateRange?: [Date, Date];
 }) {
+  const { t } = useTranslation('search');
   const [draft, setDraft] = useState(value);
   const [search, setSearch] = useState('');
   // Autocomplete writes the chosen option back into the input after
@@ -112,8 +114,14 @@ export function ColumnsPopover({
 
   return (
     <ClausePopover
-      name="Columns"
-      summary={fieldListSummary(shown)}
+      name={t('toolbar.columns')}
+      summary={
+        shown.length === 0
+          ? t('toolbar.none')
+          : shown.length === 1
+            ? shown[0]
+            : t('toolbar.fieldCount', { count: shown.length })
+      }
       count={shown.length}
       dimmed={value.trim() === ''}
       title={value || defaultValue}
@@ -144,7 +152,7 @@ export function ColumnsPopover({
           <Box mah={220} style={{ overflowX: 'hidden', overflowY: 'auto' }}>
             {items.length === 0 ? (
               <Text size="xs" c="dimmed">
-                No columns selected.
+                {t('toolbar.noColumnsSelected')}
               </Text>
             ) : (
               <DndContext sensors={sensors} onDragEnd={reorderColumns}>
@@ -169,7 +177,7 @@ export function ColumnsPopover({
           <Group gap="xs" wrap="nowrap" align="center">
             <Autocomplete
               size="xs"
-              placeholder="Search columns"
+              placeholder={t('toolbar.searchColumns')}
               value={search}
               onChange={next => {
                 if (ignoreNextChangeRef.current) {
@@ -195,12 +203,15 @@ export function ColumnsPopover({
               onClick={() => addColumn(search)}
               data-testid="search-columns-add-button"
             >
-              Add
+              {t('common:actions.add')}
             </Button>
           </Group>
           <Text size="xs" c="dimmed">
-            Select a column, or type an expression such as{' '}
-            <Code>upper(Body) as message</Code>, then click Add.
+            <Trans
+              ns="search"
+              i18nKey="toolbar.addColumnHint"
+              components={{ code: <Code /> }}
+            />
           </Text>
         </Stack>
       )}

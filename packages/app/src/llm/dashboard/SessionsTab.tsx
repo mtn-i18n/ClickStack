@@ -1,5 +1,6 @@
 import { useCallback } from 'react';
 import { useSearchParams } from 'next/navigation';
+import { useTranslation } from 'next-i18next/pages';
 import { Grid } from '@mantine/core';
 
 import { INTEGER_NUMBER_FORMAT } from '@/ChartUtils';
@@ -44,6 +45,7 @@ export function buildSessionRowHref(
  * param.
  */
 export function SessionsTab(props: LLMChartProps) {
+  const { t } = useTranslation('llm');
   const { expressions } = props;
   const base = baseLLMChartConfig({
     ...props,
@@ -71,7 +73,7 @@ export function SessionsTab(props: LLMChartProps) {
       <Grid.Col span={12}>
         <ChartCard style={{ height: TABLE_HEIGHT }}>
           <DBTableChart
-            title="LLM Sessions"
+            title={t('sessions.title')}
             getRowSearchLink={getRowLink}
             hiddenColumns={['start_ts', 'end_ts']}
             config={{

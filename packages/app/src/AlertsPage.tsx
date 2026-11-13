@@ -1,7 +1,9 @@
 import * as React from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
+import { useTranslation } from 'next-i18next/pages';
 import { parseAsBoolean, parseAsStringEnum, useQueryState } from 'nuqs';
+import { Trans } from 'react-i18next';
 import { AlertSource, AlertState } from '@hyperdx/common-utils/dist/types';
 import {
   Alert,
@@ -28,7 +30,9 @@ import { withAppNav } from './layout';
 const SEARCH_DEBOUNCE_MS = 300;
 
 export default function AlertsPage() {
-  const title = usePageTitle('Alerts');
+  const { t } = useTranslation('alerts');
+  const { t: tNav } = useTranslation('nav');
+  const title = usePageTitle(tNav('pages.alerts'));
   const mounted = useMounted();
 
   const [search, setSearch] = useQueryState('search');
@@ -116,7 +120,7 @@ export default function AlertsPage() {
       <Head>
         <title>{title}</title>
       </Head>
-      <PageHeader title="Alerts" />
+      <PageHeader title={t('title')} />
       <div
         className="my-4"
         style={{ flex: 1, display: 'flex', flexDirection: 'column' }}
@@ -127,23 +131,19 @@ export default function AlertsPage() {
           <Flex align="center" justify="center" style={{ flex: 1 }}>
             <EmptyState
               icon={<IconBell size={32} />}
-              title="No alerts created yet"
+              title={t('emptyTitle')}
               description={
-                <>
-                  Alerts can be created from{' '}
-                  <Anchor component={Link} href="/dashboards">
-                    dashboard charts
-                  </Anchor>
-                  ,{' '}
-                  <Anchor component={Link} href="/search">
-                    saved searches
-                  </Anchor>
-                  , and the{' '}
-                  <Anchor component={Link} href="/chart">
-                    chart explorer
-                  </Anchor>
-                  .
-                </>
+                <Trans
+                  ns="alerts"
+                  i18nKey="emptyDescription"
+                  components={{
+                    dashboardLink: (
+                      <Anchor component={Link} href="/dashboards" />
+                    ),
+                    searchLink: <Anchor component={Link} href="/search" />,
+                    chartLink: <Anchor component={Link} href="/chart" />,
+                  }}
+                />
               }
             />
           </Flex>
@@ -155,15 +155,19 @@ export default function AlertsPage() {
               py="xs"
               mt="md"
             >
-              Alerts can be{' '}
-              <a
-                href="https://clickhouse.com/docs/use-cases/observability/clickstack/alerts"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                created
-              </a>{' '}
-              from dashboard charts, saved searches, and the chart explorer.
+              <Trans
+                ns="alerts"
+                i18nKey="docsHint"
+                components={{
+                  link: (
+                    <a
+                      href="https://clickhouse.com/docs/use-cases/observability/clickstack/alerts"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    />
+                  ),
+                }}
+              />
             </Alert>
             {!mounted ? (
               // SSR Hydration fails for the filter bar when there are nuqs filter values in
@@ -196,18 +200,18 @@ export default function AlertsPage() {
               ) : isError && !alerts.length ? (
                 <Alert
                   variant="danger"
-                  title="Failed to load alerts"
+                  title={t('loadFailed')}
                   mt="md"
                   data-testid="alerts-error"
                 >
                   <Group gap="xs">
-                    Something went wrong fetching your alerts.
+                    {t('loadFailedDescription')}
                     <Button
                       variant="secondary"
                       size="compact-xs"
                       onClick={() => refetch()}
                     >
-                      Retry
+                      {t('actions.retry', { ns: 'common' })}
                     </Button>
                   </Group>
                 </Alert>
@@ -227,8 +231,8 @@ export default function AlertsPage() {
                   variant="card"
                   mt="md"
                   icon={<IconBell size={32} />}
-                  title="No matching alerts"
-                  description="Try adjusting your search or filters."
+                  title={t('noMatchingAlerts')}
+                  description={t('noMatchingAlertsDescription')}
                 />
               )}
             </div>

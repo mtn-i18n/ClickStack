@@ -1,3 +1,4 @@
+import { useTranslation } from 'next-i18next/pages';
 import { Box, Group, Text } from '@mantine/core';
 
 import { METRIC_KIND_LABELS } from '@/utils/metricKinds';
@@ -15,6 +16,7 @@ export const ROW_DIVIDER = '1px solid var(--color-border-muted)';
 
 /** Column header, so the tree and the flat list share one set of labels. */
 export function MetricColumnHeader() {
+  const { t } = useTranslation('charts');
   return (
     <Group
       gap="sm"
@@ -29,13 +31,13 @@ export function MetricColumnHeader() {
         tt="uppercase"
         style={{ flex: 1, minWidth: 0 }}
       >
-        Metric
+        {t('metricExplorer.metric')}
       </Text>
       <Text size="xxs" c="dimmed" fw={600} tt="uppercase" w={TYPE_COLUMN_WIDTH}>
-        Type
+        {t('metricExplorer.type')}
       </Text>
       <Text size="xxs" c="dimmed" fw={600} tt="uppercase" w={UNIT_COLUMN_WIDTH}>
-        Unit
+        {t('metricExplorer.unit')}
       </Text>
     </Group>
   );

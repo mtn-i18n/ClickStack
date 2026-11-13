@@ -1,3 +1,4 @@
+import { useTranslation } from 'next-i18next/pages';
 import { format } from '@hyperdx/common-utils/dist/sqlFormatter';
 import { ChartConfigWithOptDateRange } from '@hyperdx/common-utils/dist/types';
 import { Paper, Text, useMantineColorScheme } from '@mantine/core';
@@ -74,6 +75,7 @@ export default function ChartSQLPreview({
     // refreshes the dateRange each poll).
     placeholderData: keepPreviousData,
   });
+  const { t } = useTranslation('charts');
 
   return (
     <Paper
@@ -92,11 +94,11 @@ export default function ChartSQLPreview({
         <SQLPreview data={data} formatData={false} enableCopy={enableCopy} />
       ) : isLoading ? (
         <Text className="text-muted" size="xs">
-          Loading query preview...
+          {t('loadingQueryPreview')}
         </Text>
       ) : error ? (
         <Text className="text-danger" size="xs">
-          Unable to format query. {error.message}
+          {t('unableToFormatQuery', { error: error.message })}
         </Text>
       ) : (
         <SQLPreview data={data} formatData={false} enableCopy={enableCopy} />

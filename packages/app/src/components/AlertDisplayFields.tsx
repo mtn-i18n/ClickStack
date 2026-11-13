@@ -1,3 +1,4 @@
+import { useTranslation } from 'next-i18next/pages';
 import {
   Control,
   Controller,
@@ -32,7 +33,7 @@ export function AlertDisplayFields<T extends FieldValues>({
   displayNameName,
   tagsName,
   derivedDisplayName,
-  displayNameLabel = 'Name',
+  displayNameLabel,
   displayNameRequired = false,
   tagsInherit = true,
   labelMarginTop = 'xs',
@@ -62,11 +63,12 @@ export function AlertDisplayFields<T extends FieldValues>({
   tagsInherit?: boolean;
   labelMarginTop?: string;
 }) {
+  const { t } = useTranslation('alerts');
   return (
     <Group gap="xs" align="flex-start" wrap="nowrap" mt={labelMarginTop}>
       <div style={{ flex: 1, minWidth: 0 }}>
         <Text size="xxs" opacity={0.5} mb={4}>
-          {displayNameLabel}
+          {displayNameLabel ?? t('name')}
           {displayNameRequired && (
             <Text span c="red" ms={2} aria-hidden="true">
               *
@@ -82,9 +84,8 @@ export function AlertDisplayFields<T extends FieldValues>({
               size="xs"
               placeholder={
                 displayNameRequired
-                  ? 'Alert name'
-                  : derivedDisplayName ||
-                    'Defaults to the saved search or dashboard tile name'
+                  ? t('alertName')
+                  : derivedDisplayName || t('derivedNamePlaceholder')
               }
               error={fieldState.error?.message}
               {...field}
@@ -98,7 +99,7 @@ export function AlertDisplayFields<T extends FieldValues>({
 
       <div>
         <Text size="xxs" opacity={0.5} mb={4}>
-          Tags
+          {t('tags')}
         </Text>
         <Controller
           control={control}
@@ -121,7 +122,7 @@ export function AlertDisplayFields<T extends FieldValues>({
                         and a count of 0 would misreport that. Where there is
                         not, unset really is none. */}
                     {field.value == null && tagsInherit
-                      ? 'Inherited'
+                      ? t('inherited')
                       : values.length}
                   </Button>
                 </Tags>

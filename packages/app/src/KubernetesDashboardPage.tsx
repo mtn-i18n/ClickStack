@@ -3,6 +3,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
 import Head from 'next/head';
 import Link from 'next/link';
+import { useTranslation } from 'next-i18next/pages';
 import cx from 'classnames';
 import sub from 'date-fns/sub';
 import { useQueryState } from 'nuqs';
@@ -158,6 +159,7 @@ export const InfraPodsStatusTable = ({
   metricSource: TMetricSource;
   where: string;
 }) => {
+  const { t } = useTranslation('k8s');
   const [phaseFilter, setPhaseFilter] = React.useState('running');
 
   // Auto-switch to "All" when search filters are applied
@@ -361,17 +363,17 @@ export const InfraPodsStatusTable = ({
     <Card p="md" data-testid="k8s-pods-table">
       <Card.Section p="md" py="xs">
         <Group align="center" justify="space-between">
-          Pods
+          {t('pods')}
           <SegmentedControl
             size="xs"
             value={phaseFilter}
             onChange={setPhaseFilter}
             data={[
-              { label: 'Running', value: 'running' },
-              { label: 'Succeeded', value: 'succeeded' },
-              { label: 'Pending', value: 'pending' },
-              { label: 'Failed', value: 'failed' },
-              { label: 'All', value: 'all' },
+              { label: t('running'), value: 'running' },
+              { label: t('succeeded'), value: 'succeeded' },
+              { label: t('pending'), value: 'pending' },
+              { label: t('failed'), value: 'failed' },
+              { label: t('all'), value: 'all' },
             ]}
           />
         </Group>
@@ -379,8 +381,9 @@ export const InfraPodsStatusTable = ({
       {isAtFetchLimit && !isLoading && !isError && podsList.length > 0 && (
         <Card.Section px="md" py="xs">
           <Alert variant="light" color="blue">
-            Showing first {TABLE_FETCH_LIMIT.toLocaleString()} pods. Use the
-            filters above to narrow your search.
+            {t('showingFirstPods', {
+              count: TABLE_FETCH_LIMIT,
+            })}
           </Alert>
         </Card.Section>
       )}
@@ -396,31 +399,33 @@ export const InfraPodsStatusTable = ({
             <TableLoading />
           ) : isError ? (
             <div className="p-4 text-center text-muted fs-8">
-              Unable to load pod metrics
+              {t('unableToLoadPodMetrics')}
             </div>
           ) : podsList.length === 0 ? (
-            <div className="p-4 text-center text-muted fs-8">No pods found</div>
+            <div className="p-4 text-center text-muted fs-8">
+              {t('noPodsFound')}
+            </div>
           ) : (
             <Table horizontalSpacing="md" highlightOnHover>
               <Table.Thead className="muted-thead">
                 <Table.Tr>
-                  <Th>Name</Th>
-                  <Th>Namespace</Th>
-                  <Th>Node</Th>
+                  <Th>{t('name')}</Th>
+                  <Th>{t('namespace')}</Th>
+                  <Th>{t('node')}</Th>
                   <Th {...getThSortProps('phase')} style={{ width: 130 }}>
-                    Status
+                    {t('status')}
                   </Th>
                   <Th {...getThSortProps('cpuLimit')} style={{ width: 100 }}>
-                    CPU/Limit
+                    {t('cpuLimit')}
                   </Th>
                   <Th {...getThSortProps('memLimit')} style={{ width: 100 }}>
-                    Mem/Limit
+                    {t('memLimit')}
                   </Th>
                   <Th {...getThSortProps('uptime')} style={{ width: 80 }}>
-                    Age
+                    {t('age')}
                   </Th>
                   <Th {...getThSortProps('restarts')} style={{ width: 100 }}>
-                    Restarts
+                    {t('restarts')}
                   </Th>
                 </Table.Tr>
               </Table.Thead>
@@ -459,12 +464,12 @@ export const InfraPodsStatusTable = ({
                         <Table.Td>
                           <Tooltip
                             color="gray"
-                            label={
-                              formatNumber(
+                            label={t('avgValue', {
+                              value: formatNumber(
                                 pod.cpuAvg,
                                 K8S_CPU_PERCENTAGE_NUMBER_FORMAT,
-                              ) + ' avg'
-                            }
+                              ),
+                            })}
                           >
                             <Text
                               span
@@ -482,10 +487,12 @@ export const InfraPodsStatusTable = ({
                         <Table.Td>
                           <Tooltip
                             color="gray"
-                            label={
-                              formatNumber(pod.memAvg, K8S_MEM_NUMBER_FORMAT) +
-                              ' avg'
-                            }
+                            label={t('avgValue', {
+                              value: formatNumber(
+                                pod.memAvg,
+                                K8S_MEM_NUMBER_FORMAT,
+                              ),
+                            })}
                           >
                             <Text
                               span
@@ -548,6 +555,7 @@ const NodesTable = ({
   where: string;
   dateRange: [Date, Date];
 }) => {
+  const { t } = useTranslation('k8s');
   const groupBy = ['k8s.node.name'];
 
   const { data, isError, isLoading } = useQueriedChartConfig({
@@ -632,7 +640,7 @@ const NodesTable = ({
   return (
     <Card p="md" data-testid="k8s-nodes-table">
       <Card.Section p="md" py="xs">
-        Nodes
+        {t('nodes')}
       </Card.Section>
       <Card.Section>
         <div
@@ -646,21 +654,21 @@ const NodesTable = ({
             <TableLoading />
           ) : isError ? (
             <div className="p-4 text-center text-muted fs-8">
-              Unable to load nodes
+              {t('unableToLoadNodes')}
             </div>
           ) : nodesList.length === 0 ? (
             <div className="p-4 text-center text-muted fs-8">
-              No nodes found
+              {t('noNodesFound')}
             </div>
           ) : (
             <Table horizontalSpacing="md" highlightOnHover>
               <Table.Thead className="muted-thead">
                 <Table.Tr>
-                  <Table.Th>Node</Table.Th>
-                  <Table.Th style={{ width: 130 }}>Status</Table.Th>
-                  <Table.Th style={{ width: 130 }}>CPU</Table.Th>
-                  <Table.Th style={{ width: 130 }}>Memory</Table.Th>
-                  <Table.Th style={{ width: 130 }}>Uptime</Table.Th>
+                  <Table.Th>{t('node')}</Table.Th>
+                  <Table.Th style={{ width: 130 }}>{t('status')}</Table.Th>
+                  <Table.Th style={{ width: 130 }}>{t('cpu')}</Table.Th>
+                  <Table.Th style={{ width: 130 }}>{t('memory')}</Table.Th>
+                  <Table.Th style={{ width: 130 }}>{t('uptime')}</Table.Th>
                 </Table.Tr>
               </Table.Thead>
               <Table.Tbody>
@@ -688,9 +696,9 @@ const NodesTable = ({
                         <Table.Td>{node.name || 'N/A'}</Table.Td>
                         <Table.Td>
                           {node.ready === 1 ? (
-                            <Badge text="Ready" state="success" />
+                            <Badge text={t('ready')} state="success" />
                           ) : (
-                            <Badge text="Not Ready" state="danger" />
+                            <Badge text={t('notReady')} state="danger" />
                           )}
                         </Table.Td>
                         <Table.Td>
@@ -735,6 +743,7 @@ const NamespacesTable = ({
   metricSource: TMetricSource;
   where: string;
 }) => {
+  const { t } = useTranslation('k8s');
   const groupBy = ['k8s.namespace.name'];
 
   const { data, isError, isLoading } = useQueriedChartConfig({
@@ -815,7 +824,7 @@ const NamespacesTable = ({
   return (
     <Card p="md" data-testid="k8s-namespaces-table">
       <Card.Section p="md" py="xs">
-        Namespaces
+        {t('namespaces')}
       </Card.Section>
       <Card.Section>
         <div
@@ -829,20 +838,20 @@ const NamespacesTable = ({
             <TableLoading />
           ) : isError ? (
             <div className="p-4 text-center text-muted fs-8">
-              Unable to load namespaces
+              {t('unableToLoadNamespaces')}
             </div>
           ) : namespacesList.length === 0 ? (
             <div className="p-4 text-center text-muted fs-8">
-              No namespaces found
+              {t('noNamespacesFound')}
             </div>
           ) : (
             <Table horizontalSpacing="md" highlightOnHover>
               <Table.Thead className="muted-thead">
                 <Table.Tr>
-                  <Table.Th>Namespace</Table.Th>
-                  <Table.Th style={{ width: 130 }}>Phase</Table.Th>
-                  <Table.Th style={{ width: 130 }}>CPU</Table.Th>
-                  <Table.Th style={{ width: 130 }}>Memory</Table.Th>
+                  <Table.Th>{t('namespace')}</Table.Th>
+                  <Table.Th style={{ width: 130 }}>{t('phase')}</Table.Th>
+                  <Table.Th style={{ width: 130 }}>{t('cpu')}</Table.Th>
+                  <Table.Th style={{ width: 130 }}>{t('memory')}</Table.Th>
                 </Table.Tr>
               </Table.Thead>
               <Table.Tbody>
@@ -870,9 +879,9 @@ const NamespacesTable = ({
                         <Table.Td>{namespace.name || 'N/A'}</Table.Td>
                         <Table.Td>
                           {namespace.phase === 1 ? (
-                            <Badge text="Ready" state="success" />
+                            <Badge text={t('ready')} state="success" />
                           ) : (
-                            <Badge text="Terminating" state="danger" />
+                            <Badge text={t('terminating')} state="danger" />
                           )}
                         </Table.Td>
                         <Table.Td>
@@ -1016,8 +1025,10 @@ export const resolveSourceIds = (
 const DEFAULT_INTERVAL = 'Past 1h';
 
 function KubernetesDashboardPage() {
+  const { t } = useTranslation('k8s');
+  const { t: tNav } = useTranslation('nav');
   const defaultTimeRange = useDefaultTimeRange(DEFAULT_INTERVAL);
-  const title = usePageTitle('Kubernetes Dashboard');
+  const title = usePageTitle(tNav('pages.kubernetesDashboard'));
   const { data: sources } = useSources();
 
   const [_logSourceId, setLogSourceId] = useQueryState('logSource');
@@ -1115,14 +1126,16 @@ function KubernetesDashboardPage() {
         setMetricSourceId(correlatedMetricSource.id);
         notifications.show({
           id: `${correlatedMetricSource.id}-auto-correlated-metric-source`,
-          title: 'Updated Metrics Source',
-          message: `Using correlated metrics source: ${correlatedMetricSource.name}`,
+          title: t('updatedMetricsSource'),
+          message: t('correlatedMetricsSource', {
+            name: correlatedMetricSource.name,
+          }),
         });
       } else if (logSource && !correlatedMetricSource) {
         notifications.show({
           id: `${logSource.id}-not-correlated`,
-          title: 'Warning',
-          message: `The selected logs source is not correlated with a metrics source. Source correlations can be configured in Team Settings.`,
+          title: t('warning'),
+          message: t('logsSourceNotCorrelated'),
           color: 'yellow',
         });
       }
@@ -1134,6 +1147,7 @@ function KubernetesDashboardPage() {
     sources,
     setLogSourceId,
     setMetricSourceId,
+    t,
   ]);
 
   // Handle metric source changes
@@ -1168,14 +1182,16 @@ function KubernetesDashboardPage() {
         setLogSourceId(correlatedLogSource.id);
         notifications.show({
           id: `${correlatedLogSource.id}-auto-correlated-log-source`,
-          title: 'Updated Logs Source',
-          message: `Using correlated logs source: ${correlatedLogSource.name}`,
+          title: t('updatedLogsSource'),
+          message: t('correlatedLogsSource', {
+            name: correlatedLogSource.name,
+          }),
         });
       } else if (metricSource && !correlatedLogSource) {
         notifications.show({
           id: `${metricSource.id}-not-correlated`,
-          title: 'Warning',
-          message: `The selected metrics source is not correlated with a logs source. Source correlations can be configured in Team Settings.`,
+          title: t('warning'),
+          message: t('metricsSourceNotCorrelated'),
           color: 'yellow',
         });
       }
@@ -1187,6 +1203,7 @@ function KubernetesDashboardPage() {
     sources,
     setMetricSourceId,
     setLogSourceId,
+    t,
   ]);
 
   const [activeTab, setActiveTab] = useQueryState('tab', {
@@ -1311,14 +1328,14 @@ function KubernetesDashboardPage() {
           onSearch={onSearch}
         />
       </form>
-      <Tooltip withArrow label="Refresh dashboard" fz="xs" color="gray">
+      <Tooltip withArrow label={t('refreshDashboard')} fz="xs" color="gray">
         <ActionIcon
           onClick={refresh}
           loading={manualRefreshCooloff}
           disabled={manualRefreshCooloff}
           variant="secondary"
-          title="Refresh dashboard"
-          aria-label="Refresh dashboard"
+          title={t('refreshDashboard')}
+          aria-label={t('refreshDashboard')}
           size="lg"
         >
           <IconRefresh size={18} />
@@ -1330,10 +1347,10 @@ function KubernetesDashboardPage() {
   const pageBreadcrumbs = (
     <Breadcrumbs fz="sm">
       <Anchor component={Link} href="/dashboards/list" fz="sm" c="dimmed">
-        Dashboards
+        {tNav('dashboards')}
       </Anchor>
       <Text fz="sm" c="dimmed">
-        Kubernetes
+        {tNav('kubernetes')}
       </Text>
     </Breadcrumbs>
   );
@@ -1387,9 +1404,9 @@ function KubernetesDashboardPage() {
         value={activeTab}
       >
         <Tabs.List>
-          <Tabs.Tab value="pods">Pods</Tabs.Tab>
-          <Tabs.Tab value="nodes">Nodes</Tabs.Tab>
-          <Tabs.Tab value="namespaces">Namespaces</Tabs.Tab>
+          <Tabs.Tab value="pods">{t('pods')}</Tabs.Tab>
+          <Tabs.Tab value="nodes">{t('nodes')}</Tabs.Tab>
+          <Tabs.Tab value="namespaces">{t('namespaces')}</Tabs.Tab>
           {/* <Tabs.Tab value="clusters">Clusters</Tabs.Tab> */}
         </Tabs.List>
 
@@ -1401,7 +1418,7 @@ function KubernetesDashboardPage() {
                   <Card.Section p="md" py="sm" h={CHART_HEIGHT}>
                     {metricSource && (
                       <DBTimeChart
-                        title="CPU Usage"
+                        title={t('cpuUsage')}
                         config={convertV1ChartConfigToV2(
                           {
                             dateRange,
@@ -1436,7 +1453,7 @@ function KubernetesDashboardPage() {
                   <Card.Section p="md" py="sm" h={CHART_HEIGHT}>
                     {metricSource && (
                       <DBTimeChart
-                        title="Memory Usage"
+                        title={t('memoryUsage')}
                         config={convertV1ChartConfigToV2(
                           {
                             dateRange,
@@ -1479,7 +1496,7 @@ function KubernetesDashboardPage() {
                 <Card p="md" data-testid="k8s-warning-events-table">
                   <Card.Section p="md" py="xs">
                     <Flex justify="space-between">
-                      Latest Kubernetes Warning Events
+                      {t('latestKubernetesWarningEvents')}
                     </Flex>
                   </Card.Section>
                   <Card.Section p="md" py="sm" h={CHART_HEIGHT}>
@@ -1545,7 +1562,7 @@ function KubernetesDashboardPage() {
                   <Card.Section p="md" py="sm" h={CHART_HEIGHT}>
                     {metricSource && (
                       <DBTimeChart
-                        title="CPU Usage"
+                        title={t('cpuUsage')}
                         config={convertV1ChartConfigToV2(
                           {
                             dateRange,
@@ -1580,7 +1597,7 @@ function KubernetesDashboardPage() {
                   <Card.Section p="md" py="sm" h={CHART_HEIGHT}>
                     {metricSource && (
                       <DBTimeChart
-                        title="Memory Usage"
+                        title={t('memoryUsage')}
                         config={convertV1ChartConfigToV2(
                           {
                             dateRange,
@@ -1628,7 +1645,7 @@ function KubernetesDashboardPage() {
                   <Card.Section p="md" py="sm" h={CHART_HEIGHT}>
                     {metricSource && (
                       <DBTimeChart
-                        title="CPU Usage"
+                        title={t('cpuUsage')}
                         config={convertV1ChartConfigToV2(
                           {
                             dateRange,
@@ -1663,7 +1680,7 @@ function KubernetesDashboardPage() {
                   <Card.Section p="md" py="sm" h={CHART_HEIGHT}>
                     {metricSource && (
                       <DBTimeChart
-                        title="Memory Usage"
+                        title={t('memoryUsage')}
                         config={convertV1ChartConfigToV2(
                           {
                             dateRange,
@@ -1704,7 +1721,7 @@ function KubernetesDashboardPage() {
               </Grid.Col>
             </Grid>
           </Tabs.Panel>
-          <Tabs.Panel value="clusters">Clusters</Tabs.Panel>
+          <Tabs.Panel value="clusters">{t('clusters')}</Tabs.Panel>
         </div>
       </Tabs>
     </>

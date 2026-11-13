@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { useTranslation } from 'next-i18next/pages';
 import { SourceKind, TLogSource } from '@hyperdx/common-utils/dist/types';
 
 import { useQueriedChartConfig } from '@/hooks/useChartConfig';
@@ -85,6 +86,7 @@ export function useBrowserTraceEvents<T extends LogRow>({
   resourceTimingBySpanId: ReadonlyMap<string, ResourceTimingMarker[]>;
   triggerRow: TraceTriggerRow | undefined;
 } {
+  const { t } = useTranslation('sessions');
   const context = useMemo(() => getBrowserTraceContext(traceRows), [traceRows]);
   const source =
     context != null && isBrowserEventLogSource(logSource)
@@ -198,6 +200,7 @@ export function useBrowserTraceEvents<T extends LogRow>({
       eventName: String(picked.row.event_name ?? ''),
       body: picked.row.body,
       attributes: picked.row.attributes,
+      t,
     });
     return {
       Timestamp: String(picked.row.timestamp),
@@ -208,9 +211,12 @@ export function useBrowserTraceEvents<T extends LogRow>({
       // The row id is made of raw expressions, so it needs no WITH clauses.
       aliasWith: [],
       __hdx_hidden: anchorHidden,
-      triggeredBy: `Triggered by: ${timelineText} · ${formatDurationMs(picked.gapMs)} before`,
+      triggeredBy: t('timeline.triggeredBy', {
+        event: timelineText,
+        duration: formatDurationMs(picked.gapMs),
+      }),
     };
-  }, [triggerResult, anchorMs, anchorHidden, getRowWhere]);
+  }, [triggerResult, anchorMs, anchorHidden, getRowWhere, t]);
 
   return {
     logRows: keptLogRows,

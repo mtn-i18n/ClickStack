@@ -1,3 +1,4 @@
+import { useTranslation } from 'next-i18next/pages';
 import {
   ActionIcon,
   Badge,
@@ -52,8 +53,9 @@ export function DashboardsListToolbar({
   viewMode: 'grid' | 'list';
   onViewModeChange: (viewMode: 'grid' | 'list') => void;
 }) {
+  const { t } = useTranslation('dashboards');
   const tabs = DASHBOARD_TABS.filter(
-    t => t.value !== 'mine' || canFilterByCreator,
+    tab => tab.value !== 'mine' || canFilterByCreator,
   );
 
   return (
@@ -64,13 +66,13 @@ export function DashboardsListToolbar({
         mb="md"
       >
         <Tabs.List>
-          {tabs.map(t => (
+          {tabs.map(tab => (
             <Tabs.Tab
-              key={t.value}
-              value={t.value}
-              data-testid={`dashboards-tab-${t.value}`}
+              key={tab.value}
+              value={tab.value}
+              data-testid={`dashboards-tab-${tab.value}`}
             >
-              {t.label}
+              {t(tab.labelKey)}
             </Tabs.Tab>
           ))}
         </Tabs.List>
@@ -78,7 +80,7 @@ export function DashboardsListToolbar({
 
       <Group gap="xs" mb="lg">
         <TextInput
-          placeholder="Search by name"
+          placeholder={t('toolbar.searchByName')}
           leftSection={<IconSearch size={16} />}
           value={search}
           onChange={e => onSearchChange(e.currentTarget.value)}
@@ -95,7 +97,7 @@ export function DashboardsListToolbar({
           >
             <Button
               variant="secondary"
-              aria-label="Filter by tag"
+              aria-label={t('toolbar.filterByTag')}
               leftSection={<IconTags size={16} />}
               rightSection={
                 tagFilter.length > 0 ? (
@@ -109,13 +111,16 @@ export function DashboardsListToolbar({
               style={{ flexShrink: 0 }}
               data-testid="dashboards-tag-filter"
             >
-              Tags
+              {t('toolbar.tags')}
             </Button>
           </Tags>
         )}
         <Select
-          aria-label="Sort by"
-          data={DASHBOARD_SORT_OPTIONS.map(o => ({ ...o }))}
+          aria-label={t('sort.label')}
+          data={DASHBOARD_SORT_OPTIONS.map(o => ({
+            value: o.value,
+            label: t(o.labelKey),
+          }))}
           value={sort}
           onChange={value =>
             onSortChange(
@@ -131,7 +136,7 @@ export function DashboardsListToolbar({
             variant={viewMode === 'grid' ? 'primary' : 'secondary'}
             size="input-sm"
             onClick={() => onViewModeChange('grid')}
-            aria-label="Grid view"
+            aria-label={t('toolbar.gridView')}
           >
             <IconLayoutGrid size={16} />
           </ActionIcon>
@@ -139,7 +144,7 @@ export function DashboardsListToolbar({
             variant={viewMode === 'list' ? 'primary' : 'secondary'}
             size="input-sm"
             onClick={() => onViewModeChange('list')}
-            aria-label="List view"
+            aria-label={t('toolbar.listView')}
           >
             <IconList size={16} />
           </ActionIcon>

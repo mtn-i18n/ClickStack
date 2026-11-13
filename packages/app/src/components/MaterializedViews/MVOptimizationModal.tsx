@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { Trans, useTranslation } from 'next-i18next/pages';
 import { Badge } from '@clickhouse/click-ui';
 import { MVOptimizationExplanation } from '@hyperdx/common-utils/dist/core/materializedViews';
 import { MaterializedViewConfiguration } from '@hyperdx/common-utils/dist/types';
@@ -21,6 +22,7 @@ export default function MVOptimizationModal({
   opened: boolean;
   onClose: () => void;
 }) {
+  const { t } = useTranslation('settings');
   const hasMultipleMVs = mvConfigs.length > 1;
 
   const explanationsByKey = useMemo(
@@ -32,16 +34,21 @@ export default function MVOptimizationModal({
 
   return (
     <Modal
-      title={hasMultipleMVs ? 'Materialized Views' : 'Materialized View'}
+      title={
+        hasMultipleMVs
+          ? t('materializedViews.modalTitlePlural')
+          : t('materializedViews.modalTitle')
+      }
       opened={opened}
       onClose={onClose}
       size="lg"
     >
       <div data-testid="mv-optimization-modal">
         <Text size="sm" mb="sm">
-          This source is configured with{' '}
-          {hasMultipleMVs ? 'materialized views' : 'a materialized view'} for
-          accelerating some aggregations.
+          <Trans
+            i18nKey="materializedViews.modalDescription"
+            count={hasMultipleMVs ? 2 : 1}
+          />
         </Text>
 
         <Accordion defaultValue={firstUsedMv && mvConfigToKey(firstUsedMv)}>
@@ -63,9 +70,13 @@ export default function MVOptimizationModal({
                   <Group justify="space-between">
                     <Text>{config.tableName}</Text>
                     {isBeingUsedByOptimizedConfig ? (
-                      <Tooltip label={`Estimated rows scanned: ${rowEstimate}`}>
+                      <Tooltip
+                        label={t('materializedViews.estimatedRows', {
+                          rowEstimate,
+                        })}
+                      >
                         <Badge
-                          text="Active"
+                          text={t('materializedViews.statusActive')}
                           state="success"
                           style={{
                             marginInlineEnd: 'var(--mantine-spacing-md)',
@@ -75,9 +86,11 @@ export default function MVOptimizationModal({
                         />
                       </Tooltip>
                     ) : hasErrors ? (
-                      <Tooltip label="This materialized view is not compatible with the selected query.">
+                      <Tooltip
+                        label={t('materializedViews.incompatibleTooltip')}
+                      >
                         <Badge
-                          text="Incompatible"
+                          text={t('materializedViews.statusIncompatible')}
                           state="warning"
                           style={{
                             marginInlineEnd: 'var(--mantine-spacing-md)',
@@ -87,9 +100,13 @@ export default function MVOptimizationModal({
                         />
                       </Tooltip>
                     ) : explanation ? (
-                      <Tooltip label={`Estimated rows scanned: ${rowEstimate}`}>
+                      <Tooltip
+                        label={t('materializedViews.estimatedRows', {
+                          rowEstimate,
+                        })}
+                      >
                         <Badge
-                          text="Skipped"
+                          text={t('materializedViews.statusSkipped')}
                           state="neutral"
                           style={{
                             marginInlineEnd: 'var(--mantine-spacing-md)',
@@ -107,8 +124,7 @@ export default function MVOptimizationModal({
                     {hasErrors && (
                       <Alert color="red" mt="xs">
                         <Text size="sm" fw={500} mb="xs">
-                          The query cannot be accelerated using this
-                          materialized view for the following reason(s):
+                          {t('materializedViews.queryCannotAccelerate')}
                         </Text>
                         {explanation.errors.map((error, idx) => (
                           <Text size="sm" key={idx} mt="xs">

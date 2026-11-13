@@ -1,6 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useMemo } from 'react';
+import { useTranslation } from 'next-i18next/pages';
 import cx from 'classnames';
+import type { TFunction } from 'i18next';
 import { ErrorBoundary } from 'react-error-boundary';
 import { Badge } from '@clickhouse/click-ui';
 import { Button, Text, Tooltip, UnstyledButton } from '@mantine/core';
@@ -187,8 +189,6 @@ const StacktraceRowExpandButton = ({
   );
 };
 
-const NOT_IN_APP_LABEL = 'Library or framework code';
-
 const StacktraceRow = ({
   row,
   table,
@@ -196,6 +196,8 @@ const StacktraceRow = ({
   row: Row<TStacktraceFrame>;
   table: TanstackTable<TStacktraceFrame>;
 }) => {
+  const { t } = useTranslation('search');
+  const notInAppLabel = t('exception.libraryCode');
   const tableMeta = table.options.meta as {
     firstFrameIndex?: number;
   };
@@ -227,16 +229,12 @@ const StacktraceRow = ({
         <div>
           {!augmentedFrame.in_app && (
             <Tooltip
-              label={NOT_IN_APP_LABEL}
+              label={notInAppLabel}
               position="top-start"
               withArrow
               color="gray"
             >
-              <IconLogs
-                size={14}
-                className="me-2"
-                aria-label={NOT_IN_APP_LABEL}
-              />
+              <IconLogs size={14} className="me-2" aria-label={notInAppLabel} />
             </Tooltip>
           )}
           {augmentedFrame && (
@@ -325,10 +323,12 @@ const LevelChip = React.memo(({ level }: { level?: string }) => {
   return <Badge size="sm" text={level} state={state} />;
 });
 
-const breadcrumbColumns: ColumnDef<StacktraceBreadcrumb>[] = [
+const getBreadcrumbColumns = (
+  t: TFunction,
+): ColumnDef<StacktraceBreadcrumb>[] => [
   {
     accessorKey: 'category',
-    header: 'Category',
+    header: t('exception.category'),
     size: 180,
     cell: ({ row }) => (
       <span className="d-flex align-items-center gap-2">
@@ -345,7 +345,7 @@ const breadcrumbColumns: ColumnDef<StacktraceBreadcrumb>[] = [
   },
   {
     accessorKey: 'message',
-    header: 'Data',
+    header: t('exception.data'),
     size: UNDEFINED_WIDTH,
     cell: ({ row }) => {
       // fetch
@@ -394,11 +394,11 @@ const breadcrumbColumns: ColumnDef<StacktraceBreadcrumb>[] = [
         return <div className="text-truncate">{row.original.message}</div>;
       }
 
-      return <span className="text-muted">Empty</span>;
+      return <span className="text-muted">{t('exception.empty')}</span>;
     },
   },
   {
-    header: 'Timestamp',
+    header: t('columnHeaders.timestamp'),
     size: 220,
     cell: ({ row }) => (
       <span className="text-muted">
@@ -467,6 +467,7 @@ const ExceptionTitle = ({
   isCause: boolean;
   singleLine: boolean;
 }) => {
+  const { t } = useTranslation('search');
   const message = exception.value?.trim() ?? '';
 
   return (
@@ -481,7 +482,7 @@ const ExceptionTitle = ({
           : { whiteSpace: 'pre-wrap', overflowWrap: 'anywhere' }
       }
     >
-      {isCause && <span className="text-muted">Caused by: </span>}
+      {isCause && <span className="text-muted">{t('exception.causedBy')}</span>}
       {exception.type && (
         <Text fw="bold" component="span" size="sm" variant="danger">
           {exception.type}
@@ -496,6 +497,7 @@ const ExceptionTitle = ({
 };
 
 const ExceptionStacktrace = ({ exception }: { exception: ExceptionValue }) => {
+  const { t } = useTranslation('search');
   const stacktraceFrames = useMemo(
     () => getFrames(exception)?.slice().reverse() ?? [],
     [exception],
@@ -524,7 +526,7 @@ const ExceptionStacktrace = ({ exception }: { exception: ExceptionValue }) => {
         }}
         fallbackRender={() => (
           <div className="text-danger px-2 py-1 m-2 fs-7 font-monospace bg-danger-transparent p-4">
-            An error occurred while rendering stacktrace
+            {t('exception.renderError')}
           </div>
         )}
       >
@@ -546,12 +548,15 @@ const ExceptionStacktrace = ({ exception }: { exception: ExceptionValue }) => {
         >
           {stacktraceExpanded ? (
             <>
-              <IconChevronUp size={14} className="me-2" /> Hide stack trace
+              <IconChevronUp size={14} className="me-2" />{' '}
+              {t('exception.hideStack')}
             </>
           ) : (
             <>
               <IconChevronDown size={14} className="me-2" />
-              Show {stacktraceHiddenRowsCount} more frames
+              {t('exception.showMoreFrames', {
+                count: stacktraceHiddenRowsCount,
+              })}
             </>
           )}
         </Button>
@@ -567,6 +572,7 @@ const ExceptionValueSection = ({
   exception: ExceptionValue;
   isCause: boolean;
 }) => {
+  const { t } = useTranslation('search');
   const hasFrames = !!getFrames(exception)?.length;
 
   const unparsedStack =
@@ -614,11 +620,11 @@ const ExceptionValueSection = ({
           {open && exception.mechanism && (
             <div className="d-flex gap-2 flex-wrap pt-3">
               <StacktraceValue
-                label="mechanism"
+                label={t('exception.mechanism')}
                 value={exception.mechanism?.type}
               />
               <StacktraceValue
-                label="handled"
+                label={t('exception.handled')}
                 value={
                   exception.mechanism?.handled ? (
                     <span className="text-success">true</span>
@@ -630,19 +636,19 @@ const ExceptionValueSection = ({
 
               {exception.mechanism?.data?.function ? (
                 <StacktraceValue
-                  label="function"
+                  label={t('exception.function')}
                   value={exception.mechanism.data.function}
                 />
               ) : null}
               {exception.mechanism?.data?.handler ? (
                 <StacktraceValue
-                  label="handler"
+                  label={t('exception.handler')}
                   value={exception.mechanism.data.handler}
                 />
               ) : null}
               {exception.mechanism?.data?.target ? (
                 <StacktraceValue
-                  label="target"
+                  label={t('exception.target')}
                   value={exception.mechanism.data.target}
                 />
               ) : null}
@@ -677,7 +683,9 @@ export const ExceptionSubpanel = ({
   /** The thrown error first, then each error in its `cause` chain. */
   exceptionValues: ExceptionValue[];
 }) => {
+  const { t } = useTranslation('search');
   const firstException = exceptionValues[0];
+  const breadcrumbColumns = useMemo(() => getBreadcrumbColumns(t), [t]);
 
   const shouldShowSourceMapFtux = useMemo(() => {
     return (
@@ -721,7 +729,10 @@ export const ExceptionSubpanel = ({
       {/* {shouldShowSourceMapFtux && <SourceMapsFtux />} */}
 
       {firstException?.rawStacktrace && (
-        <CollapsibleSection title="Raw stack trace" initiallyCollapsed>
+        <CollapsibleSection
+          title={t('exception.rawStackTrace')}
+          initiallyCollapsed
+        >
           <SectionWrapper>
             <CopySnippet snippet={firstException.rawStacktrace} />
           </SectionWrapper>
@@ -729,12 +740,12 @@ export const ExceptionSubpanel = ({
       )}
 
       {breadcrumbVisibleRows.length > 0 && (
-        <CollapsibleSection title="Breadcrumbs">
+        <CollapsibleSection title={t('exception.breadcrumbs')}>
           <SectionWrapper>
             <Table
               columns={breadcrumbColumns}
               data={breadcrumbVisibleRows}
-              emptyMessage="No breadcrumbs found"
+              emptyMessage={t('exception.noBreadcrumbs')}
             />
             {breadcrumbHiddenRowsCount ? (
               <Button
@@ -745,13 +756,15 @@ export const ExceptionSubpanel = ({
               >
                 {breadcrumbExpanded ? (
                   <>
-                    <IconChevronUp size={14} className="me-2" /> Hide
-                    breadcrumbs
+                    <IconChevronUp size={14} className="me-2" />{' '}
+                    {t('exception.hideBreadcrumbs')}
                   </>
                 ) : (
                   <>
                     <IconChevronDown size={14} className="me-2" />
-                    Show {breadcrumbHiddenRowsCount} more breadcrumbs
+                    {t('exception.showMoreBreadcrumbs', {
+                      count: breadcrumbHiddenRowsCount,
+                    })}
                   </>
                 )}
               </Button>

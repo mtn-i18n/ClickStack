@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { useTranslation } from 'next-i18next/pages';
 import { Control, Controller } from 'react-hook-form';
 import { WebhookService } from '@hyperdx/common-utils/dist/types';
 import { ComboboxData, Group, Select } from '@mantine/core';
@@ -27,6 +28,7 @@ export const WebhookChannelForm = ({
   /** Webhooks already chosen by the alert's other channels. */
   takenWebhookIds?: string[];
 }) => {
+  const { t } = useTranslation('alerts');
   const { data: webhooks } = api.useWebhooks([
     WebhookService.Slack,
     WebhookService.Generic,
@@ -50,12 +52,12 @@ export const WebhookChannelForm = ({
     return [
       {
         value: '',
-        label: 'Select a Webhook',
+        label: t('selectAWebhook'),
         disabled: true,
       },
       ...webhookOptions,
     ];
-  }, [webhooks, takenWebhookIds]);
+  }, [webhooks, takenWebhookIds, t]);
 
   // Which destination a webhook posts to matters when picking one, and the
   // name alone doesn't say. Keyed by id so the option renderer can look it up.
@@ -81,7 +83,7 @@ export const WebhookChannelForm = ({
           size="xs"
           flex={1}
           placeholder={
-            hasWebhooks ? 'Select a Webhook' : 'No Webhooks available'
+            hasWebhooks ? t('selectAWebhook') : t('noWebhooksAvailable')
           }
           data={options}
           leftSection={

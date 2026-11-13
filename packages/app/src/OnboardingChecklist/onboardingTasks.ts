@@ -19,23 +19,23 @@ export const PRODUCT_TASKS: Record<
   { title: string; description: string; href: string }
 > = {
   advancedQuery: {
-    title: 'Explore your data',
-    description: 'Run a search with a filter or query condition',
+    title: 'onboarding.tasks.advancedQuery.title',
+    description: 'onboarding.tasks.advancedQuery.description',
     href: '/search',
   },
   dashboard: {
-    title: 'Build a dashboard',
-    description: 'Add a chart tile to a dashboard',
+    title: 'onboarding.tasks.dashboard.title',
+    description: 'onboarding.tasks.dashboard.description',
     href: '/dashboards',
   },
   alert: {
-    title: 'Set up an alert',
-    description: 'Get notified when something looks off',
+    title: 'onboarding.tasks.alert.title',
+    description: 'onboarding.tasks.alert.description',
     href: '/alerts',
   },
   mcp: {
-    title: 'Connect the MCP server',
-    description: 'Query your data from an AI agent',
+    title: 'onboarding.tasks.mcp.title',
+    description: 'onboarding.tasks.mcp.description',
     // /team alone lands on the Data tab (TeamPage falls back to tabs[0]).
     href: '/team?tab=api-agents#team-api-agents-mcp-server',
   },

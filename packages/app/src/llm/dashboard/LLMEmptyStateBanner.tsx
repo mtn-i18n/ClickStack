@@ -1,3 +1,4 @@
+import { useTranslation } from 'next-i18next/pages';
 import { Alert } from '@mantine/core';
 
 import { useQueriedChartConfig } from '@/hooks/useChartConfig';
@@ -11,6 +12,7 @@ import { LLMChartProps } from './types';
  * a page of empty charts.
  */
 export function LLMEmptyStateBanner(props: LLMChartProps) {
+  const { t } = useTranslation('llm');
   const config = {
     // Plain span count; skip the cost-alias WITH binding to keep it small.
     ...baseLLMChartConfig({ ...props, withCostAlias: false }),
@@ -28,12 +30,8 @@ export function LLMEmptyStateBanner(props: LLMChartProps) {
   }
 
   return (
-    <Alert variant="info" title="No LLM spans found" mb="sm">
-      No spans with LLM instrumentation were found in the selected time range.
-      This dashboard works with traces emitted by OpenTelemetry GenAI semantic
-      conventions, OpenLLMetry, OpenInference, or the Vercel AI SDK — point that
-      instrumentation at your existing OTLP endpoint and LLM calls will show up
-      here automatically.
+    <Alert variant="info" title={t('emptyState.title')} mb="sm">
+      {t('emptyState.description')}
     </Alert>
   );
 }

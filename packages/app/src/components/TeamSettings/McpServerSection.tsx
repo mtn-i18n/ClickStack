@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { useTranslation } from 'next-i18next/pages';
 import { Separator } from '@clickhouse/click-ui';
 import { Box, Card, Text } from '@mantine/core';
 
@@ -29,6 +30,7 @@ import McpInstallPanel from '@/components/ClickStackOnboarding/McpInstallPanel';
  * with an empty bearer.
  */
 export default function McpServerSection() {
+  const { t } = useTranslation('settings');
   const { data: me, isLoading: isLoadingMe } = api.useMe();
 
   const deployment = useMemo<DeploymentShape | null>(() => {
@@ -45,7 +47,7 @@ export default function McpServerSection() {
 
   return (
     <Box id="mcp_server" data-testid="mcp-server-section">
-      <Text size="md">Connect your AI Agents</Text>
+      <Text size="md">{t('mcp.title')}</Text>
       <Separator size="lg" />
       <Card>
         <McpInstallPanel deployment={deployment} />

@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'next-i18next/pages';
 import { Control, UseFormSetValue, useWatch } from 'react-hook-form';
 import {
   TableConnection,
@@ -142,6 +143,7 @@ export default function RawSqlChartEditor({
   dashboardId?: string;
   variables?: ChartVariable[];
 }) {
+  const { t } = useTranslation('dashboards');
   const { size, startResize } = useResizable(20, 'bottom');
 
   const { data: sources } = useSources();
@@ -254,8 +256,8 @@ export default function RawSqlChartEditor({
 
   const alertTooltip =
     displayType === DisplayType.Number
-      ? 'The threshold will be evaluated against the last numeric column in the first query result'
-      : 'The threshold will be evaluated against the last numeric column in each query result';
+      ? t('chartEditor.alertThresholdNumber')
+      : t('chartEditor.alertThresholdOther');
 
   const showAlertButton =
     alert != null ||
@@ -268,7 +270,7 @@ export default function RawSqlChartEditor({
       <Group align="center" gap={0} justify="space-between">
         <Group align="center" gap={0}>
           <Text pe="md" size="sm">
-            Connection
+            {t('chartEditor.connection')}
           </Text>
           <ConnectionSelectControlled
             control={control}
@@ -277,13 +279,10 @@ export default function RawSqlChartEditor({
           />
           <Group align="center" gap={8} mx="md">
             <Text size="sm" ps="md">
-              Source
+              {t('chartEditor.source')}
             </Text>
             {isDashboardForm && (
-              <Tooltip
-                label="Optional. Required to apply dashboard filters to this chart."
-                pe="md"
-              >
+              <Tooltip label={t('chartEditor.sourceOptionalTooltip')} pe="md">
                 <IconHelpCircle size={14} className="cursor-pointer" />
               </Tooltip>
             )}
@@ -296,7 +295,7 @@ export default function RawSqlChartEditor({
             connectionId={connection}
             size="xs"
             clearable
-            placeholder="None"
+            placeholder={t('chartEditor.none')}
             onSchemaPreview={() => setIsSourceSchemaPreviewOpen(true)}
             isSchemaPreviewEnabled={isSourceSchemaPreviewEnabled(sourceObject)}
           />
@@ -334,7 +333,7 @@ export default function RawSqlChartEditor({
               size="compact-sm"
               variant="secondary"
             >
-              Display Settings
+              {t('chartEditor.displaySettings')}
             </Button>
           </Group>
         </Group>
@@ -364,10 +363,14 @@ export default function RawSqlChartEditor({
         >
           <List size="xs" spacing={2}>
             {chartErrors.map(message => (
-              <List.Item key={message}>Error: {message}</List.Item>
+              <List.Item key={message}>
+                {t('chartEditor.listError', { message })}
+              </List.Item>
             ))}
             {chartWarnings.map(message => (
-              <List.Item key={message}>Warning: {message}</List.Item>
+              <List.Item key={message}>
+                {t('chartEditor.listWarning', { message })}
+              </List.Item>
             ))}
           </List>
         </Alert>

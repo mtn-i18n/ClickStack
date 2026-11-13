@@ -1,3 +1,4 @@
+import { i18n } from 'next-i18next/pages';
 import z from 'zod';
 import {
   TableConnection,
@@ -64,6 +65,15 @@ import {
   extendDateRangeToInterval,
   intervalToGranularity,
 } from '@/utils/alerts';
+
+// Runs outside React, so read the shared i18n instance; unit tests that never
+// boot i18n keep the English fallback.
+const t = (
+  key: string,
+  fallback: string,
+  values?: Record<string, string | number>,
+) =>
+  i18n?.isInitialized ? i18n.t(key, { ns: 'dashboards', ...values }) : fallback;
 
 export const isQueryReady = (
   queriedConfig: ChartConfigWithDateRange | undefined,
@@ -351,8 +361,15 @@ export function buildRenderedPromqlExpression(
     return {
       error:
         e instanceof Error
-          ? `Expression could not be expanded: ${e.message}`
-          : 'Expression could not be expanded.',
+          ? t(
+              'chartEditor.validation.expressionCouldNotBeExpanded',
+              `Expression could not be expanded: ${e.message}`,
+              { message: e.message },
+            )
+          : t(
+              'chartEditor.validation.expressionCouldNotBeExpandedNoDetail',
+              'Expression could not be expanded.',
+            ),
     };
   }
 }

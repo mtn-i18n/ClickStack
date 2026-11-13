@@ -12,7 +12,7 @@ import { NumberFormat } from '@/types';
 // metric name is `${fieldPrefix}${field}` (see DBInfraPanel), so `field` is
 // the metric name without the resource prefix.
 export type InfraChartSpec = {
-  readonly title: string;
+  readonly titleKey: string;
   // data-testid for the chart card; the e2e suite selects on these.
   readonly cardTestId: string;
   readonly field: string;
@@ -30,7 +30,9 @@ export type InfraChartSpec = {
 // detect on one attribute and correlate on another can be added as data rather
 // than new code paths.
 export type InfraCorrelation = {
+  /** Stable identity for built-ins; also the fallback display label. */
   readonly title: string;
+  readonly titleKey?: string;
   readonly detectAttribute: string;
   readonly correlateAttribute: string;
   // Metric field prefix, e.g. "k8s.pod.".
@@ -49,19 +51,19 @@ export type InfraCorrelation = {
 // correlate filter differ, so the specs are shared.
 const K8S_CHART_SPECS: readonly InfraChartSpec[] = [
   {
-    title: 'CPU Usage (%)',
+    titleKey: 'charts:infra.cpuUsagePercent',
     cardTestId: 'cpu-usage-card',
     field: 'cpu.utilization',
     numberFormat: K8S_CPU_PERCENTAGE_NUMBER_FORMAT,
   },
   {
-    title: 'Memory Used',
+    titleKey: 'charts:infra.memoryUsed',
     cardTestId: 'memory-usage-card',
     field: 'memory.usage',
     numberFormat: K8S_MEM_NUMBER_FORMAT,
   },
   {
-    title: 'Disk Available',
+    titleKey: 'charts:infra.diskAvailable',
     cardTestId: 'disk-usage-card',
     field: 'filesystem.available',
     numberFormat: K8S_FILESYSTEM_NUMBER_FORMAT,
@@ -87,14 +89,14 @@ const GPU_TASK_GROUP_BY_EXPR = `if(Attributes['hw.gpu.task'] != '', Attributes['
 
 const GPU_CHART_SPECS: readonly InfraChartSpec[] = [
   {
-    title: 'GPU utilization',
+    titleKey: 'charts:infra.gpuUtilization',
     cardTestId: 'gpu-utilization-card',
     field: 'utilization',
     numberFormat: GPU_UTILIZATION_NUMBER_FORMAT,
     groupBy: [GPU_GROUP_BY_EXPR, GPU_TASK_GROUP_BY_EXPR],
   },
   {
-    title: 'GPU memory utilization',
+    titleKey: 'charts:infra.gpuMemoryUtilization',
     cardTestId: 'gpu-memory-utilization-card',
     field: 'memory.utilization',
     numberFormat: GPU_UTILIZATION_NUMBER_FORMAT,
@@ -115,6 +117,7 @@ export const INFRA_CORRELATIONS: readonly InfraCorrelation[] = [
   },
   {
     title: 'Node',
+    titleKey: 'charts:infra.node',
     detectAttribute: 'k8s.node.name',
     correlateAttribute: 'k8s.node.name',
     fieldPrefix: 'k8s.node.',

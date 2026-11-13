@@ -1,4 +1,6 @@
 import { useMemo, useState } from 'react';
+import { useTranslation } from 'next-i18next/pages';
+import { Trans } from 'react-i18next';
 import { Badge, Separator } from '@clickhouse/click-ui';
 import {
   buildImportFile,
@@ -134,6 +136,7 @@ export default function IacMigrationSection({
   /** False while the containing tab is not the visible one — see the hook. */
   active?: boolean;
 }) {
+  const { t } = useTranslation('settings');
   const {
     data: manifest,
     isLoading,
@@ -229,18 +232,19 @@ export default function IacMigrationSection({
   return (
     <Box id="iac_migration" data-testid="iac-migration-section">
       <Group gap="xs">
-        <Text size="md">Export to Terraform</Text>
-        <Badge size="sm" text="Experimental" state="info" />
+        <Text size="md">{t('iac.title')}</Text>
+        <Badge size="sm" text={t('iac.experimental')} state="info" />
       </Group>
       <Separator size="lg" />
       <Card>
         <Text size="sm" style={{ color: 'var(--color-text-muted)' }} mb="md">
-          Download a Terraform import file for this team&apos;s resources. Add
-          it to your Terraform project, then run{' '}
-          <Text span ff="monospace" size="xs">
-            terraform plan -generate-config-out=generated.tf
-          </Text>{' '}
-          to generate resource configuration using the ClickHouse provider.
+          <Trans
+            ns="settings"
+            i18nKey="iac.description"
+            components={{
+              code: <Text span ff="monospace" size="xs" />,
+            }}
+          />
         </Text>
         <Stack gap="xs" mb="md">
           {RESOURCE_TYPE_ORDER.map(type => {
@@ -250,9 +254,7 @@ export default function IacMigrationSection({
                 key={type}
                 label={`${opt.label} (${manifest?.[opt.key]?.length ?? 0})`}
                 description={
-                  type === 'connection'
-                    ? 'Exported as reference-only locals — connections are platform-managed on ClickHouse Cloud'
-                    : undefined
+                  type === 'connection' ? t('iac.connectionLocals') : undefined
                 }
                 checked={selected.includes(type)}
                 onChange={e => {
@@ -268,9 +270,8 @@ export default function IacMigrationSection({
         {/* Without this, a failed fetch is indistinguishable from a team that
             genuinely has nothing to export — every count reads "(0)". */}
         {isError && (
-          <Alert variant="danger" title="Couldn't load resources" mb="sm">
-            The list of exportable resources failed to load, so the counts above
-            are not accurate. Reload the page to try again.
+          <Alert variant="danger" title={t('iac.loadErrorTitle')} mb="sm">
+            {t('iac.loadErrorBody')}
           </Alert>
         )}
         {/* The endpoint caps each listing, so a very large team gets a partial
@@ -280,18 +281,18 @@ export default function IacMigrationSection({
             manifest has no paging, so a second export returns the same page.
             */}
         {truncatedSelected.length > 0 && (
-          <Alert variant="warning" title="Not everything is listed" mb="sm">
-            This team has more than {IAC_MANIFEST_LIMIT.toLocaleString()} of
-            each of: {truncatedSelected.join(', ')}. Only the first{' '}
-            {IAC_MANIFEST_LIMIT.toLocaleString()} of each are in this file.
+          <Alert variant="warning" title={t('iac.truncatedTitle')} mb="sm">
+            {t('iac.truncatedBody', {
+              limit: IAC_MANIFEST_LIMIT.toLocaleString(),
+              types: truncatedSelected.join(', '),
+            })}
           </Alert>
         )}
         {/* Surfaced rather than silently dropped: a user who expects 12
             dashboards and gets 10 needs to know why. */}
         {downloadError && (
-          <Alert variant="danger" title="Couldn't build the file" mb="sm">
-            Something went wrong generating the import file. Nothing was
-            downloaded. Reload the page and try again.
+          <Alert variant="danger" title={t('iac.downloadErrorTitle')} mb="sm">
+            {t('iac.downloadErrorBody')}
           </Alert>
         )}
         {skipNotices.map(({ key, text }) => (
@@ -317,7 +318,7 @@ export default function IacMigrationSection({
           }
           data-testid="iac-download-button"
         >
-          Download import file
+          {t('iac.download')}
         </Button>
       </Card>
     </Box>

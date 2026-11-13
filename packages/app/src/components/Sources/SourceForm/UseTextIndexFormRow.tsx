@@ -1,9 +1,9 @@
+import { useTranslation } from 'next-i18next/pages';
 import { Control } from 'react-hook-form';
-import { TSource } from '@hyperdx/common-utils/dist/types';
+import { TSource, UseTextIndex } from '@hyperdx/common-utils/dist/types';
 
 import SelectControlled from '@/components/SelectControlled';
 
-import { USE_TEXT_INDEX_OPTIONS } from './constants';
 import { FormRow } from './FormRow';
 
 export function UseTextIndexFormRow({
@@ -11,16 +11,32 @@ export function UseTextIndexFormRow({
 }: {
   control: Control<TSource>;
 }) {
+  const { t } = useTranslation('settings');
+  const options = [
+    {
+      value: UseTextIndex.Auto,
+      label: t('sourceForm.useTextIndex.auto'),
+    },
+    {
+      value: UseTextIndex.Enabled,
+      label: t('sourceForm.useTextIndex.forceEnable'),
+    },
+    {
+      value: UseTextIndex.Disabled,
+      label: t('sourceForm.useTextIndex.forceDisable'),
+    },
+  ];
+
   return (
     <FormRow
-      label="Use Text Index"
-      helpText='Whether Lucene-based searches should emit hasAllTokens() when searching the implicit column. "Auto" (the default) detects a covering text index from skip-index metadata at query time; "Force enable" always emits hasAllTokens(), and is useful when querying a table using the merge table engine; "Force disable" falls back to hasToken().'
+      label={t('sourceForm.useTextIndex.label')}
+      helpText={t('sourceForm.useTextIndex.help')}
     >
       <SelectControlled
         control={control}
         name="useTextIndexForImplicitColumn"
-        data={USE_TEXT_INDEX_OPTIONS}
-        placeholder={USE_TEXT_INDEX_OPTIONS[0].label}
+        data={options}
+        placeholder={options[0].label}
         allowDeselect={false}
       />
     </FormRow>

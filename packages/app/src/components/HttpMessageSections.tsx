@@ -1,10 +1,10 @@
-import upperFirst from 'lodash/upperFirst';
+import { useTranslation } from 'next-i18next/pages';
 import type { ReactNode } from 'react';
 
 import { Table } from '@/components/Table';
 import {
   CollapsibleSection,
-  headerColumns,
+  getHeaderColumns,
   NetworkBody,
   SectionWrapper,
 } from '@/LogSidePanelElements';
@@ -45,12 +45,17 @@ export function HeaderSection({
   title: string;
   headers: HttpHeader[];
 }) {
+  const { t } = useTranslation('search');
+
   if (headers.length === 0) {
     return null;
   }
   return (
     <CollapsibleSection
-      title={`${title} (${headers.length})`}
+      title={t('http.headersTitleWithCount', {
+        title,
+        count: headers.length,
+      })}
       initiallyCollapsed
     >
       <SectionWrapper>
@@ -58,7 +63,7 @@ export function HeaderSection({
           borderless
           hideHeader
           density="compact"
-          columns={headerColumns}
+          columns={getHeaderColumns(t)}
           data={headers}
         />
       </SectionWrapper>
@@ -73,22 +78,34 @@ function BodySection({
   attributes: Attributes;
   direction: 'request' | 'response';
 }) {
+  const { t } = useTranslation('search');
   const body = getHttpBody(attributes, direction);
   if (body == null) {
     return null;
   }
-  const title = `${upperFirst(direction)} body`;
+  const title =
+    direction === 'request' ? t('http.requestBody') : t('http.responseBody');
   const truncation = getHttpBodyTruncation(attributes, direction);
   return (
     <CollapsibleSection
-      title={truncation ? `${title} (truncated: ${truncation})` : title}
+      title={
+        truncation ? t('http.bodyTruncated', { title, truncation }) : title
+      }
     >
       <SectionWrapper>
         <NetworkBody
           body={body}
           theme={JSON_TREE_THEME}
-          emptyMessage={`Empty ${direction}`}
-          notCollectedMessage={`No ${direction} body collected`}
+          emptyMessage={
+            direction === 'request'
+              ? t('http.emptyRequest')
+              : t('http.emptyResponse')
+          }
+          notCollectedMessage={
+            direction === 'request'
+              ? t('http.noRequestBody')
+              : t('http.noResponseBody')
+          }
         />
       </SectionWrapper>
     </CollapsibleSection>
@@ -106,19 +123,21 @@ export function HttpMessageSections({
   attributes: Attributes;
   children?: ReactNode;
 }) {
+  const { t } = useTranslation('search');
+
   return (
     // A block wrapper so the sections' margins collapse inside a flex Stack.
     <div>
       {children}
       <HeaderSection
-        title="Request headers"
+        title={t('http.requestHeaders')}
         headers={parseHttpHeaders(attributes, HTTP_REQUEST_HEADER_PREFIX).map(
           toHeaderDisplayCase,
         )}
       />
       <BodySection attributes={attributes} direction="request" />
       <HeaderSection
-        title="Response headers"
+        title={t('http.responseHeaders')}
         headers={parseHttpHeaders(attributes, HTTP_RESPONSE_HEADER_PREFIX).map(
           toHeaderDisplayCase,
         )}

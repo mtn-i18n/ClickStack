@@ -1,5 +1,6 @@
 import * as React from 'react';
 import Link from 'next/link';
+import { useTranslation } from 'next-i18next/pages';
 import ReactMarkdown from 'react-markdown';
 import { Badge } from '@clickhouse/click-ui';
 import { AlertSource } from '@hyperdx/common-utils/dist/types';
@@ -41,6 +42,7 @@ import styles from '@styles/AlertsPage.module.scss';
 const ACK_SLOT_WIDTH = 84;
 
 export function AlertNote({ note }: { note: string }) {
+  const { t } = useTranslation('alerts');
   const [opened, { toggle }] = useDisclosure(false);
 
   return (
@@ -56,7 +58,7 @@ export function AlertNote({ note }: { note: string }) {
           />
           <IconNote size={14} opacity={0.5} />
           <span className="fs-8" style={{ opacity: 0.6 }}>
-            Note
+            {t('note')}
           </span>
         </Group>
       </UnstyledButton>
@@ -95,6 +97,7 @@ export const AlertDetails = React.memo(function AlertDetails({
 }: {
   alert: AlertsPageItem;
 }) {
+  const { t } = useTranslation('alerts');
   const alertName = alert.displayName || '–';
 
   const alertUrl = React.useMemo(() => getAlertSourceUrl(alert), [alert]);
@@ -167,7 +170,7 @@ export const AlertDetails = React.memo(function AlertDetails({
                 data-testid={`alert-link-${alert._id}`}
                 href={nameHref}
                 className={styles.alertLink}
-                title={IS_ALERT_DETAILS_ENABLED ? 'Alert details' : linkTitle}
+                title={IS_ALERT_DETAILS_ENABLED ? t('alertDetails') : linkTitle}
               >
                 <Group gap={2}>
                   {alertIcon}
@@ -184,7 +187,9 @@ export const AlertDetails = React.memo(function AlertDetails({
           <AlertPropertiesSummary alert={alert} />
           {alert.createdBy && (
             <Text size="xs" c="dimmed" data-testid="alert-created-by">
-              Created by {alert.createdBy.name || alert.createdBy.email}
+              {t('createdBy', {
+                name: alert.createdBy.name || alert.createdBy.email,
+              })}
             </Text>
           )}
           {alert.tags?.length > 0 && (

@@ -1,3 +1,4 @@
+import { useTranslation } from 'next-i18next/pages';
 import {
   FieldErrors,
   UseFormHandleSubmit,
@@ -33,7 +34,7 @@ export function AlertPanelPrimaryAction({
   trigger,
   handleSubmit,
   handleSaveAlert,
-  saveAlertLabel = 'Save alert',
+  saveAlertLabel,
   isSavingAlert,
 }: {
   trigger: UseFormTrigger<ChartEditorFormState>;
@@ -42,6 +43,7 @@ export function AlertPanelPrimaryAction({
   saveAlertLabel?: string;
   isSavingAlert?: boolean;
 }) {
+  const { t } = useTranslation('dashboards');
   const alertPanel = useAlertPanel();
   const showAlertErrors = useShowAlertErrors();
 
@@ -56,7 +58,7 @@ export function AlertPanelPrimaryAction({
         onClick={handleSubmit(handleSaveAlert, showAlertErrors)}
         data-testid="chart-save-alert-button"
       >
-        {saveAlertLabel}
+        {saveAlertLabel ?? t('chartEditor.alert.saveAlert')}
       </Button>
     );
   }
@@ -75,7 +77,9 @@ export function AlertPanelPrimaryAction({
       }}
       data-testid="alert-panel-confirm-button"
     >
-      {alertPanel?.isDraft ? 'Add alert' : 'Update alert'}
+      {alertPanel?.isDraft
+        ? t('chartEditor.alert.addAlert')
+        : t('chartEditor.alert.updateAlert')}
     </Button>
   );
 }

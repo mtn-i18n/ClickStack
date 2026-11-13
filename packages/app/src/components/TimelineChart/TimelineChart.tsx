@@ -1,4 +1,5 @@
 import { memo, useEffect, useLayoutEffect, useMemo, useRef } from 'react';
+import { useTranslation } from 'next-i18next/pages';
 import cx from 'classnames';
 import { Flex, Text } from '@mantine/core';
 import { useVirtualizer } from '@tanstack/react-virtual';
@@ -86,6 +87,7 @@ const rowsMarginTop = 20;
 const maxScale = 100;
 
 export const TimelineChart = memo(function (props: TimelineChartProps) {
+  const { t } = useTranslation('charts');
   const {
     initialScrollRowIndex,
     labelWidth: initialLabelWidth,
@@ -445,7 +447,7 @@ export const TimelineChart = memo(function (props: TimelineChartProps) {
                 className={styles.xAxisTickLabel}
                 data-testid="timeline-zoom-hint"
               >
-                ⌘/Ctrl + scroll to zoom
+                {t('scrollToZoom')}
               </Text>
             </div>
 

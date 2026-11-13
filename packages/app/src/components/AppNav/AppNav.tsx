@@ -2,7 +2,9 @@ import { useCallback, useEffect, useMemo, useRef } from 'react';
 import Link from 'next/link';
 import Router, { useRouter } from 'next/router';
 import Script from 'next/script';
+import { useTranslation } from 'next-i18next/pages';
 import cx from 'classnames';
+import { Trans } from 'react-i18next';
 import { Badge } from '@clickhouse/click-ui';
 import { setAttributes, setUser } from '@clickhouse/clickstack-browser';
 import { SavedSearchListApiResponse } from '@hyperdx/common-utils/dist/types';
@@ -65,7 +67,7 @@ declare global {
 // Navigation link configuration
 type NavLinkConfig = {
   id: string;
-  label: string;
+  labelKey: string;
   href: string;
   icon: React.ReactNode;
   isBeta?: boolean;
@@ -78,26 +80,26 @@ const FULL_NAV_WIDTH = 250;
 const NAV_LINKS: NavLinkConfig[] = [
   {
     id: 'chart',
-    label: 'Chart explorer',
+    labelKey: 'chartExplorer',
     href: '/chart',
     icon: <IconChartDots size={16} />,
   },
   {
     id: 'alerts',
-    label: 'Alerts',
+    labelKey: 'alerts',
     href: '/alerts',
     icon: <IconBell size={16} />,
     cloudOnly: true,
   },
   {
     id: 'sessions',
-    label: 'Client sessions',
+    labelKey: 'clientSessions',
     href: '/sessions',
     icon: <IconDeviceLaptop size={16} />,
   },
   {
     id: 'service-map',
-    label: 'Service map',
+    labelKey: 'serviceMap',
     href: '/service-map',
     icon: <IconSitemap size={16} />,
     isBeta: true,
@@ -105,6 +107,7 @@ const NAV_LINKS: NavLinkConfig[] = [
 ];
 
 export default function AppNav({ fixed = false }: { fixed?: boolean }) {
+  const { t } = useTranslation('nav');
   const wordmark = useWordmark();
   const logomark = useLogomark({ size: 22 });
 
@@ -356,7 +359,7 @@ export default function AppNav({ fixed = false }: { fixed?: boolean }) {
         <button
           type="button"
           className={styles.navScrim}
-          aria-label="Close navigation"
+          aria-label={t('closeNavigation')}
           onClick={closeMobileNav}
         />
       )}
@@ -402,7 +405,9 @@ export default function AppNav({ fixed = false }: { fixed?: boolean }) {
                           size="sm"
                           text={timeZoneShortName}
                           state="neutral"
-                          title={`Showing time in ${timeZoneShortName}`}
+                          title={t('showingTimeIn', {
+                            timeZone: timeZoneShortName,
+                          })}
                         />
                       )
                     }
@@ -418,8 +423,8 @@ export default function AppNav({ fixed = false }: { fixed?: boolean }) {
               className={cx(styles.collapseButton, {
                 [styles.collapseButtonCollapsed]: isCollapsed,
               })}
-              title="Collapse/expand navigation"
-              aria-label="Collapse/expand navigation"
+              title={t('collapseExpandNavigation')}
+              aria-label={t('collapseExpandNavigation')}
               aria-expanded={!isCollapsed}
               data-autofocus={isMobileNavOpen ? true : undefined}
               onClick={() =>
@@ -456,7 +461,7 @@ export default function AppNav({ fixed = false }: { fixed?: boolean }) {
           <div style={{ width: navWidth }} className={styles.navLinks}>
             {/* Search */}
             <AppNavLink
-              label="Search"
+              label={t('search')}
               icon={<IconTable size={16} />}
               href="/search"
               isActive={pathname === '/search'}
@@ -464,7 +469,7 @@ export default function AppNav({ fixed = false }: { fixed?: boolean }) {
 
             {/* Saved Searches */}
             <AppNavLink
-              label="Saved searches"
+              label={t('savedSearches')}
               href="/search/list"
               icon={<IconDeviceFloppy size={16} />}
               isActive={isSavedSearchActive}
@@ -479,11 +484,19 @@ export default function AppNav({ fixed = false }: { fixed?: boolean }) {
                     favoritedSavedSearches.map(renderSavedSearchLink)
                   ) : favorites != null && savedSearches != null ? (
                     <Text size="xs" c="dimmed" pl="lg" pr="xs" py={4} lh={1.4}>
-                      No favorites. Star on{' '}
-                      <Anchor component={Link} href="/search/list" size="xs">
-                        Saved searches
-                      </Anchor>
-                      .
+                      <Trans
+                        ns="nav"
+                        i18nKey="noFavoritesSavedSearches"
+                        components={{
+                          link: (
+                            <Anchor
+                              component={Link}
+                              href="/search/list"
+                              size="xs"
+                            />
+                          ),
+                        }}
+                      />
                     </Text>
                   ) : null}
                 </div>
@@ -494,7 +507,7 @@ export default function AppNav({ fixed = false }: { fixed?: boolean }) {
               link => (
                 <AppNavLink
                   key={link.id}
-                  label={link.label}
+                  label={t(link.labelKey)}
                   href={link.href}
                   icon={link.icon}
                   isBeta={link.isBeta}
@@ -504,7 +517,7 @@ export default function AppNav({ fixed = false }: { fixed?: boolean }) {
 
             {/* Dashboards */}
             <AppNavLink
-              label="Dashboards"
+              label={t('dashboards')}
               href="/dashboards/list"
               icon={<IconLayoutGrid size={16} />}
               isActive={isDashboardsActive}
@@ -519,15 +532,19 @@ export default function AppNav({ fixed = false }: { fixed?: boolean }) {
                     favoritedDashboards.map(renderDashboardLink)
                   ) : favorites != null && dashboards != null ? (
                     <Text size="xs" c="dimmed" pl="lg" pr="xs" py={4} lh={1.4}>
-                      No favorites. Star on{' '}
-                      <Anchor
-                        component={Link}
-                        href="/dashboards/list"
-                        size="xs"
-                      >
-                        Dashboards
-                      </Anchor>
-                      .
+                      <Trans
+                        ns="nav"
+                        i18nKey="noFavoritesDashboards"
+                        components={{
+                          link: (
+                            <Anchor
+                              component={Link}
+                              href="/dashboards/list"
+                              size="xs"
+                            />
+                          ),
+                        }}
+                      />
                     </Text>
                   ) : null}
                 </div>
@@ -546,7 +563,7 @@ export default function AppNav({ fixed = false }: { fixed?: boolean }) {
             {/* Team Settings (Cloud only) */}
             {!IS_LOCAL_MODE && (
               <AppNavLink
-                label="Team settings"
+                label={t('teamSettings')}
                 href="/team"
                 icon={<IconSettings size={16} />}
               />
@@ -576,7 +593,7 @@ export default function AppNav({ fixed = false }: { fixed?: boolean }) {
               }}
             >
               <Text size="xs" c="dimmed">
-                Join us & build the future of high scale observability &rarr;
+                {t('joinUsBuildFuture')}
               </Text>
             </Link>
           )}

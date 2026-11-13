@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { useTranslation } from 'next-i18next/pages';
 import {
   ArrayPath,
   Control,
@@ -47,6 +48,7 @@ export const AlertChannelForm = <T extends FieldValues>({
   /** Path of the alert's channels array, e.g. "channels" or "alert.channels". */
   channelsName: ArrayPath<T> & Path<T>;
 }) => {
+  const { t } = useTranslation('alerts');
   const { fields, append, remove, update } = useFieldArray<T>({
     control,
     name: channelsName,
@@ -107,7 +109,7 @@ export const AlertChannelForm = <T extends FieldValues>({
             {fields.length > 1 && (
               <ActionIcon
                 data-testid="remove-webhook-channel-button"
-                aria-label="Remove notification channel"
+                aria-label={t('removeNotificationChannel')}
                 size="md"
                 variant="danger"
                 onClick={() => remove(index)}
@@ -128,7 +130,7 @@ export const AlertChannelForm = <T extends FieldValues>({
           disabled={fields.length >= MAX_ALERT_CHANNELS}
           onClick={() => append(newChannel())}
         >
-          Add another channel
+          {t('addAnotherChannel')}
         </Button>
         <Button
           data-testid="add-new-webhook-button"
@@ -138,11 +140,11 @@ export const AlertChannelForm = <T extends FieldValues>({
           leftSection={<IconWebhook size={14} />}
           onClick={open}
         >
-          Add New Incoming Webhook
+          {t('addNewIncomingWebhook')}
         </Button>
         {fields.length >= MAX_ALERT_CHANNELS && (
           <Text size="xs" opacity={0.5}>
-            Limit of {MAX_ALERT_CHANNELS} channels reached
+            {t('channelLimitReached', { count: MAX_ALERT_CHANNELS })}
           </Text>
         )}
       </Group>
@@ -151,7 +153,7 @@ export const AlertChannelForm = <T extends FieldValues>({
         data-testid="alert-modal"
         opened={opened}
         onClose={close}
-        title="Add New Webhook"
+        title={t('addNewWebhook')}
         centered
         zIndex={9999}
         size="lg"
@@ -166,11 +168,13 @@ export const getAlertReferenceLines = ({
   thresholdType,
   threshold,
   thresholdMax,
+  thresholdLabel = 'Alert Threshold',
   // TODO: zScore
 }: {
   thresholdType: AlertThresholdType;
   threshold: number;
   thresholdMax?: number;
+  thresholdLabel?: string;
 }) => {
   if (threshold == null) {
     return null;
@@ -245,7 +249,7 @@ export const getAlertReferenceLines = ({
       y={threshold}
       label={
         <Label
-          value="Alert Threshold"
+          value={thresholdLabel}
           fill={'white'}
           fontSize={11}
           opacity={0.7}

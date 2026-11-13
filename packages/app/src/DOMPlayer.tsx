@@ -7,6 +7,7 @@ import {
   useRef,
   useState,
 } from 'react';
+import { useTranslation } from 'next-i18next/pages';
 import cx from 'classnames';
 import throttle from 'lodash/throttle';
 import { useHotkeys } from 'react-hotkeys-hook';
@@ -137,6 +138,7 @@ export default function DOMPlayer({
   getSessionSourceFieldExpression: FieldExpressionGenerator;
 }) {
   const debug = useDebugMode();
+  const { t } = useTranslation('sessions');
   const wrapperRef = useRef<HTMLDivElement>(null);
   const playerContainerRef = useRef<HTMLDivElement>(null);
   const replayerRef = useRef<Replayer | null>(null);
@@ -584,7 +586,7 @@ export default function DOMPlayer({
               <URLHoverCard url={lastHref} />
               <ActionIcon
                 onClick={copy}
-                title="Copy URL"
+                title={t('copyUrl')}
                 variant="secondary"
                 size="sm"
               >
@@ -595,9 +597,7 @@ export default function DOMPlayer({
         </CopyButton>
         {droppedEventCount > 0 && (
           <Tooltip
-            label={`${droppedEventCount} replay ${
-              droppedEventCount === 1 ? 'event' : 'events'
-            } could not be decoded — replay may be incomplete`}
+            label={t('droppedEvents', { count: droppedEventCount })}
             withArrow
           >
             <IconAlertTriangle
@@ -613,13 +613,10 @@ export default function DOMPlayer({
         {isLoading || isBuffering ? (
           <Group align="center" justify="center" gap="xs">
             <IconRefresh className="spin-animate" size={14} />
-            {isBuffering ? 'Buffering to time...' : 'Loading replay...'}
+            {isBuffering ? t('bufferingToTime') : t('loadingReplay')}
           </Group>
         ) : isReplayFullyLoaded && replayerRef.current == null ? (
-          <div className="text-center">
-            No replay available for this session, most likely due to this
-            session starting and ending in a background tab.
-          </div>
+          <div className="text-center">{t('noReplayAvailable')}</div>
         ) : null}
         <div
           ref={wrapperRef}

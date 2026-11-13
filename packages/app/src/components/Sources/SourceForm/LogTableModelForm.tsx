@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'next-i18next/pages';
 import { useWatch } from 'react-hook-form';
 import { Separator } from '@clickhouse/click-ui';
 import { SourceKind } from '@hyperdx/common-utils/dist/types';
@@ -10,13 +11,7 @@ import { SourceSelectControlled } from '@/components/SourceSelect';
 import { SQLInlineEditorControlled } from '@/components/SQLEditor/SQLInlineEditor';
 import { useColumns } from '@/hooks/useMetadata';
 
-import {
-  DEFAULT_DATABASE,
-  EVENT_NAME_EXPRESSION_HELP_TEXT,
-  KNOWN_COLUMNS_EXPRESSION_HELP_TEXT,
-  SERVICE_VERSION_EXPRESSION_HELP_TEXT,
-  SEVERITY_NUMBER_EXPRESSION_HELP_TEXT,
-} from './constants';
+import { DEFAULT_DATABASE } from './constants';
 import { ExpressionFormRow } from './ExpressionFormRow';
 import { FormRow } from './FormRow';
 import { HighlightedAttributeExpressionsFormRow } from './HighlightedAttributes';
@@ -29,6 +24,7 @@ import { TableModelProps } from './types';
 import { UseTextIndexFormRow } from './UseTextIndexFormRow';
 
 export function LogTableModelForm(props: TableModelProps) {
+  const { t } = useTranslation('settings');
   const { control, setValue } = props;
   const brandName = useBrandDisplayName();
   const databaseName = useWatch({
@@ -52,8 +48,8 @@ export function LogTableModelForm(props: TableModelProps) {
     <>
       <Stack gap="sm">
         <FormRow
-          label={'Timestamp Column'}
-          helpText="DateTime column or expression that is part of your table's primary key."
+          label={t('sourceForm.fields.timestampColumn')}
+          helpText={t('sourceForm.helpTexts.timestampColumn')}
         >
           <SQLInlineEditorControlled
             tableConnection={{
@@ -67,8 +63,8 @@ export function LogTableModelForm(props: TableModelProps) {
           />
         </FormRow>
         <FormRow
-          label={'Default Select'}
-          helpText="Default columns selected in search results (this can be customized per search later)"
+          label={t('sourceForm.fields.defaultSelect')}
+          helpText={t('sourceForm.helpTexts.defaultSelect')}
         >
           <SQLInlineEditorControlled
             tableConnection={{
@@ -90,7 +86,7 @@ export function LogTableModelForm(props: TableModelProps) {
             >
               <Group gap="xs">
                 <IconSettings size={14} />
-                Configure Optional Fields
+                {t('sourceForm.configureOptionalFields')}
               </Group>
             </Anchor>
           )}
@@ -100,7 +96,7 @@ export function LogTableModelForm(props: TableModelProps) {
               size="xs"
               variant="subtle"
             >
-              Hide Optional Fields
+              {t('sourceForm.hideOptionalFields')}
             </Button>
           )}
         </Box>
@@ -116,7 +112,7 @@ export function LogTableModelForm(props: TableModelProps) {
           control={control}
           setValue={setValue}
           name="serviceNameExpression"
-          label="Service Name Expression"
+          label={t('sourceForm.fields.serviceNameExpression')}
           placeholder="ServiceName"
           columns={columns}
           sourceKind={SourceKind.Log}
@@ -126,9 +122,9 @@ export function LogTableModelForm(props: TableModelProps) {
           control={control}
           setValue={setValue}
           name="serviceVersionExpression"
-          label="Service Version Expression"
+          label={t('sourceForm.fields.serviceVersionExpression')}
           placeholder="ResourceAttributes['service.version']"
-          helpText={SERVICE_VERSION_EXPRESSION_HELP_TEXT}
+          helpText={t('sourceForm.helpTexts.serviceVersion')}
           columns={columns}
           sourceKind={SourceKind.Log}
           tableConnection={tableConnection}
@@ -137,7 +133,7 @@ export function LogTableModelForm(props: TableModelProps) {
           control={control}
           setValue={setValue}
           name="severityTextExpression"
-          label="Log Level Expression"
+          label={t('sourceForm.fields.logLevelExpression')}
           placeholder="SeverityText"
           columns={columns}
           sourceKind={SourceKind.Log}
@@ -147,9 +143,9 @@ export function LogTableModelForm(props: TableModelProps) {
           control={control}
           setValue={setValue}
           name="severityNumberExpression"
-          label="Severity Number Expression"
+          label={t('sourceForm.fields.severityNumberExpression')}
           placeholder="SeverityNumber"
-          helpText={SEVERITY_NUMBER_EXPRESSION_HELP_TEXT}
+          helpText={t('sourceForm.helpTexts.severityNumber')}
           columns={columns}
           sourceKind={SourceKind.Log}
           tableConnection={tableConnection}
@@ -158,7 +154,7 @@ export function LogTableModelForm(props: TableModelProps) {
           control={control}
           setValue={setValue}
           name="bodyExpression"
-          label="Body Expression"
+          label={t('sourceForm.fields.bodyExpression')}
           placeholder="Body"
           columns={columns}
           sourceKind={SourceKind.Log}
@@ -168,9 +164,9 @@ export function LogTableModelForm(props: TableModelProps) {
           control={control}
           setValue={setValue}
           name="eventNameExpression"
-          label="Event Name Expression"
+          label={t('sourceForm.fields.eventNameExpression')}
           placeholder="EventName"
-          helpText={EVENT_NAME_EXPRESSION_HELP_TEXT}
+          helpText={t('sourceForm.helpTexts.eventName')}
           columns={columns}
           sourceKind={SourceKind.Log}
           tableConnection={tableConnection}
@@ -179,7 +175,7 @@ export function LogTableModelForm(props: TableModelProps) {
           control={control}
           setValue={setValue}
           name="eventAttributesExpression"
-          label="Log Attributes Expression"
+          label={t('sourceForm.fields.logAttributesExpression')}
           placeholder="LogAttributes"
           columns={columns}
           sourceKind={SourceKind.Log}
@@ -189,15 +185,15 @@ export function LogTableModelForm(props: TableModelProps) {
           control={control}
           setValue={setValue}
           name="resourceAttributesExpression"
-          label="Resource Attributes Expression"
+          label={t('sourceForm.fields.resourceAttributesExpression')}
           placeholder="ResourceAttributes"
           columns={columns}
           sourceKind={SourceKind.Log}
           tableConnection={tableConnection}
         />
         <FormRow
-          label={'Displayed Timestamp Column'}
-          helpText="This DateTime column is used to display and order search results."
+          label={t('sourceForm.fields.displayedTimestampColumn')}
+          helpText={t('sourceForm.helpTexts.displayedTimestamp')}
         >
           <SQLInlineEditorControlled
             tableConnection={{
@@ -212,14 +208,18 @@ export function LogTableModelForm(props: TableModelProps) {
         </FormRow>
         <Separator size="xs" />
         <FormRow
-          label={'Correlated Metric Source'}
-          helpText={`${brandName} Source for metrics associated with logs. Optional`}
+          label={t('sourceForm.fields.correlatedMetricSource')}
+          helpText={t('sourceForm.helpTexts.correlatedMetricSourceLogs', {
+            brandName,
+          })}
         >
           <SourceSelectControlled control={control} name="metricSourceId" />
         </FormRow>
         <FormRow
-          label={'Correlated Trace Source'}
-          helpText={`${brandName} Source for traces associated with logs. Optional`}
+          label={t('sourceForm.fields.correlatedTraceSource')}
+          helpText={t('sourceForm.helpTexts.correlatedTraceSourceLogs', {
+            brandName,
+          })}
         >
           <SourceSelectControlled control={control} name="traceSourceId" />
         </FormRow>
@@ -228,7 +228,7 @@ export function LogTableModelForm(props: TableModelProps) {
           control={control}
           setValue={setValue}
           name="traceIdExpression"
-          label="Trace Id Expression"
+          label={t('sourceForm.fields.traceIdExpression')}
           placeholder="TraceId"
           columns={columns}
           sourceKind={SourceKind.Log}
@@ -238,7 +238,7 @@ export function LogTableModelForm(props: TableModelProps) {
           control={control}
           setValue={setValue}
           name="spanIdExpression"
-          label="Span Id Expression"
+          label={t('sourceForm.fields.spanIdExpression')}
           placeholder="SpanId"
           columns={columns}
           sourceKind={SourceKind.Log}
@@ -262,16 +262,16 @@ export function LogTableModelForm(props: TableModelProps) {
           control={control}
           setValue={setValue}
           name="implicitColumnExpression"
-          label="Implicit Column Expression"
-          helpText="Column used for full text search if no property is specified in a Lucene-based search. Typically the message body of a log."
+          label={t('sourceForm.fields.implicitColumnExpression')}
+          helpText={t('sourceForm.helpTexts.implicitColumn')}
           placeholder="Body"
           columns={columns}
           sourceKind={SourceKind.Log}
           tableConnection={tableConnection}
         />
         <FormRow
-          label={'Known Columns List'}
-          helpText={KNOWN_COLUMNS_EXPRESSION_HELP_TEXT}
+          label={t('sourceForm.fields.knownColumnsList')}
+          helpText={t('sourceForm.helpTexts.knownColumns')}
         >
           <SQLInlineEditorControlled
             tableConnection={{
@@ -290,14 +290,14 @@ export function LogTableModelForm(props: TableModelProps) {
         <HighlightedAttributeExpressionsFormRow
           {...props}
           name="highlightedRowAttributeExpressions"
-          label="Highlighted Attributes"
-          helpText="Expressions defining row-level attributes which are displayed in the row side panel for the selected row."
+          label={t('sourceForm.fields.highlightedAttributes')}
+          helpText={t('sourceForm.helpTexts.highlightedRowAttributes')}
         />
         <HighlightedAttributeExpressionsFormRow
           {...props}
           name="highlightedTraceAttributeExpressions"
-          label="Highlighted Trace Attributes"
-          helpText="Expressions defining trace-level attributes which are displayed in the trace view for the selected trace."
+          label={t('sourceForm.fields.highlightedTraceAttributes')}
+          helpText={t('sourceForm.helpTexts.highlightedTraceAttributes')}
         />
         <Separator size="xs" />
         <MaterializedViewsFormSection {...props} />

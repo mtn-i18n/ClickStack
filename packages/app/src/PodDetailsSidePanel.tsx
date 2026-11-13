@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { useTranslation } from 'next-i18next/pages';
 import { parseAsString, useQueryState } from 'nuqs';
 import { tcFromSource } from '@hyperdx/common-utils/dist/core/metadata';
 import { convertDateRangeToGranularityString } from '@hyperdx/common-utils/dist/core/utils';
@@ -58,6 +59,7 @@ const PodDetails = ({
   logSource: TLogSource;
   podName: string;
 }) => {
+  const { t } = useTranslation('k8s');
   const { data: logsData } = useV2LogBatch<{
     'k8s.node.name': string;
     'k8s.pod.name': string;
@@ -109,15 +111,24 @@ const PodDetails = ({
   return (
     <Grid.Col span={12}>
       <div className="p-2 gap-2 d-flex flex-wrap">
-        <PodDetailsProperty label="Node" value={properties['k8s.node.name']} />
-        <PodDetailsProperty label="Pod" value={properties['k8s.pod.name']} />
-        <PodDetailsProperty label="Pod UID" value={properties['k8s.pod.uid']} />
         <PodDetailsProperty
-          label="Namespace"
+          label={t('node')}
+          value={properties['k8s.node.name']}
+        />
+        <PodDetailsProperty
+          label={t('pod')}
+          value={properties['k8s.pod.name']}
+        />
+        <PodDetailsProperty
+          label={t('podUid')}
+          value={properties['k8s.pod.uid']}
+        />
+        <PodDetailsProperty
+          label={t('namespace')}
           value={properties['k8s.namespace.name']}
         />
         <PodDetailsProperty
-          label="Deployment"
+          label={t('deployment')}
           value={properties['k8s.deployment.name']}
         />
       </div>
@@ -134,6 +145,7 @@ function PodLogs({
   logSource: TLogSource;
   where: string;
 }) {
+  const { t } = useTranslation('k8s');
   const [resultType, setResultType] = React.useState<'all' | 'error'>('all');
 
   const _where = where + (resultType === 'error' ? ' Severity:err' : '');
@@ -181,7 +193,7 @@ function PodLogs({
     <Card p="md">
       <Card.Section p="md" py="xs">
         <Flex justify="space-between" align="center">
-          Latest Pod Logs & Spans
+          {t('latestPodLogs')}
           <Flex gap="xs" align="center">
             <SegmentedControl
               size="xs"
@@ -192,8 +204,8 @@ function PodLogs({
                 }
               }}
               data={[
-                { label: 'All', value: 'all' },
-                { label: 'Errors', value: 'error' },
+                { label: t('all'), value: 'all' },
+                { label: t('errors'), value: 'error' },
               ]}
             />
           </Flex>
@@ -224,6 +236,7 @@ function PodDetailsSidePanelInner({
   podName: string;
   setPodName: (value: string | null) => void;
 }) {
+  const { t } = useTranslation('k8s');
   const [rowId, setRowId] = React.useState<string | null>(null);
   const [aliasWith] = React.useState<WithClause[]>([]);
   const handleCloseRowSidePanel = React.useCallback(() => {
@@ -340,7 +353,7 @@ function PodDetailsSidePanelInner({
         <IsolatedChartSyncProvider>
           <div className={styles.panel} data-testid="k8s-pod-details-panel">
             <DrawerHeader
-              header={`Details for ${podName}`}
+              header={t('detailsFor', { name: podName })}
               onClose={handleClose}
             />
             <DrawerBody>
@@ -354,7 +367,7 @@ function PodDetailsSidePanelInner({
                   <Card p="md" data-testid="pod-details-cpu-usage-chart">
                     <Card.Section p="md" py="sm" h={CHART_HEIGHT}>
                       <DBTimeChart
-                        title="CPU Usage by Pod"
+                        title={t('cpuUsageByPod')}
                         config={convertV1ChartConfigToV2(
                           {
                             dateRange,
@@ -386,7 +399,7 @@ function PodDetailsSidePanelInner({
                   <Card p="md" data-testid="pod-details-memory-usage-chart">
                     <Card.Section p="md" py="sm" h={CHART_HEIGHT}>
                       <DBTimeChart
-                        title="Memory Usage"
+                        title={t('memoryUsage')}
                         config={convertV1ChartConfigToV2(
                           {
                             dateRange,
@@ -417,7 +430,7 @@ function PodDetailsSidePanelInner({
                 <Grid.Col span={12}>
                   <Card p="md">
                     <Card.Section p="md" py="xs">
-                      Latest Pod Events
+                      {t('latestPodEvents')}
                     </Card.Section>
                     <Card.Section>
                       <ScrollArea

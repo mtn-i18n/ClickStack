@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { useTranslation } from 'next-i18next/pages';
 import SqlString from 'sqlstring';
 import { TTraceSource } from '@hyperdx/common-utils/dist/types';
 import { Loader, Stack, Text } from '@mantine/core';
@@ -27,6 +28,7 @@ export function SessionSpanDetail({
   row: SessionSpanListRow;
   dateRange: [Date, Date];
 }) {
+  const { t } = useTranslation('llm');
   const attributeField = source.eventAttributesExpression || 'SpanAttributes';
 
   const config = useMemo(
@@ -87,8 +89,7 @@ export function SessionSpanDetail({
         ))
       ) : (
         <Text size="xs" c="dimmed">
-          No captured messages on this span. Prompt and completion capture may
-          be disabled in the instrumentation.
+          {t('spanDetail.noMessages')}
         </Text>
       )}
     </Stack>

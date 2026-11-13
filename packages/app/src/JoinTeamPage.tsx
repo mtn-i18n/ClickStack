@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useRouter } from 'next/router';
+import { useTranslation } from 'next-i18next/pages';
 import { NextSeo } from 'next-seo';
 import {
   Button,
@@ -14,8 +15,11 @@ import { usePageTitle } from './brand';
 import { PasswordCheck } from './PasswordCheck';
 
 export default function JoinTeam() {
+  const { t } = useTranslation('auth');
+  const { t: tNav } = useTranslation('nav');
+  const { t: tSettings } = useTranslation('settings');
   const router = useRouter();
-  const title = usePageTitle('Join Team');
+  const title = usePageTitle(tNav('pages.joinTeam'));
   const { err, reason, token } = router.query;
   const [password, setPassword] = useState('');
 
@@ -35,7 +39,7 @@ export default function JoinTeam() {
       <div className="d-flex align-items-center justify-content-center vh-100 p-2">
         <div style={{ width: '26rem', maxWidth: '100%' }}>
           <div className="text-center mb-4">
-            <h2 className="me-2 text-center">Join Team</h2>
+            <h2 className="me-2 text-center">{t('joinTeam')}</h2>
           </div>
           <Paper p="xl" withBorder>
             <div className="text-center">
@@ -48,7 +52,7 @@ export default function JoinTeam() {
                   id="password"
                   name="password"
                   type="password"
-                  label="Password"
+                  label={t('password')}
                   value={password}
                   onChange={event => setPassword(event.currentTarget.value)}
                   styles={{
@@ -69,7 +73,7 @@ export default function JoinTeam() {
                   >
                     {err !== 'invalid' ? (
                       <Text c="red" mt="sm">
-                        Unknown error occurred, please try again later.
+                        {t('unexpectedError')}
                       </Text>
                     ) : invalidReasons.length > 1 ? (
                       <List c="red" size="sm" mt="sm" spacing={4}>
@@ -80,7 +84,7 @@ export default function JoinTeam() {
                     ) : (
                       <Text c="red" mt="sm">
                         {invalidReasons[0] ??
-                          'Password does not meet the requirements.'}
+                          tSettings('joinTeam.passwordRequired')}
                       </Text>
                     )}
                   </div>
@@ -92,7 +96,7 @@ export default function JoinTeam() {
                     type="submit"
                     data-test-id="submit"
                   >
-                    Setup a password
+                    {tSettings('joinTeam.setupPassword')}
                   </Button>
                 </div>
               </form>

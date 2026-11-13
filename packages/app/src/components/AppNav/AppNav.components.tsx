@@ -1,5 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
+import { useTranslation } from 'next-i18next/pages';
 import cx from 'classnames';
 import { Badge } from '@clickhouse/click-ui';
 import {
@@ -53,9 +54,10 @@ export const AppNavContext = React.createContext<{
 });
 
 export const AppNavCloudBanner = () => {
+  const { t } = useTranslation('nav');
   return (
     <div className="mt-3 mb-1 bg-muted rounded p-2 text-center">
-      <span className="fs-8">Ready to deploy on ClickHouse Cloud?</span>
+      <span className="fs-8">{t('cloudBanner')}</span>
       <div className="mt-2 mb-2">
         <Button
           variant="primary"
@@ -65,7 +67,7 @@ export const AppNavCloudBanner = () => {
           target="_blank"
           rel="noopener noreferrer"
         >
-          Get started for free
+          {t('getStartedFree')}
         </Button>
       </div>
     </div>
@@ -95,12 +97,13 @@ export const AppNavUserMenu = ({
   logoutUrl,
   onClickUserPreferences,
 }: AppNavUserMenuProps) => {
+  const { t } = useTranslation('nav');
   const { isCollapsed } = React.use(AppNavContext);
-  const resolvedUserName = userName.trim() || 'User';
+  const resolvedUserName = userName.trim() || t('user');
 
   const initials = getUserInitials(resolvedUserName);
 
-  const displayName = IS_LOCAL_MODE ? 'Local mode' : resolvedUserName;
+  const displayName = IS_LOCAL_MODE ? t('localMode') : resolvedUserName;
 
   return (
     <Menu position="top-start" transitionProps={{ transition: 'fade-up' }}>
@@ -152,7 +155,7 @@ export const AppNavUserMenu = ({
       </Menu.Target>
       <Menu.Dropdown>
         {IS_LOCAL_MODE ? (
-          <Menu.Label fz="xs">Local mode</Menu.Label>
+          <Menu.Label fz="xs">{t('localMode')}</Menu.Label>
         ) : (
           <Menu.Item
             data-testid="team-settings-menu-item"
@@ -160,7 +163,7 @@ export const AppNavUserMenu = ({
             component={Link}
             leftSection={<IconSettings size={16} />}
           >
-            Team settings
+            {t('teamSettings')}
           </Menu.Item>
         )}
         <Menu.Item
@@ -168,7 +171,7 @@ export const AppNavUserMenu = ({
           leftSection={<IconUserCog size={16} />}
           onClick={onClickUserPreferences}
         >
-          User preferences
+          {t('userPreferences')}
         </Menu.Item>
         {logoutUrl && (
           <>
@@ -186,7 +189,7 @@ export const AppNavUserMenu = ({
                 startNewSession();
               }}
             >
-              Logout
+              {t('logout')}
             </Menu.Item>
           </>
         )}
@@ -196,6 +199,7 @@ export const AppNavUserMenu = ({
 };
 
 const AppNavVersionItem = ({ version }: { version?: string }) => {
+  const { t } = useTranslation('nav');
   const [copied, setCopied] = React.useState(false);
 
   return (
@@ -216,7 +220,7 @@ const AppNavVersionItem = ({ version }: { version?: string }) => {
         }
       }}
     >
-      {copied ? 'Copied debug info' : 'Copy debug info'}
+      {copied ? t('copiedDebugInfo') : t('copyDebugInfo')}
     </Menu.Item>
   );
 };
@@ -230,6 +234,7 @@ export const AppNavHelpMenu = ({
   version?: string;
   whatsNewVersion?: string;
 }) => {
+  const { t } = useTranslation('nav');
   const { isCollapsed } = React.use(AppNavContext);
   const [
     shortcutsOpened,
@@ -273,12 +278,12 @@ export const AppNavHelpMenu = ({
               <span className={styles.navItemIcon}>
                 <HelpSparkle hasUnseen={hasUnseenWhatsNew} />
               </span>
-              {!isCollapsed && <span>Help</span>}
+              {!isCollapsed && <span>{t('help')}</span>}
             </span>
           </UnstyledButton>
         </Menu.Target>
         <Menu.Dropdown>
-          <Menu.Label>Help</Menu.Label>
+          <Menu.Label>{t('help')}</Menu.Label>
 
           <Menu.Item
             data-testid="documentation-menu-item"
@@ -288,7 +293,7 @@ export const AppNavHelpMenu = ({
             rel="noopener noreferrer"
             leftSection={<IconBook size={16} />}
           >
-            Documentation
+            {t('documentation')}
           </Menu.Item>
           <Menu.Item
             data-testid="setup-instructions-menu-item"
@@ -298,14 +303,14 @@ export const AppNavHelpMenu = ({
             target="_blank"
             rel="noopener noreferrer"
           >
-            Setup instructions
+            {t('setupInstructions')}
           </Menu.Item>
           <Menu.Item
             data-testid="keyboard-shortcuts-menu-item"
             leftSection={<IconKeyboard size={16} />}
             onClick={openShortcutsModal}
           >
-            Keyboard shortcuts
+            {t('keyboardShortcuts')}
           </Menu.Item>
           <Menu.Item
             data-testid="discord-menu-item"
@@ -315,7 +320,7 @@ export const AppNavHelpMenu = ({
             target="_blank"
             rel="noopener noreferrer"
           >
-            Discord community
+            {t('discord')}
           </Menu.Item>
 
           <Menu.Divider />
@@ -367,6 +372,7 @@ export const AppNavLink = ({
   isActive?: boolean;
 }) => {
   const { pathname, isCollapsed } = React.use(AppNavContext);
+  const { t } = useTranslation('nav');
 
   const testId = `nav-link-${href.replace(/^\//, '').replace(/\//g, '-') || 'home'}`;
 
@@ -400,14 +406,14 @@ export const AppNavLink = ({
       {!isCollapsed && isBeta && (
         <Badge
           size="sm"
-          text="Beta"
+          text={t('beta')}
           state="info"
           className={styles.navItemBadge}
         />
       )}
       {!isCollapsed && onToggle && (
         <Tooltip
-          label={isExpanded ? 'Hide favorites' : 'Show favorites'}
+          label={isExpanded ? t('hideFavorites') : t('showFavorites')}
           position="right"
         >
           <button

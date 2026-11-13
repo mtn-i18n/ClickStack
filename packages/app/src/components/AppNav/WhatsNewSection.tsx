@@ -1,3 +1,4 @@
+import { useTranslation } from 'next-i18next/pages';
 import cx from 'classnames';
 import {
   Box,
@@ -34,6 +35,7 @@ export const WhatsNewSection = ({
   version?: string;
   onViewAll: () => void;
 }) => {
+  const { t } = useTranslation('nav');
   const { data } = useWhatsNew(enabled);
 
   // Show the newest release that actually has headlines, not simply the newest
@@ -68,10 +70,12 @@ export const WhatsNewSection = ({
             {/* The glyph is decorative, and the nav item's "New updates
                 available" label is gone by now, so without this a screen
                 reader gets no "since you last looked" signal at all. */}
-            <VisuallyHidden>New since your last visit:</VisuallyHidden>
+            <VisuallyHidden>{t('newSinceLastVisit')}</VisuallyHidden>
           </>
         )}
-        What&apos;s new{shownVersion ? ` in v${shownVersion}` : ''}
+        {shownVersion
+          ? t('whatsNewInVersion', { version: shownVersion })
+          : t('whatsNew')}
       </Menu.Label>
       <Box px="sm" py={4} data-testid="whats-new">
         <Timeline bulletSize={18} lineWidth={2} color="blue">
@@ -93,7 +97,7 @@ export const WhatsNewSection = ({
           <Timeline.Item bullet={<IconPackageExport size={14} />}>
             {rest && (
               <Text size="xs" c="dimmed" data-testid="whats-new-peek-counts">
-                Plus {rest}
+                {t('plusCounts', { counts: rest })}
               </Text>
             )}
             {/* Deliberately `secondary`, not the `link` variant code_style.md
@@ -112,7 +116,7 @@ export const WhatsNewSection = ({
               rightSection={<IconArrowRight size={14} />}
               onClick={onViewAll}
             >
-              View all releases
+              {t('viewAllReleases')}
             </Button>
           </Timeline.Item>
         </Timeline>

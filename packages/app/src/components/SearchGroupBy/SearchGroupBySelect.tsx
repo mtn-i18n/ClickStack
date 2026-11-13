@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { useTranslation } from 'next-i18next/pages';
 import { splitAndTrimWithBracket } from '@hyperdx/common-utils/dist/core/utils';
 import { TSource } from '@hyperdx/common-utils/dist/types';
 import {
@@ -9,10 +10,7 @@ import {
   TextInput,
 } from '@mantine/core';
 
-import {
-  fieldListSummary,
-  SplitValueButton,
-} from '@/components/SplitValueButton/SplitValueButton';
+import { SplitValueButton } from '@/components/SplitValueButton/SplitValueButton';
 import SQLInlineEditor from '@/components/SQLEditor/SQLInlineEditor';
 
 import { GroupByFieldList } from './GroupByFieldList';
@@ -37,6 +35,7 @@ export function SearchGroupBySelect({
   onApply: (next: SearchGroupByParam) => void;
   dateRange: [Date, Date];
 }) {
+  const { t } = useTranslation('search');
   const [opened, setOpened] = useState(false);
   const [mode, setMode] = useState<Mode>('fields');
   const [search, setSearch] = useState('');
@@ -116,8 +115,14 @@ export function SearchGroupBySelect({
     >
       <Popover.Target>
         <SplitValueButton
-          name="Group by"
-          summary={fieldListSummary(appliedFields)}
+          name={t('groupBy.name')}
+          summary={
+            appliedFields.length === 0
+              ? t('toolbar.none')
+              : appliedFields.length === 1
+                ? appliedFields[0]
+                : t('toolbar.fieldCount', { count: appliedFields.length })
+          }
           count={appliedFields.length}
           dimmed={value == null}
           onClick={() => handleOpenChange(!opened)}
@@ -132,8 +137,8 @@ export function SearchGroupBySelect({
           value={mode}
           onChange={handleModeChange}
           data={[
-            { label: 'Fields', value: 'fields' },
-            { label: 'SQL', value: 'sql' },
+            { label: t('groupBy.fields'), value: 'fields' },
+            { label: t('toolbar.sql'), value: 'sql' },
           ]}
         />
         {mode === 'sql' ? (
@@ -142,7 +147,9 @@ export function SearchGroupBySelect({
             value={sqlDraft}
             onChange={setSqlDraft}
             onSubmit={applyDraft}
-            placeholder={defaultSearchGroupBy(source) || 'SQL columns'}
+            placeholder={
+              defaultSearchGroupBy(source) || t('groupBy.sqlColumns')
+            }
             size="xs"
             disableKeywordAutocomplete
             sourceId={source?.id}
@@ -152,7 +159,7 @@ export function SearchGroupBySelect({
           <>
             <TextInput
               size="xs"
-              placeholder="Search fields"
+              placeholder={t('groupBy.searchFields')}
               value={search}
               onChange={e => setSearch(e.currentTarget.value)}
               mb="xs"
@@ -168,7 +175,7 @@ export function SearchGroupBySelect({
         )}
         <Group gap="xs" mt="xs" justify="space-between">
           <Button variant="subtle" size="xs" onClick={() => commit(null)}>
-            Reset to default
+            {t('toolbar.resetToDefault')}
           </Button>
           <Group gap="xs">
             <Button
@@ -179,10 +186,10 @@ export function SearchGroupBySelect({
                 setSqlDraft('');
               }}
             >
-              Clear
+              {t('common:actions.clear')}
             </Button>
             <Button variant="primary" size="xs" onClick={applyDraft}>
-              Apply
+              {t('common:actions.apply')}
             </Button>
           </Group>
         </Group>

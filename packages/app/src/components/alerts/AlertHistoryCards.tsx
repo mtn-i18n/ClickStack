@@ -1,6 +1,8 @@
 import * as React from 'react';
+import { useTranslation } from 'next-i18next/pages';
 import cx from 'classnames';
 import { formatRelative } from 'date-fns';
+import { Trans } from 'react-i18next';
 import {
   AlertError,
   AlertErrorType,
@@ -26,13 +28,16 @@ import styles from '@styles/AlertsPage.module.scss';
 
 const HISTORY_ITEMS = 18;
 
-export const ALERT_ERROR_TYPE_LABELS: Record<AlertErrorType, string> = {
-  [AlertErrorType.INVALID_ALERT]: 'Invalid Configuration',
-  [AlertErrorType.QUERY_ERROR]: 'Query Error',
-  [AlertErrorType.QUERY_TIMEOUT]: 'Query Timeout',
-  [AlertErrorType.WEBHOOK_ERROR]: 'Webhook Error',
-  [AlertErrorType.UNKNOWN]: 'Unknown Error',
-};
+export function useAlertErrorTypeLabels(): Record<AlertErrorType, string> {
+  const { t } = useTranslation('alerts');
+  return {
+    [AlertErrorType.INVALID_ALERT]: t('errorInvalidConfiguration'),
+    [AlertErrorType.QUERY_ERROR]: t('errorQuery'),
+    [AlertErrorType.QUERY_TIMEOUT]: t('errorQueryTimeout'),
+    [AlertErrorType.WEBHOOK_ERROR]: t('errorWebhook'),
+    [AlertErrorType.UNKNOWN]: t('errorUnknown'),
+  };
+}
 
 function stateToBgColorClass(state: AlertState) {
   switch (state) {
@@ -48,13 +53,18 @@ function stateToBgColorClass(state: AlertState) {
 }
 
 export function AlertErrorsContent({ errors }: { errors: AlertError[] }) {
+  const labels = useAlertErrorTypeLabels();
   return (
     <Stack gap="md">
       {errors.map((error, idx) => (
         <Stack key={idx} gap={4}>
           <Text size="sm">
-            {ALERT_ERROR_TYPE_LABELS[error.type]} at{' '}
-            <FormatTime value={error.timestamp} />
+            <Trans
+              ns="alerts"
+              i18nKey="errorAt"
+              values={{ label: labels[error.type] }}
+              components={{ time: <FormatTime value={error.timestamp} /> }}
+            />
           </Text>
           <Code
             flex={1}
@@ -88,11 +98,13 @@ function dedupeAlertErrors(errors: AlertError[]): AlertError[] {
   return Array.from(map.values());
 }
 
-function errorTypeSummary(errors: AlertError[]): string {
+function errorTypeSummary(
+  errors: AlertError[],
+  labels: Record<AlertErrorType, string>,
+  multipleLabel: string,
+): string {
   const types = Array.from(new Set(errors.map(error => error.type)));
-  return types.length === 1
-    ? ALERT_ERROR_TYPE_LABELS[types[0]]
-    : 'Multiple Errors';
+  return types.length === 1 ? labels[types[0]] : multipleLabel;
 }
 
 function AlertHistoryCard({
@@ -104,6 +116,8 @@ function AlertHistoryCard({
   alertUrl?: string;
   onShowErrors: (history: AlertHistory) => void;
 }) {
+  const { t } = useTranslation('alerts');
+  const labels = useAlertErrorTypeLabels();
   const start = new Date(history.createdAt.toString());
 
   // eslint-disable-next-line no-restricted-syntax
@@ -140,14 +154,18 @@ function AlertHistoryCard({
 
   const label = React.useMemo(() => {
     if (isError) {
-      const summary = errorTypeSummary(history.errors ?? []);
-      return `Evaluation failed (${summary}) ${time}. Click for details.`;
+      const summary = errorTypeSummary(
+        history.errors ?? [],
+        labels,
+        t('multipleErrors'),
+      );
+      return t('evaluationFailed', { summary, time });
     }
     const count = history.counts ?? 0;
-    const pending = history.state === AlertState.PENDING ? 'pending' : '';
-    const alert = `alert${count === 0 || count > 1 ? 's' : ''}`;
-    return `${count} ${pending} ${alert} ${time}`;
-  }, [isError, history, time]);
+    return history.state === AlertState.PENDING
+      ? t('historyPendingCount', { count, time })
+      : t('historyOkCount', { count, time });
+  }, [isError, history, time, labels, t]);
 
   return (
     <Tooltip label={label} color="dark" withArrow>
@@ -155,7 +173,7 @@ function AlertHistoryCard({
         <UnstyledButton
           className={styles.historyCardLink}
           onClick={() => onShowErrors(history)}
-          aria-label="View evaluation errors"
+          aria-label={t('viewEvaluationErrors')}
         >
           {content}
         </UnstyledButton>
@@ -171,6 +189,8 @@ function AlertHistoryCard({
 }
 
 function AlertErrorsIndicator({ alert }: { alert: AlertsPageItem }) {
+  const { t } = useTranslation('alerts');
+  const labels = useAlertErrorTypeLabels();
   const [opened, { open, close }] = useDisclosure(false);
 
   const uniqueErrors = React.useMemo(
@@ -180,12 +200,12 @@ function AlertErrorsIndicator({ alert }: { alert: AlertsPageItem }) {
 
   if (uniqueErrors.length === 0) return null;
 
-  const errorType = errorTypeSummary(uniqueErrors);
+  const errorType = errorTypeSummary(uniqueErrors, labels, t('multipleErrors'));
 
   return (
     <>
       <Tooltip
-        label={`${errorType} (Click for details)`}
+        label={t('clickForDetails', { label: errorType })}
         multiline
         maw={400}
         withArrow
@@ -199,7 +219,7 @@ function AlertErrorsIndicator({ alert }: { alert: AlertsPageItem }) {
             color: 'var(--mantine-color-red-6)',
             cursor: 'pointer',
           }}
-          aria-label="View alert execution errors"
+          aria-label={t('viewAlertExecutionErrors')}
         >
           <IconExclamationCircle size={18} />
         </UnstyledButton>
@@ -209,7 +229,7 @@ function AlertErrorsIndicator({ alert }: { alert: AlertsPageItem }) {
         opened={opened}
         onClose={close}
         size="lg"
-        title="Alert Execution Errors"
+        title={t('alertExecutionErrors')}
         data-testid={`alert-error-modal-${alert._id}`}
       >
         <AlertErrorsContent errors={uniqueErrors} />
@@ -232,6 +252,7 @@ export function AlertHistoryCardList({
   maxItems?: number;
   showErrorIndicator?: boolean;
 }) {
+  const { t } = useTranslation('alerts');
   const history = historyProp ?? alert.history;
   const [errorHistory, setErrorHistory] = React.useState<AlertHistory | null>(
     null,
@@ -262,7 +283,7 @@ export function AlertHistoryCardList({
       {items.length > 0 && (
         <div className={styles.historyCardWrapper}>
           {paddingItems.map((_, index) => (
-            <Tooltip label="No data" withArrow key={index}>
+            <Tooltip label={t('noData')} withArrow key={index}>
               <div className={styles.historyCard} />
             </Tooltip>
           ))}
@@ -285,7 +306,7 @@ export function AlertHistoryCardList({
         size="lg"
         title={
           <>
-            Evaluation Errors
+            {t('evaluationErrors')}
             {errorHistory != null && (
               <Text span size="sm" c="dimmed" ml="xs">
                 <FormatTime value={errorHistory.createdAt} />

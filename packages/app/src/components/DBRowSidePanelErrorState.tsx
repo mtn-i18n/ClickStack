@@ -1,4 +1,6 @@
 import Link from 'next/link';
+import { useTranslation } from 'next-i18next/pages';
+import { Trans } from 'react-i18next';
 import {
   ClickHouseQueryError,
   isMissingColumnError,
@@ -38,47 +40,44 @@ function KnownColumnsListHint({
   onEditClick?: () => void;
   source: TSource;
 }) {
+  const { t } = useTranslation('errors');
   const brand = useBrandDisplayName();
   const hasKnownColumnsList =
     (isLogSource(source) || isTraceSource(source)) &&
     !!source.knownColumnsListExpression;
 
   const message = hasKnownColumnsList ? (
-    <>
-      To show every field for a row, {brand} loads the full row using the{' '}
-      <b>Known Columns List</b> configured on this source (instead of a{' '}
-      <SelectStar /> query). This likely failed because the list references a
-      column that doesn&apos;t exist in every target table of the Distributed or
-      Merge table. Update the <b>Known Columns List</b> so it only includes
-      columns present in all target tables.
-    </>
+    <Trans
+      ns="errors"
+      i18nKey="knownColumnsWithList"
+      values={{ brand }}
+      components={{ b: <b />, code: <SelectStar /> }}
+    />
   ) : (
-    <>
-      To show every field for this row, {brand} loads the full row with a{' '}
-      <SelectStar /> query. This failed because a column declared by the parent
-      (distributed) table is missing from at least one target table. To fix
-      this, set a <b>Known Columns List</b> on this source, specifying a list of
-      columns that every target table has. When set, {brand} will select those
-      columns instead of <SelectStar />.
-    </>
+    <Trans
+      ns="errors"
+      i18nKey="knownColumnsWithoutList"
+      values={{ brand }}
+      components={{ b: <b />, code: <SelectStar /> }}
+    />
   );
 
   return (
     <Alert
       color="yellow"
       icon={<IconAlertTriangle size={16} />}
-      title="Failed to load row details from distributed or merge table"
+      title={t('knownColumnsTitle')}
       data-testid="known-columns-list-hint"
     >
       <Stack gap="xs" align="start">
         <Text size="sm">{message}</Text>
         {IS_LOCAL_MODE ? (
           <Button size="xs" variant="subtle" onClick={onEditClick}>
-            Edit source settings
+            {t('editSourceSettings')}
           </Button>
         ) : (
           <Anchor component={Link} href={`/team#source-${source.id}`} size="sm">
-            Edit source settings
+            {t('editSourceSettings')}
           </Anchor>
         )}
       </Stack>
@@ -88,22 +87,19 @@ function KnownColumnsListHint({
 
 // The option lives in the Column Values menu, which a failed row does not show.
 function MaterializedAliasColumnsHint({ onHide }: { onHide: () => void }) {
+  const { t } = useTranslation('errors');
+
   return (
     <Alert
       variant="warning"
       icon={<IconAlertTriangle size={16} />}
-      title="Materialized and alias columns are on"
+      title={t('materializedColumnsTitle')}
       data-testid="materialized-alias-columns-hint"
     >
       <Stack gap="xs" align="start">
-        <Text size="sm">
-          The row query includes MATERIALIZED and ALIAS columns. The whole row
-          fails to load if the connection&apos;s user cannot change query
-          settings (for example, a readonly user) or if one of these columns
-          cannot be evaluated.
-        </Text>
+        <Text size="sm">{t('materializedColumnsBody')}</Text>
         <Button size="xs" variant="subtle" onClick={onHide}>
-          Hide materialized and alias columns
+          {t('hideMaterializedColumns')}
         </Button>
       </Stack>
     </Alert>
@@ -117,6 +113,7 @@ export function DBRowSidePanelErrorState({
   error: Error | ClickHouseQueryError;
   source: TSource;
 }) {
+  const { t } = useTranslation('errors');
   const [editOpened, editModal] = useDisclosure(false);
   const { data: tableMetadata } = useTableMetadata(tcFromSource(source));
 
@@ -128,7 +125,7 @@ export function DBRowSidePanelErrorState({
 
   return (
     <Stack gap="sm" data-testid="row-error-state">
-      <Text>Error loading row data</Text>
+      <Text>{t('rowLoadError')}</Text>
 
       {showHint && (
         <KnownColumnsListHint onEditClick={editModal.open} source={source} />
@@ -142,7 +139,7 @@ export function DBRowSidePanelErrorState({
 
       <Stack align="start">
         <Text size="sm" mt={10}>
-          Error Message:
+          {t('errorMessage')}
         </Text>
         <Code
           flex={1}
@@ -157,7 +154,7 @@ export function DBRowSidePanelErrorState({
         {error instanceof ClickHouseQueryError && (
           <>
             <Text size="sm" ta="center">
-              Sent Query:
+              {t('sentQuery')}
             </Text>
             <SQLPreview data={error?.query} enableLineWrapping enableCopy />
           </>
@@ -167,7 +164,7 @@ export function DBRowSidePanelErrorState({
         <Modal
           opened={editOpened}
           onClose={editModal.close}
-          title="Edit Source"
+          title={t('editSource')}
           size="xl"
         >
           <TableSourceForm sourceId={source.id} onSave={editModal.close} />

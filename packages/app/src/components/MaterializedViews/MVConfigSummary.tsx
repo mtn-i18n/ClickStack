@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { useTranslation } from 'next-i18next/pages';
 import { Badge } from '@clickhouse/click-ui';
 import { splitAndTrimWithBracket } from '@hyperdx/common-utils/dist/core/utils';
 import { MaterializedViewConfiguration } from '@hyperdx/common-utils/dist/types';
@@ -12,6 +13,7 @@ export default function MVConfigSummary({
 }: {
   config: MaterializedViewConfiguration;
 }) {
+  const { t } = useTranslation('settings');
   const dimensionColumnsSplit = useMemo(
     () => splitAndTrimWithBracket(config.dimensionColumns),
     [config.dimensionColumns],
@@ -37,16 +39,12 @@ export default function MVConfigSummary({
         <Grid.Col span={1}>
           <Group align="center" mb="xs" gap="xs">
             <Text size="sm" fw={500}>
-              Granularity
+              {t('sourceForm.materializedViews.granularity')}
             </Text>
             <Tooltip
               multiline
               maw={400}
-              label={`
-              The size of the time buckets into which data is pre-aggregated. 
-              Aggregate values can vary slightly between materialized views and the base source 
-              table when the selected time range does not align with the view's granularity.
-            `}
+              label={t('materializedViews.summaryGranularityTooltip')}
             >
               <IconInfoCircle size={16} />
             </Tooltip>
@@ -57,7 +55,7 @@ export default function MVConfigSummary({
         {config.minDate && (
           <Grid.Col span={1}>
             <Text size="sm" fw={500} mb="xs">
-              Minimum Date
+              {t('sourceForm.materializedViews.minimumDate')}
             </Text>
             <Badge
               size="sm"
@@ -70,7 +68,7 @@ export default function MVConfigSummary({
 
       <div>
         <Text size="sm" fw={500} mb="xs">
-          Available Group and Filter Columns
+          {t('materializedViews.availableGroupAndFilterColumns')}
         </Text>
         <Group gap="xs">
           {dimensionColumnsSplit.map(col => (
@@ -81,13 +79,13 @@ export default function MVConfigSummary({
 
       <div>
         <Text size="sm" fw={500} mb="sm">
-          Available Aggregated Columns
+          {t('materializedViews.availableAggregatedColumns')}
         </Text>
         <Table>
           <Table.Thead>
             <Table.Tr>
-              <Table.Th>Column</Table.Th>
-              <Table.Th>Aggregation</Table.Th>
+              <Table.Th>{t('materializedViews.column')}</Table.Th>
+              <Table.Th>{t('materializedViews.aggregation')}</Table.Th>
             </Table.Tr>
           </Table.Thead>
           <Table.Tbody>

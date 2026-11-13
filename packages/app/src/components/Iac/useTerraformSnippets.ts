@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { useTranslation } from 'next-i18next/pages';
 import {
   buildImportBlock,
   buildProviderBlock,
@@ -30,6 +31,7 @@ export function useTerraformSnippets({
   resource: IacResourceRef;
   enabled: boolean;
 }): TerraformSnippet[] {
+  const { t } = useTranslation('settings');
   // Destructured so the memo keys off primitives. Call sites build `resource`
   // inline in JSX, so depending on the object itself would re-run this on
   // every render.
@@ -50,7 +52,7 @@ export function useTerraformSnippets({
         // no configuration. The block form is what `-generate-config-out`
         // consumes, so it works in a fresh project — and matches what the
         // bulk export writes, so both surfaces produce the same artefact.
-        label: 'Import block',
+        label: t('iac.importBlock'),
         // The tile-alert caveat is the bulk file's, cut to one line. This is
         // the likelier path for someone who just made a tile alert, and the
         // generated config it produces is only durable after a hand edit.
@@ -65,7 +67,7 @@ export function useTerraformSnippets({
         // Terraform permits one `required_providers` and one default provider
         // config per module, so pasting this a second time is an error, not a
         // convenience. Tucked behind a toggle for the first-time case only.
-        label: 'Provider setup',
+        label: t('iac.providerSetup'),
         collapsible: true,
         hint: `Add once per Terraform module. Skip if your project already declares the ClickHouse provider${
           tileAlert
@@ -80,5 +82,5 @@ export function useTerraformSnippets({
         ),
       },
     ];
-  }, [enabled, type, id, name, tileAlert, teamId]);
+  }, [enabled, type, id, name, tileAlert, teamId, t]);
 }

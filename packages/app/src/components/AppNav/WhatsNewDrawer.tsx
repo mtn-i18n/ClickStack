@@ -1,3 +1,4 @@
+import { useTranslation } from 'next-i18next/pages';
 import ReactMarkdown from 'react-markdown';
 import { Badge, Separator } from '@clickhouse/click-ui';
 import {
@@ -59,6 +60,7 @@ export const WhatsNewDrawer = ({
   opened: boolean;
   onClose: () => void;
 }) => {
+  const { t } = useTranslation('nav');
   const { data, isError } = useWhatsNew(opened);
   const releases = data?.releases;
 
@@ -71,7 +73,7 @@ export const WhatsNewDrawer = ({
       title={
         <Group gap="xs">
           <IconPackageExport size={18} />
-          <Text fw={600}>What&apos;s new</Text>
+          <Text fw={600}>{t('whatsNew')}</Text>
         </Group>
       }
     >
@@ -82,13 +84,13 @@ export const WhatsNewDrawer = ({
       <div data-testid="whats-new-drawer">
         {isError ? (
           <Text size="sm" c="dimmed">
-            Unable to load recent releases.{' '}
+            {t('unableToLoadReleases')}{' '}
             <Anchor
               href={changelogUrl()}
               target="_blank"
               rel="noopener noreferrer"
             >
-              View the changelog on GitHub
+              {t('viewChangelogOnGitHub')}
             </Anchor>
             .
           </Text>
@@ -106,7 +108,7 @@ export const WhatsNewDrawer = ({
               >
                 <Group gap="xs">
                   <Title order={4}>v{release.version}</Title>
-                  {idx === 0 && <Badge text="Latest" state="info" />}
+                  {idx === 0 && <Badge text={t('latest')} state="info" />}
                   {release.date && (
                     <Text size="xs" c="dimmed">
                       {release.date}
@@ -178,7 +180,7 @@ export const WhatsNewDrawer = ({
               size="sm"
               data-testid="drawer-github-link"
             >
-              View full changelog on GitHub →
+              {t('viewFullChangelog')} →
             </Anchor>
           </Stack>
         )}

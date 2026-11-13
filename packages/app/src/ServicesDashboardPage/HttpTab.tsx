@@ -1,4 +1,5 @@
 import { useCallback, useMemo, useState } from 'react';
+import { useTranslation } from 'next-i18next/pages';
 import { parseAsStringEnum, useQueryState } from 'nuqs';
 import { convertDateRangeToGranularityString } from '@hyperdx/common-utils/dist/core/utils';
 import {
@@ -47,6 +48,7 @@ export function EndpointLatencyChart({
   appliedConfig?: AppliedConfig;
   extraFilters?: Filter[];
 }) {
+  const { t } = useTranslation('services');
   const { expressions } = useServiceDashboardExpressions({ source });
   const [latencyChartType, setLatencyChartType] = useState<
     'line' | 'histogram'
@@ -60,12 +62,12 @@ export function EndpointLatencyChart({
       options={[
         {
           value: 'line',
-          label: 'Display as Line Chart',
+          label: t('displayAsLineChart'),
           icon: <IconChartLine />,
         },
         {
           value: 'histogram',
-          label: 'Display as Histogram',
+          label: t('displayAsHistogram'),
           icon: <IconChartHistogram />,
         },
       ]}
@@ -78,7 +80,7 @@ export function EndpointLatencyChart({
         expressions &&
         (latencyChartType === 'line' ? (
           <DBTimeChart
-            title="Request Latency"
+            title={t('requestLatency')}
             toolbarSuffix={[displaySwitcher]}
             showDisplaySwitcher={false}
             sourceId={source.id}
@@ -141,7 +143,7 @@ export function EndpointLatencyChart({
           />
         ) : (
           <DBHistogramChart
-            title="Request Latency"
+            title={t('requestLatency')}
             toolbarSuffix={[displaySwitcher]}
             config={{
               source: source.id,
@@ -183,6 +185,7 @@ function HttpTab({
   searchedTimeRange: [Date, Date];
   appliedConfig: AppliedConfig;
 }) {
+  const { t } = useTranslation('services');
   const { data: source } = useSource({
     id: appliedConfig.source,
     kinds: [SourceKind.Trace],
@@ -402,7 +405,7 @@ function HttpTab({
         >
           {source && requestErrorRateConfig && (
             <DBTimeChart
-              title="Request Error Rate"
+              title={t('requestErrorRate')}
               toolbarSuffix={[
                 <SegmentedControl
                   key="request-error-rate-segmented-control"
@@ -410,8 +413,8 @@ function HttpTab({
                   value={reqChartType}
                   onChange={setReqChartType}
                   data={[
-                    { label: 'Overall', value: 'overall' },
-                    { label: 'By Endpoint', value: 'endpoint' },
+                    { label: t('overall'), value: 'overall' },
+                    { label: t('byEndpoint'), value: 'endpoint' },
                   ]}
                 />,
               ]}
@@ -432,7 +435,7 @@ function HttpTab({
         >
           {source && expressions && (
             <DBTimeChart
-              title="Request Throughput"
+              title={t('requestThroughput')}
               sourceId={source.id}
               config={{
                 source: source.id,
@@ -462,7 +465,7 @@ function HttpTab({
         <ChartCard style={{ height: 350, overflow: 'auto' }}>
           {source && expressions && (
             <DBListBarChart
-              title="Top 20 Most Time Consuming Endpoints"
+              title={t('top20TimeConsumingEndpoints')}
               groupColumn="Endpoint"
               valueColumn="Total"
               getRowSearchLink={getRowSearchLink}
@@ -575,10 +578,9 @@ function HttpTab({
             <DBTableChart
               title={
                 <Text size="sm">
-                  Top 20{' '}
                   {topEndpointsChartType === 'time'
-                    ? 'Most Time Consuming'
-                    : 'Highest Error Rate'}
+                    ? t('top20TimeConsumingEndpoints')
+                    : t('top20HighestErrorRate')}
                 </Text>
               }
               toolbarSuffix={[
@@ -592,8 +594,8 @@ function HttpTab({
                     }
                   }}
                   data={[
-                    { label: 'Sort by Time', value: 'time' },
-                    { label: 'Sort by Errors', value: 'error' },
+                    { label: t('sortByTime'), value: 'time' },
+                    { label: t('sortByErrors'), value: 'error' },
                   ]}
                 />,
               ]}

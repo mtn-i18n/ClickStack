@@ -1,3 +1,4 @@
+import { useTranslation } from 'next-i18next/pages';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { ActionIcon, Box, Group, Text } from '@mantine/core';
@@ -12,6 +13,7 @@ export function SortableColumn({
   label: string;
   onRemove: () => void;
 }) {
+  const { t } = useTranslation('search');
   const {
     attributes,
     listeners,
@@ -45,7 +47,7 @@ export function SortableColumn({
         <ActionIcon
           variant="subtle"
           size="xs"
-          aria-label={`Reorder ${label}`}
+          aria-label={t('toolbar.reorderField', { name: label })}
           style={{ cursor: 'grab', touchAction: 'none', flexShrink: 0 }}
           {...attributes}
           {...listeners}
@@ -64,7 +66,7 @@ export function SortableColumn({
           variant="subtle"
           size="xs"
           onClick={onRemove}
-          aria-label={`Remove ${label}`}
+          aria-label={t('toolbar.removeField', { name: label })}
           style={{ flexShrink: 0 }}
         >
           <IconX size={14} />

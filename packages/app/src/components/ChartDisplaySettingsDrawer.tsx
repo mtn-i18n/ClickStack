@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo } from 'react';
+import { useTranslation } from 'next-i18next/pages';
 import { Controller, useForm, useWatch } from 'react-hook-form';
 import { Separator } from '@clickhouse/click-ui';
 import {
@@ -108,12 +109,12 @@ interface ChartDisplaySettingsDrawerProps {
 }
 
 const LINE_INTERPOLATION_OPTIONS: {
-  label: string;
+  labelKey: string;
   value: LineInterpolation;
 }[] = [
-  { label: 'Smooth', value: 'smooth' },
-  { label: 'Linear', value: 'linear' },
-  { label: 'Step', value: 'step' },
+  { labelKey: 'interpolationSmooth', value: 'smooth' },
+  { labelKey: 'interpolationLinear', value: 'linear' },
+  { labelKey: 'interpolationStep', value: 'step' },
 ];
 
 function applyDefaultSettings(
@@ -163,6 +164,7 @@ export default function ChartDisplaySettingsDrawer({
   previousDateRange,
   isPerSeriesNumberFormatAllowed = false,
 }: ChartDisplaySettingsDrawerProps) {
+  const { t } = useTranslation('charts');
   const appliedDefaults = useMemo(
     () =>
       applyDefaultSettings(
@@ -291,15 +293,15 @@ export default function ChartDisplaySettingsDrawer({
     configType === 'sql' || (configType === 'promql' && !promqlUsesRange);
   const backgroundChartDisabledHint =
     configType === 'promql'
-      ? 'Available on PromQL range queries.'
-      : 'Available on query-builder number tiles.';
+      ? t('availableOnPromqlRangeQueries')
+      : t('availableOnBuilderNumberTiles');
 
   // Log scale only means something on a numeric (distribution mode) y axis
   const showHeatmapScale = isDistributionHeatmap;
 
   return (
     <Drawer
-      title="Display Settings"
+      title={t('displaySettings')}
       opened={opened}
       onClose={handleClose}
       position="right"
@@ -311,12 +313,12 @@ export default function ChartDisplaySettingsDrawer({
               control={control}
               name="alignDateRangeToGranularity"
               size="xs"
-              label="Show Complete Intervals"
+              label={t('showCompleteIntervals')}
             />
             <Box>
               <Checkbox
                 size="xs"
-                label="Fill Missing Intervals with Zero"
+                label={t('fillMissingIntervalsWithZero')}
                 checked={isFillNullsEnabled}
                 onChange={e => {
                   setValue('fillNulls', e.currentTarget.checked ? 0 : false);
@@ -327,7 +329,7 @@ export default function ChartDisplaySettingsDrawer({
               control={control}
               name="compareToPreviousPeriod"
               size="xs"
-              label="Compare to Previous Period"
+              label={t('compareToPreviousPeriod')}
               description={
                 previousDateRange && (
                   <>
@@ -343,16 +345,16 @@ export default function ChartDisplaySettingsDrawer({
               control={control}
               name="fitYAxisToData"
               size="xs"
-              label="Fit Y-Axis to Data"
-              description="Start the y-axis at the minimum of the displayed data instead of zero. Only applicable to line charts."
+              label={t('fitYAxisToData')}
+              description={t('fitYAxisToDataDescription')}
             />
             {showLineInterpolation && (
               <Input.Wrapper
                 size="xs"
                 label={
                   <Group gap={4} align="center">
-                    Line interpolation
-                    <Tooltip label="Determines the shape of the line between data points in the same series">
+                    {t('lineInterpolation')}
+                    <Tooltip label={t('lineInterpolationTooltip')}>
                       <IconHelpCircle size={14} className="cursor-pointer" />
                     </Tooltip>
                   </Group>
@@ -370,7 +372,10 @@ export default function ChartDisplaySettingsDrawer({
                         const parsed = LineInterpolationSchema.safeParse(v);
                         if (parsed.success) onChange(parsed.data);
                       }}
-                      data={LINE_INTERPOLATION_OPTIONS}
+                      data={LINE_INTERPOLATION_OPTIONS.map(option => ({
+                        value: option.value,
+                        label: t(option.labelKey),
+                      }))}
                       data-testid="line-interpolation-control"
                     />
                   )}
@@ -385,13 +390,19 @@ export default function ChartDisplaySettingsDrawer({
                   render={({ field: { onChange, value } }) => (
                     <NumberInput
                       size="xs"
-                      label="Series Limit"
+                      label={t('seriesLimit')}
                       description={
                         isClientSideSeriesLimit
-                          ? `Maximum number of series rendered, keeping those with the largest values. Leave empty for the default (${MAX_RENDERED_TIME_CHART_SERIES}); set 0 for unlimited.`
-                          : `Maximum number of series fetched for a group-by chart, keeping those with the largest values. Leave empty for the default (${MAX_RENDERED_TIME_CHART_SERIES}); set 0 for unlimited.`
+                          ? t('seriesLimitRenderedDescription', {
+                              max: MAX_RENDERED_TIME_CHART_SERIES,
+                            })
+                          : t('seriesLimitFetchedDescription', {
+                              max: MAX_RENDERED_TIME_CHART_SERIES,
+                            })
                       }
-                      placeholder={`Default (${MAX_RENDERED_TIME_CHART_SERIES})`}
+                      placeholder={t('seriesLimitDefaultPlaceholder', {
+                        max: MAX_RENDERED_TIME_CHART_SERIES,
+                      })}
                       min={0}
                       allowDecimal={false}
                       value={value ?? ''}
@@ -430,16 +441,24 @@ export default function ChartDisplaySettingsDrawer({
                 control={control}
                 name="legendTemplate"
                 size="xs"
-                label="Legend template"
-                description="Handlebars template rendered with each series' Prometheus labels. Leave empty for the default legend. Additional labels will be added if the template does not produce unique labels for each series."
-                placeholder="e.g. {{namespace}} - {{pod}}"
+                label={t('legendTemplate')}
+                description={t('legendTemplateDescription')}
+                placeholder={t(
+                  'dashboards:chartEditor.legendTemplatePlaceholder',
+                  {
+                    example: '{{namespace}} - {{pod}}',
+                  },
+                )}
                 data-testid="legend-template-input"
                 rules={{
                   validate: value => {
                     if (typeof value !== 'string' || !value) return true;
                     const trimmed = value.trim();
                     if (trimmed.length > MAX_LEGEND_TEMPLATE_LENGTH) {
-                      return `Template is too long (${trimmed.length} characters, max ${MAX_LEGEND_TEMPLATE_LENGTH})`;
+                      return t('templateTooLong', {
+                        length: trimmed.length,
+                        max: MAX_LEGEND_TEMPLATE_LENGTH,
+                      });
                     }
                     try {
                       validateTemplate(trimmed);
@@ -447,7 +466,7 @@ export default function ChartDisplaySettingsDrawer({
                     } catch (err) {
                       return err instanceof UnknownTemplateHelperError
                         ? err.message
-                        : 'Invalid Handlebars template';
+                        : t('invalidTemplate');
                     }
                   },
                 }}
@@ -466,9 +485,9 @@ export default function ChartDisplaySettingsDrawer({
                 render={({ field: { onChange, value } }) => (
                   <NumberInput
                     size="xs"
-                    label="Series Limit"
-                    description="Maximum number of values displayed, keeping those with the largest values. Leave empty to fetch all."
-                    placeholder="Disabled (e.g. 10)"
+                    label={t('seriesLimit')}
+                    description={t('seriesLimitCategoricalDescription')}
+                    placeholder={t('seriesLimitCategoricalPlaceholder')}
                     min={1}
                     allowDecimal={false}
                     value={value ?? ''}
@@ -490,14 +509,14 @@ export default function ChartDisplaySettingsDrawer({
                 control={control}
                 name="groupByColumnsOnLeft"
                 size="xs"
-                label="Display Group By Columns on Left"
+                label={t('displayGroupByColumnsOnLeft')}
               />
             )}
             <CheckBoxControlled
               control={control}
               name="alternateRowBackground"
               size="xs"
-              label="Alternate Row Background"
+              label={t('alternateRowBackground')}
             />
             <Separator size="xs" />
           </>
@@ -507,7 +526,7 @@ export default function ChartDisplaySettingsDrawer({
           <>
             <Box>
               <Text size="xs" c="dimmed" mb={4}>
-                Color
+                {t('color')}
               </Text>
               <Controller
                 control={control}
@@ -516,7 +535,7 @@ export default function ChartDisplaySettingsDrawer({
                   <ColorSwatchInput
                     value={value}
                     onChange={onChange}
-                    ariaLabel="Number tile color"
+                    ariaLabel={t('numberTileColorAria')}
                   />
                 )}
               />
@@ -559,7 +578,7 @@ export default function ChartDisplaySettingsDrawer({
             isPerSeriesNumberFormatAllowed ? (
               <Alert variant="outline" color="yellow" p="xs">
                 <Text size="xs" m={0}>
-                  Format may be overridden on individual series.
+                  {t('formatOverrideNote')}
                 </Text>
               </Alert>
             ) : undefined
@@ -568,7 +587,7 @@ export default function ChartDisplaySettingsDrawer({
         <Separator size="xs" />
         <Group gap="xs" mt="xs" justify="space-between">
           <Button type="submit" variant="secondary" onClick={resetToDefaults}>
-            Reset to Defaults
+            {t('resetToDefaults')}
           </Button>
           <Button
             type="submit"
@@ -576,7 +595,7 @@ export default function ChartDisplaySettingsDrawer({
             onClick={applyChanges}
             data-testid="display-settings-apply-button"
           >
-            Apply
+            {t('common:actions.apply')}
           </Button>
         </Group>
       </Stack>

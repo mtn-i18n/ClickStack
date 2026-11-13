@@ -1,65 +1,65 @@
 import React from 'react';
+import { useTranslation } from 'next-i18next/pages';
 import { Separator } from '@clickhouse/click-ui';
 import { Group, Kbd, Modal, Stack, Text } from '@mantine/core';
 
 type ShortcutRow = {
   keys: readonly string[];
-  label: string;
+  labelKey: string;
   /** Use either key. Default is `chord` (+) for combinations pressed together. */
   keyJoin?: 'or' | 'chord';
 };
 
 const SHORTCUTS: ShortcutRow[] = [
-  { keys: ['⌘/Ctrl', 'k'], label: 'Open command palette' },
+  { keys: ['⌘/Ctrl', 'k'], labelKey: 'commandPalette' },
   {
     keys: ['/', 's'],
-    label: 'Focus search or WHERE editor',
+    labelKey: 'focusSearch',
     keyJoin: 'or',
   },
-  { keys: ['d'], label: 'Open time range picker' },
+  { keys: ['d'], labelKey: 'timeRangePicker' },
   {
     keys: ['Enter'],
-    label: 'Apply custom time range (when time picker is open)',
+    labelKey: 'applyTimeRange',
   },
-  { keys: ['⌘/Ctrl', 'f'], label: 'Find in log table' },
-  { keys: ['Enter'], label: 'Next find match (find bar open)' },
-  { keys: ['Shift', 'Enter'], label: 'Previous find match (find bar open)' },
+  { keys: ['⌘/Ctrl', 'f'], labelKey: 'findInLogTable' },
+  { keys: ['Enter'], labelKey: 'nextFindMatch' },
+  { keys: ['Shift', 'Enter'], labelKey: 'previousFindMatch' },
   {
     keys: ['Esc'],
-    label:
-      'Close panel, drawer, or find bar; clear histogram bucket or dashboard tile selection',
+    labelKey: 'closeOverlay',
   },
   {
     keys: ['←', '→'],
-    label: 'Move through events in log table',
+    labelKey: 'moveThroughEvents',
     keyJoin: 'or',
   },
   {
     keys: ['↑', '↓'],
-    label: 'Move through events in log table',
+    labelKey: 'moveThroughEvents',
     keyJoin: 'or',
   },
   {
     keys: ['k', 'j'],
-    label: 'Move through events in log table (vim-style)',
+    labelKey: 'moveThroughEventsVim',
     keyJoin: 'or',
   },
-  { keys: ['⌘/Ctrl', 'scroll'], label: 'Zoom trace timeline' },
+  { keys: ['⌘/Ctrl', 'scroll'], labelKey: 'zoomTraceTimeline' },
   {
     keys: ['⌥/Alt', 'click'],
-    label: 'Collapse span children (trace waterfall)',
+    labelKey: 'collapseSpanChildren',
   },
-  { keys: ['Space'], label: 'Play / pause session replay' },
+  { keys: ['Space'], labelKey: 'playPauseReplay' },
   {
     keys: ['f'],
-    label: 'Toggle chart fullscreen (dashboard) or exit fullscreen view',
+    labelKey: 'toggleChartFullscreen',
   },
-  { keys: ['a'], label: 'Toggle chart AI assistant (Charts page)' },
+  { keys: ['a'], labelKey: 'toggleChartAssistant' },
   {
     keys: ['Shift', 'click'],
-    label: 'Select dashboard tile (multi-select)',
+    labelKey: 'selectDashboardTile',
   },
-  { keys: ['⌘/Ctrl', 'g'], label: 'Group selected dashboard tiles' },
+  { keys: ['⌘/Ctrl', 'g'], labelKey: 'groupDashboardTiles' },
 ];
 
 export const KeyboardShortcutsModal = ({
@@ -69,16 +69,18 @@ export const KeyboardShortcutsModal = ({
   opened: boolean;
   onClose: () => void;
 }) => {
+  const { t } = useTranslation('nav');
+
   return (
     <Modal
       opened={opened}
       onClose={onClose}
-      title="Keyboard Shortcuts"
+      title={t('keyboardShortcuts')}
       size="lg"
       centered
     >
       <Stack gap={0} data-testid="keyboard-shortcuts-modal">
-        {SHORTCUTS.map(({ keys, label, keyJoin = 'chord' }, rowIndex) => (
+        {SHORTCUTS.map(({ keys, labelKey, keyJoin = 'chord' }, rowIndex) => (
           <React.Fragment key={rowIndex}>
             <Group justify="space-between" wrap="nowrap" gap="md" py="sm">
               <Group gap={4} wrap="nowrap">
@@ -86,7 +88,7 @@ export const KeyboardShortcutsModal = ({
                   <React.Fragment key={`${rowIndex}-${i}-${key}`}>
                     {i > 0 && (
                       <Text span size="xs" c="dimmed" tt="lowercase" px={2}>
-                        {keyJoin === 'or' ? 'or' : '+'}
+                        {keyJoin === 'or' ? t('shortcuts.or') : '+'}
                       </Text>
                     )}
                     <Kbd size="xs">{key}</Kbd>
@@ -94,7 +96,7 @@ export const KeyboardShortcutsModal = ({
                 ))}
               </Group>
               <Text size="sm" maw="58%" ta="right">
-                {label}
+                {t(`shortcuts.${labelKey}`)}
               </Text>
             </Group>
             {rowIndex < SHORTCUTS.length - 1 ? <Separator size="xs" /> : null}

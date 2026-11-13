@@ -1,3 +1,4 @@
+import { useTranslation } from 'next-i18next/pages';
 import { Badge } from '@clickhouse/click-ui';
 import { Box, Group, Text } from '@mantine/core';
 
@@ -28,26 +29,31 @@ export const WhatsNewHighlightRow = ({
 }: {
   headline: Headline;
   lineClamp?: number;
-}) => (
-  <Group gap="xs" wrap="nowrap" align="flex-start">
-    <Box w={BADGE_COLUMN_WIDTH} flex="none">
-      <Badge
-        size="sm"
-        text={headline.kind === 'breaking' ? 'Breaking' : 'New'}
-        state={headline.kind === 'breaking' ? 'danger' : 'info'}
-      />
-    </Box>
-    {/* flex + miw=0 lets the headline wrap and clamp within the row rather than
+}) => {
+  const { t } = useTranslation('nav');
+  const label = headline.kind === 'breaking' ? t('breaking') : t('new');
+
+  return (
+    <Group gap="xs" wrap="nowrap" align="flex-start">
+      <Box w={BADGE_COLUMN_WIDTH} flex="none">
+        <Badge
+          size="sm"
+          text={label}
+          state={headline.kind === 'breaking' ? 'danger' : 'info'}
+        />
+      </Box>
+      {/* flex + miw=0 lets the headline wrap and clamp within the row rather than
         forcing the container wider. */}
-    <Text
-      data-testid="whats-new-headline"
-      size="sm"
-      lineClamp={lineClamp}
-      title={lineClamp ? headline.text : undefined}
-      flex={1}
-      miw={0}
-    >
-      {headline.text}
-    </Text>
-  </Group>
-);
+      <Text
+        data-testid="whats-new-headline"
+        size="sm"
+        lineClamp={lineClamp}
+        title={lineClamp ? headline.text : undefined}
+        flex={1}
+        miw={0}
+      >
+        {headline.text}
+      </Text>
+    </Group>
+  );
+};

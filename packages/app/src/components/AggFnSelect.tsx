@@ -1,4 +1,5 @@
 import { useCallback, useMemo } from 'react';
+import { useTranslation } from 'next-i18next/pages';
 import { useController, UseControllerProps } from 'react-hook-form';
 import { getPercentileAggFnLevel } from '@hyperdx/common-utils/dist/core/utils';
 import { MetricsDataType } from '@hyperdx/common-utils/dist/types';
@@ -63,6 +64,7 @@ function AggFnSelect({
   hideCustom?: boolean;
   metricType?: MetricsDataType;
 }) {
+  const { t } = useTranslation('charts');
   const _onChange = useCallback(
     (value: string | null) => {
       const percentileLevel = getPercentileAggFnLevel(value ?? undefined);
@@ -93,8 +95,8 @@ function AggFnSelect({
         HISTOGRAM_SUPPORTED_AGG_FNS_DISPLAY.includes(fn.value),
       );
     }
-    return opts;
-  }, [hideCustom, metricType]);
+    return opts.map(fn => ({ ...fn, label: t(fn.labelKey) }));
+  }, [hideCustom, metricType, t]);
 
   return (
     <Select

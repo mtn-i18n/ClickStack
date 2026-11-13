@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'next-i18next/pages';
 import {
   type OrgApiKeyExpiry,
   OrgApiKeyExpirySchema,
@@ -17,12 +18,6 @@ import { notifications } from '@mantine/notifications';
 import api from '@/api';
 import { RevealSnippet } from '@/components/RevealSnippet/RevealSnippet';
 
-const EXPIRY_OPTIONS = [
-  { value: '30d', label: '30 days' },
-  { value: '1y', label: '1 year' },
-  { value: 'never', label: 'Never' },
-];
-
 export default function CreateOrgApiKeyModal({
   opened,
   onClose,
@@ -30,6 +25,12 @@ export default function CreateOrgApiKeyModal({
   opened: boolean;
   onClose: () => void;
 }) {
+  const { t } = useTranslation('settings');
+  const expiryOptions = [
+    { value: '30d', label: t('createOrgApiKey.expiry30d') },
+    { value: '1y', label: t('createOrgApiKey.expiry1y') },
+    { value: 'never', label: t('createOrgApiKey.expiryNever') },
+  ];
   const createKey = api.useCreateOrgApiKey();
   const [description, setDescription] = useState('');
   const [expiry, setExpiry] = useState<OrgApiKeyExpiry>('30d');
@@ -66,7 +67,7 @@ export default function CreateOrgApiKeyModal({
     <Modal
       opened={opened}
       onClose={close}
-      title="Create API key"
+      title={t('createOrgApiKey.title')}
       centered
       // The key is shown once, so only Done may dismiss it.
       closeOnClickOutside={createdKey == null}
@@ -75,26 +76,24 @@ export default function CreateOrgApiKeyModal({
     >
       {createdKey != null ? (
         <Stack>
-          <Text size="sm">
-            Copy this key now. You won&apos;t be able to see it again.
-          </Text>
+          <Text size="sm">{t('createOrgApiKey.copyNow')}</Text>
           <RevealSnippet value={createdKey} secrets={[createdKey]}>
             <RevealSnippet.Input
-              aria-label="New API key"
-              revealLabel="Reveal key"
-              copyLabel="Copy key"
+              aria-label={t('createOrgApiKey.newKeyAria')}
+              revealLabel={t('createOrgApiKey.revealKey')}
+              copyLabel={t('createOrgApiKey.copyKey')}
             />
           </RevealSnippet>
           <Group justify="flex-end">
             <Button variant="primary" onClick={close}>
-              Done
+              {t('createOrgApiKey.done')}
             </Button>
           </Group>
         </Stack>
       ) : (
         <Stack>
           <TextInput
-            label="Description"
+            label={t('createOrgApiKey.description')}
             value={description}
             maxLength={100}
             onChange={e => setDescription(e.currentTarget.value)}
@@ -102,11 +101,11 @@ export default function CreateOrgApiKeyModal({
           />
           <Stack gap={4}>
             <Text size="sm" fw={500}>
-              Expires
+              {t('createOrgApiKey.expires')}
             </Text>
             <SegmentedControl
-              aria-label="Expires"
-              data={EXPIRY_OPTIONS}
+              aria-label={t('createOrgApiKey.expires')}
+              data={expiryOptions}
               value={expiry}
               onChange={value => setExpiry(OrgApiKeyExpirySchema.parse(value))}
             />
@@ -117,7 +116,7 @@ export default function CreateOrgApiKeyModal({
               onClick={close}
               disabled={createKey.isPending}
             >
-              Cancel
+              {t('createOrgApiKey.cancel')}
             </Button>
             <Button
               variant="primary"
@@ -125,7 +124,7 @@ export default function CreateOrgApiKeyModal({
               disabled={description.trim() === ''}
               loading={createKey.isPending}
             >
-              Create
+              {t('createOrgApiKey.create')}
             </Button>
           </Group>
         </Stack>

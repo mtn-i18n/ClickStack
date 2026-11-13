@@ -1,4 +1,5 @@
 import { use, useCallback, useMemo } from 'react';
+import { useTranslation } from 'next-i18next/pages';
 import isString from 'lodash/isString';
 import pickBy from 'lodash/pickBy';
 import {
@@ -17,7 +18,7 @@ import {
   parseJavaScriptException,
 } from '@/utils/javascriptStack';
 import { resolveRowTimestampAnchor } from '@/utils/rowTimestamps';
-import { getRequestPanelTitle } from '@/utils/rpcSpanAttributes';
+import { getRequestPanelTitleKey } from '@/utils/rpcSpanAttributes';
 import { isSet } from '@/utils/spanAttributeReaders';
 
 import { BrowserEventSubpanel } from './BrowserEventSubpanel';
@@ -64,6 +65,7 @@ export function RowOverviewPanel({
   flush?: boolean;
   'data-testid'?: string;
 }) {
+  const { t } = useTranslation('sessions');
   const contentPx = flush ? 0 : 'md';
   const { data, isLoading } = useRowData({
     source,
@@ -168,10 +170,10 @@ export function RowOverviewPanel({
     [generateSearchUrl],
   );
 
-  const requestPanelTitle = useMemo(
-    () => getRequestPanelTitle(flattenedEventAttributes),
-    [flattenedEventAttributes],
-  );
+  const requestPanelTitle = useMemo(() => {
+    const titleKey = getRequestPanelTitleKey(flattenedEventAttributes);
+    return titleKey == null ? undefined : t(`requestPanelTitle.${titleKey}`);
+  }, [flattenedEventAttributes, t]);
 
   // Only log sources select the event name, and gating here keeps every trace
   // row out whatever attributes it carries.
@@ -341,7 +343,7 @@ export function RowOverviewPanel({
           <Accordion.Item value="exception">
             <Accordion.Control>
               <Text size="sm" ps={contentPx}>
-                Exception
+                {t('exception')}
               </Text>
             </Accordion.Control>
             <Accordion.Panel>
@@ -364,7 +366,7 @@ export function RowOverviewPanel({
           >
             <Accordion.Control>
               <Text size="sm" ps={contentPx}>
-                Browser event
+                {t('browserEvent')}
               </Text>
             </Accordion.Control>
             <Accordion.Panel>
@@ -401,7 +403,7 @@ export function RowOverviewPanel({
           <Accordion.Item value="topLevelAttributes">
             <Accordion.Control>
               <Text size="sm" ps={contentPx}>
-                Top Level Attributes
+                {t('topLevelAttributes')}
               </Text>
             </Accordion.Control>
             <Accordion.Panel>
@@ -420,7 +422,9 @@ export function RowOverviewPanel({
           <Accordion.Item value="eventAttributes">
             <Accordion.Control>
               <Text size="sm" ps={contentPx}>
-                {source.kind === 'log' ? 'Log' : 'Span'} Attributes
+                {source.kind === 'log'
+                  ? t('logAttributes')
+                  : t('spanAttributes')}
               </Text>
             </Accordion.Control>
             <Accordion.Panel>
@@ -439,7 +443,7 @@ export function RowOverviewPanel({
           <Accordion.Item value="spanEvents">
             <Accordion.Control>
               <Text size="sm" ps={contentPx}>
-                Span Events
+                {t('spanEvents')}
               </Text>
             </Accordion.Control>
             <Accordion.Panel>
@@ -454,7 +458,7 @@ export function RowOverviewPanel({
           <Accordion.Item value="spanLinks">
             <Accordion.Control>
               <Text size="sm" ps={contentPx}>
-                Span Links
+                {t('spanLinks')}
               </Text>
             </Accordion.Control>
             <Accordion.Panel>
@@ -473,7 +477,7 @@ export function RowOverviewPanel({
           <Accordion.Item value="linkedFrom">
             <Accordion.Control>
               <Text size="sm" ps={contentPx}>
-                Linked from
+                {t('linkedFrom')}
               </Text>
             </Accordion.Control>
             <Accordion.Panel>
@@ -491,7 +495,7 @@ export function RowOverviewPanel({
           <Accordion.Item value="resourceAttributes">
             <Accordion.Control>
               <Text size="sm" ps={contentPx}>
-                Resource Attributes
+                {t('resourceAttributes')}
               </Text>
             </Accordion.Control>
             <Accordion.Panel>

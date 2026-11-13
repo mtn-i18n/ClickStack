@@ -1,0 +1,90 @@
+{
+  "title": "LLM",
+  "aboutThisDashboard": "About this dashboard",
+  "betaInfo": {
+    "experimental": "This dashboard is experimental — charts and metrics may change between releases.",
+    "integrations": "Works with traces from the OpenTelemetry GenAI semantic conventions, OpenLLMetry, OpenInference, and the Vercel AI SDK. No ingestion changes needed — spans are interpreted at query time.",
+    "costEstimates": "Costs are estimates from a bundled model price catalog and can lag provider pricing. A cost reported by the instrumentation itself always takes precedence.",
+    "deduplication": "When an app emits several instrumentations for the same calls, spans reporting their own cost are counted once as the source of truth."
+  },
+  "tabs": {
+    "overview": "Overview",
+    "latency": "Latency",
+    "sessions": "Sessions",
+    "errors": "Errors"
+  },
+  "filters": {
+    "allSessions": "All sessions",
+    "allUsers": "All users",
+    "loadingMore": "Loading more...",
+    "noMatchesFound": "No matches found"
+  },
+  "emptyState": {
+    "title": "No LLM spans found",
+    "description": "No spans with LLM instrumentation were found in the selected time range. This dashboard works with traces emitted by OpenTelemetry GenAI semantic conventions, OpenLLMetry, OpenInference, or the Vercel AI SDK — point that instrumentation at your existing OTLP endpoint and LLM calls will show up here automatically."
+  },
+  "tokenUsage": {
+    "input": "Input",
+    "output": "Output",
+    "total": "Total",
+    "cost": "Cost",
+    "cached": "{{value}} cached",
+    "reasoning": "{{value}} reasoning",
+    "estimatedTooltip": "Estimated from token usage and bundled model prices",
+    "reportedTooltip": "Cost reported by the instrumentation"
+  },
+  "span": {
+    "requestedModel": "Requested model",
+    "finishReasons": "Finish reasons",
+    "timeToFirstToken": "Time to first token",
+    "conversation": "Conversation"
+  },
+  "overview": {
+    "llmCalls": "LLM Calls",
+    "totalTokens": "Total Tokens",
+    "estimatedCost": "Est. Cost",
+    "avgCostPerCall": "Avg Cost / Call",
+    "cacheHitRate": "Cache Hit Rate",
+    "errorRate": "Error Rate",
+    "llmCallsByModel": "LLM Calls by Model"
+  },
+  "tokenCost": {
+    "tokenUsage": "Token Usage",
+    "estimatedCostByModel": "Est. Cost by Model",
+    "models": "Models",
+    "topServices": "Top Services"
+  },
+  "efficiency": {
+    "cacheHitRate": "Cache Hit Rate",
+    "finishReasons": "Finish Reasons"
+  },
+  "latency": {
+    "p95LatencyByModel": "P95 Latency by Model",
+    "timeToFirstToken": "Time to First Token"
+  },
+  "attribution": {
+    "topUsers": "Top Users",
+    "topErrorMessages": "Top Error Messages"
+  },
+  "agentTools": {
+    "toolCallsByTool": "Tool Calls by Tool",
+    "topTools": "Top Tools",
+    "llmCallsByAgent": "LLM Calls by Agent",
+    "agents": "Agents"
+  },
+  "sessions": {
+    "title": "LLM Sessions",
+    "noSpans": "No LLM spans found for this session in the selected time range.",
+    "showingFirstSpans": "Showing the first {{displayed}} of {{total}} spans.",
+    "filterDashboard": "Filter dashboard",
+    "openInSearch": "Open in search"
+  },
+  "spanDetail": {
+    "noMessages": "No captured messages on this span. Prompt and completion capture may be disabled in the instrumentation."
+  },
+  "errors": {
+    "errorTraceSpans": "Error trace spans",
+    "errorLogEvents": "Error log events",
+    "selectLogSource": "Select a log source to also show correlated error log events."
+  }
+}

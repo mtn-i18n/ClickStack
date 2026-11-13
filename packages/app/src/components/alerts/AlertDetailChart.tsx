@@ -1,5 +1,6 @@
 import * as React from 'react';
 import Link from 'next/link';
+import { useTranslation } from 'next-i18next/pages';
 import { pick } from 'lodash';
 import {
   Granularity,
@@ -55,6 +56,7 @@ function ChartFallback({
   alertUrl?: string;
   message: string;
 }) {
+  const { t } = useTranslation('alerts');
   return (
     <ChartShell>
       <Center h="100%">
@@ -64,7 +66,7 @@ function ChartFallback({
             <>
               {' '}
               <Anchor component={Link} href={alertUrl} size="sm">
-                Open source
+                {t('openSourceShort')}
               </Anchor>
             </>
           )}
@@ -81,6 +83,7 @@ function SavedSearchAlertChart({
   alert: AlertsPageItem;
   dateRange: [Date, Date];
 }) {
+  const { t } = useTranslation('alerts');
   const annotations = useAlertAnnotations(alert._id, dateRange, true);
   const { data: savedSearch, isLoading: isSavedSearchLoading } = useSavedSearch(
     { id: alert.savedSearchId ?? '' },
@@ -95,9 +98,7 @@ function SavedSearchAlertChart({
   }
 
   if (!savedSearch || !source) {
-    return (
-      <ChartFallback message="Unable to load the saved search behind this alert." />
-    );
+    return <ChartFallback message={t('savedSearchUnavailable')} />;
   }
 
   return (
@@ -243,18 +244,19 @@ export function isSingleValueRawSqlConfig(
   );
 }
 
-const SINGLE_VALUE_RAW_SQL_MESSAGE =
-  'This alert runs a raw SQL query that returns one value per window, so it has no chart over time.';
+const SINGLE_VALUE_RAW_SQL_MESSAGE = 'singleValueRawSqlMessage';
 
 function useAlertReferenceLines(alert: AlertsPageItem) {
+  const { t } = useTranslation('alerts');
   const referenceLines = React.useMemo(
     () =>
       getAlertReferenceLines({
         threshold: alert.threshold,
         thresholdMax: alert.thresholdMax,
         thresholdType: alert.thresholdType,
+        thresholdLabel: t('alertThresholdLine'),
       }),
-    [alert.threshold, alert.thresholdMax, alert.thresholdType],
+    [alert.threshold, alert.thresholdMax, alert.thresholdType, t],
   );
   const referenceLineValues = React.useMemo(
     () =>
@@ -277,6 +279,7 @@ function TileAlertChart({
   dateRange: [Date, Date];
   alertUrl?: string;
 }) {
+  const { t } = useTranslation('alerts');
   const annotations = useAlertAnnotations(alert._id, dateRange, true);
   const { data: dashboards, isLoading: isDashboardsLoading } = useDashboards();
   const dashboard = dashboards?.find(d => d.id === alert.dashboardId);
@@ -319,8 +322,8 @@ function TileAlertChart({
         alertUrl={alertUrl}
         message={
           isSingleValueRawSqlConfig(tile?.config)
-            ? SINGLE_VALUE_RAW_SQL_MESSAGE
-            : "This tile type can't be previewed here."
+            ? t(SINGLE_VALUE_RAW_SQL_MESSAGE)
+            : t('tileTypeNotPreviewable')
         }
       />
     );
@@ -357,6 +360,7 @@ function InlineAlertChart({
   dateRange: [Date, Date];
   alertUrl?: string;
 }) {
+  const { t } = useTranslation('alerts');
   const annotations = useAlertAnnotations(alert._id, dateRange, true);
   const chartConfig = alert.chartConfig;
   const configSourceId = chartConfig?.source;
@@ -390,8 +394,8 @@ function InlineAlertChart({
         alertUrl={alertUrl}
         message={
           isSingleValueRawSqlConfig(chartConfig)
-            ? SINGLE_VALUE_RAW_SQL_MESSAGE
-            : "This alert's chart can't be previewed here."
+            ? t(SINGLE_VALUE_RAW_SQL_MESSAGE)
+            : t('alertChartNotPreviewable')
         }
       />
     );
@@ -426,6 +430,7 @@ export function AlertDetailChart({
   dateRange: [Date, Date];
   alertUrl?: string;
 }) {
+  const { t } = useTranslation('alerts');
   if (alert.source === AlertSource.SAVED_SEARCH) {
     return <SavedSearchAlertChart alert={alert} dateRange={dateRange} />;
   }
@@ -444,9 +449,6 @@ export function AlertDetailChart({
     );
   }
   return (
-    <ChartFallback
-      alertUrl={alertUrl}
-      message="This alert type can't be previewed here."
-    />
+    <ChartFallback alertUrl={alertUrl} message={t('alertTypeNotPreviewable')} />
   );
 }

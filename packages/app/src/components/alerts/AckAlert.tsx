@@ -1,6 +1,8 @@
 import * as React from 'react';
+import { useTranslation } from 'next-i18next/pages';
 import type { Duration } from 'date-fns';
 import { add } from 'date-fns';
+import { Trans } from 'react-i18next';
 import { Button, Menu } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { IconBell } from '@tabler/icons-react';
@@ -13,6 +15,7 @@ import { FormatTime } from '@/useFormatTime';
 import { isAlertSilenceExpired } from '@/utils/alerts';
 
 export function AckAlert({ alert }: { alert: AlertsPageItem }) {
+  const { t } = useTranslation('alerts');
   const queryClient = useQueryClient();
   const silenceAlert = api.useSilenceAlert();
   const unsilenceAlert = api.useUnsilenceAlert();
@@ -27,13 +30,12 @@ export function AckAlert({ alert }: { alert: AlertsPageItem }) {
       },
       onError: (error: any) => {
         const status = error?.response?.status;
-        let message = 'Failed to silence alert, please try again later.';
+        let message = t('silenceFailed');
 
         if (status === 404) {
-          message = 'Alert not found.';
+          message = t('alertNotFound');
         } else if (status === 400) {
-          message =
-            'Invalid request. Please ensure the silence duration is valid.';
+          message = t('silenceInvalidDuration');
         }
 
         notifications.show({
@@ -42,7 +44,7 @@ export function AckAlert({ alert }: { alert: AlertsPageItem }) {
         });
       },
     }),
-    [queryClient, alert._id],
+    [queryClient, alert._id, t],
   );
 
   const handleUnsilenceAlert = React.useCallback(() => {
@@ -70,7 +72,7 @@ export function AckAlert({ alert }: { alert: AlertsPageItem }) {
 
   if (alert.silenced?.at) {
     return (
-      <ErrorBoundary message="Failed to load alert acknowledgment menu">
+      <ErrorBoundary message={t('ackMenuFailed')}>
         <Menu>
           <Menu.Target>
             <Button
@@ -83,29 +85,43 @@ export function AckAlert({ alert }: { alert: AlertsPageItem }) {
               }
               leftSection={<IconBell size={16} />}
             >
-              Ack&apos;d
+              {t('acked')}
             </Button>
           </Menu.Target>
           <Menu.Dropdown>
             <Menu.Label py={6}>
-              Acknowledged{' '}
               {alert.silenced?.by ? (
-                <>
-                  by <strong>{alert.silenced?.by}</strong>
-                </>
-              ) : null}{' '}
-              on <br />
-              <FormatTime value={alert.silenced?.at} />
-              .<br />
+                <Trans
+                  ns="alerts"
+                  i18nKey="acknowledgedBy"
+                  values={{ by: alert.silenced.by }}
+                  components={{
+                    bold: <strong />,
+                    time: <FormatTime value={alert.silenced?.at} />,
+                  }}
+                />
+              ) : (
+                <Trans
+                  ns="alerts"
+                  i18nKey="acknowledgedOn"
+                  components={{
+                    time: <FormatTime value={alert.silenced?.at} />,
+                  }}
+                />
+              )}
             </Menu.Label>
 
             <Menu.Label py={6}>
               {isNoLongerMuted ? (
-                'Alert resumed.'
+                t('alertResumed')
               ) : (
-                <>
-                  Resumes <FormatTime value={alert.silenced.until} />.
-                </>
+                <Trans
+                  ns="alerts"
+                  i18nKey="resumesAt"
+                  components={{
+                    time: <FormatTime value={alert.silenced.until} />,
+                  }}
+                />
               )}
             </Menu.Label>
             <Menu.Item
@@ -115,7 +131,7 @@ export function AckAlert({ alert }: { alert: AlertsPageItem }) {
               onClick={handleUnsilenceAlert}
               disabled={unsilenceAlert.isPending}
             >
-              {isNoLongerMuted ? 'Unacknowledge' : 'Resume alert'}
+              {isNoLongerMuted ? t('unacknowledge') : t('resumeAlert')}
             </Menu.Item>
           </Menu.Dropdown>
         </Menu>
@@ -125,16 +141,16 @@ export function AckAlert({ alert }: { alert: AlertsPageItem }) {
 
   if (alert.state === 'ALERT') {
     return (
-      <ErrorBoundary message="Failed to load alert acknowledgment menu">
+      <ErrorBoundary message={t('ackMenuFailed')}>
         <Menu disabled={silenceAlert.isPending}>
           <Menu.Target>
             <Button size="compact-sm" variant="secondary">
-              Ack
+              {t('ack')}
             </Button>
           </Menu.Target>
           <Menu.Dropdown>
             <Menu.Label lh="1" py={6}>
-              Acknowledge and silence for
+              {t('acknowledgeAndSilenceFor')}
             </Menu.Label>
             <Menu.Item
               lh="1"
@@ -145,7 +161,7 @@ export function AckAlert({ alert }: { alert: AlertsPageItem }) {
                 })
               }
             >
-              30 minutes
+              {t('minutes30')}
             </Menu.Item>
             <Menu.Item
               lh="1"
@@ -156,7 +172,7 @@ export function AckAlert({ alert }: { alert: AlertsPageItem }) {
                 })
               }
             >
-              1 hour
+              {t('hours1')}
             </Menu.Item>
             <Menu.Item
               lh="1"
@@ -167,7 +183,7 @@ export function AckAlert({ alert }: { alert: AlertsPageItem }) {
                 })
               }
             >
-              6 hours
+              {t('hours6')}
             </Menu.Item>
             <Menu.Item
               lh="1"
@@ -178,7 +194,7 @@ export function AckAlert({ alert }: { alert: AlertsPageItem }) {
                 })
               }
             >
-              24 hours
+              {t('hours24')}
             </Menu.Item>
           </Menu.Dropdown>
         </Menu>

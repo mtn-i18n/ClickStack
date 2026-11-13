@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef } from 'react';
 import Link from 'next/link';
+import { useTranslation } from 'next-i18next/pages';
 import { isMissingColumnError } from '@hyperdx/common-utils/dist/clickhouse';
 import {
   BuilderChartConfigWithDateRange,
@@ -343,6 +344,7 @@ export function useReleaseAnnotations(
     versionExpression?: string;
   },
 ): ChartAnnotation[] | undefined {
+  const { t } = useTranslation('search');
   const source = options?.source;
   const isSupported = canDeriveReleases(source);
   const versionExpression =
@@ -460,14 +462,13 @@ export function useReleaseAnnotations(
       notifications.show({
         id: RELEASE_ERROR_NOTIFICATION_ID,
         color: 'red',
-        title: "Couldn't load release markers",
+        title: t('releaseMarkers.loadError'),
         message: (
           <Stack gap={4}>
             <Text size="sm">
               {isMissingColumnError(error) ? (
                 <>
-                  The version expression configured for release markers
-                  doesn&apos;t match a column on this source.{' '}
+                  {t('releaseMarkers.versionExpressionMismatch')}{' '}
                   {/* `/team` isn't reachable in local mode (e.g. the Vercel
                   preview) — same constraint DBRowSidePanelErrorState works
                   around with a modal instead. A hook's notification content
@@ -480,12 +481,12 @@ export function useReleaseAnnotations(
                       href={`/team#source-${source.id}`}
                       size="sm"
                     >
-                      Check the Service Version Expression in Team Settings
+                      {t('releaseMarkers.checkServiceVersionExpression')}
                     </Anchor>
                   )}
                 </>
               ) : (
-                'Release marker query failed.'
+                t('releaseMarkers.queryFailed')
               )}
             </Text>
             <Text size="xs" c="dimmed" style={{ wordBreak: 'break-word' }}>
@@ -512,9 +513,8 @@ export function useReleaseAnnotations(
     notifications.show({
       id: RELEASE_EMPTY_NOTIFICATION_ID,
       color: 'yellow',
-      title: 'No releases found',
-      message:
-        'Release markers come from changes in the version attribute configured on this source. No version changes were found in this time range - if you deploy without changing the version, there is nothing to mark.',
+      title: t('releaseMarkers.noneTitle'),
+      message: t('releaseMarkers.noneMessage'),
     });
   }, [
     enabled,
@@ -526,6 +526,7 @@ export function useReleaseAnnotations(
     scopeIdentity,
     windowIdentity,
     source,
+    t,
   ]);
 
   return annotations;

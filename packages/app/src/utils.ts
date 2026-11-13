@@ -20,6 +20,7 @@ import {
 } from '@hyperdx/common-utils/dist/types';
 import { SortingState } from '@tanstack/react-table';
 
+import { dateFnsLocale, isChineseLocale } from './i18n/dateLocales';
 import { MetricsDataType, NumberFormat } from './types';
 
 // From: https://usehooks.com/useWindowSize/
@@ -307,8 +308,16 @@ export function truncateText(
   return text.substring(0, maxLength) + (suffix ?? '...');
 }
 
-export function formatDistanceToNowStrictShort(date: Date) {
-  return formatDistanceToNowStrict(date)
+export function formatDistanceToNowStrictShort(date: Date, locale?: string) {
+  const distance = formatDistanceToNowStrict(date, {
+    locale: dateFnsLocale(locale),
+  });
+  // Chinese distance strings already contain the unit ("5分钟"); the English
+  // suffix abbreviations below would not match them.
+  if (isChineseLocale(locale)) {
+    return distance;
+  }
+  return distance
     .replace(/ seconds?$/, 's')
     .replace(/ minutes?$/, 'm')
     .replace(/ hours?$/, 'h')

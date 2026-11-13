@@ -1,37 +1,42 @@
+import { useTranslation } from 'next-i18next/pages';
 import { PromqlHeatmapMode } from '@hyperdx/common-utils/dist/types';
 import { Group, SegmentedControl, Stack, Text, Tooltip } from '@mantine/core';
 import { IconHelpCircle } from '@tabler/icons-react';
 
-type ModeOption = { label: string; value: PromqlHeatmapMode; help: string };
+type ModeOption = {
+  labelKey: string;
+  value: PromqlHeatmapMode;
+  helpKey: string;
+};
 
 const BUILDER_MODE_OPTIONS: ModeOption[] = [
   {
-    label: 'Distribution',
+    labelKey: 'chartEditor.heatmapMode.distribution',
     value: 'distribution',
-    help: 'Buckets each event by a value, such as duration. Color shows how many events fall in each bucket.',
+    helpKey: 'chartEditor.heatmapMode.builderDistributionHelp',
   },
   {
-    label: 'Series',
+    labelKey: 'chartEditor.heatmapMode.series',
     value: 'series',
-    help: 'One row per group. Color shows the aggregated value.',
+    helpKey: 'chartEditor.heatmapMode.builderSeriesHelp',
   },
 ];
 
 const PROMQL_MODE_OPTIONS: ModeOption[] = [
   {
-    label: 'Distribution',
+    labelKey: 'chartEditor.heatmapMode.distribution',
     value: 'distribution',
-    help: 'Buckets the samples of every series by value. Color shows how many samples fall in each bucket.',
+    helpKey: 'chartEditor.heatmapMode.promqlDistributionHelp',
   },
   {
-    label: 'Series',
+    labelKey: 'chartEditor.heatmapMode.series',
     value: 'series',
-    help: 'One row per series. Color shows the sample value.',
+    helpKey: 'chartEditor.heatmapMode.promqlSeriesHelp',
   },
   {
-    label: 'Histogram',
+    labelKey: 'chartEditor.heatmapMode.histogram',
     value: 'histogram',
-    help: "One row per le bucket of a Prometheus histogram. Color shows the query's value for that bucket alone, such as a rate or count.",
+    helpKey: 'chartEditor.heatmapMode.promqlHistogramHelp',
   },
 ];
 
@@ -45,7 +50,15 @@ export function HeatmapModeControl<M extends PromqlHeatmapMode>({
   onModeChange: (mode: M) => void;
   allowHistogram?: boolean;
 }) {
-  const options = allowHistogram ? PROMQL_MODE_OPTIONS : BUILDER_MODE_OPTIONS;
+  const { t } = useTranslation('dashboards');
+  const rawOptions = allowHistogram
+    ? PROMQL_MODE_OPTIONS
+    : BUILDER_MODE_OPTIONS;
+  const options = rawOptions.map(({ labelKey, value, helpKey }) => ({
+    label: t(labelKey),
+    value,
+    help: t(helpKey),
+  }));
   const isOfferedMode = (value: string): value is M =>
     options.some(o => o.value === value);
   return (
@@ -76,7 +89,7 @@ export function HeatmapModeControl<M extends PromqlHeatmapMode>({
         <IconHelpCircle
           size={16}
           opacity={0.5}
-          aria-label="Heatmap modes"
+          aria-label={t('chartEditor.heatmapMode.aria')}
           data-testid="heatmap-mode-help"
         />
       </Tooltip>

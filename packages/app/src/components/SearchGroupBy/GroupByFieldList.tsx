@@ -1,4 +1,5 @@
 import { useRef } from 'react';
+import { useTranslation } from 'next-i18next/pages';
 import { Checkbox, ScrollArea, Text } from '@mantine/core';
 import { useVirtualizer } from '@tanstack/react-virtual';
 
@@ -13,6 +14,7 @@ export function GroupByFieldList({
   selected: string[];
   onToggle: (field: string) => void;
 }) {
+  const { t } = useTranslation('search');
   const viewportRef = useRef<HTMLDivElement>(null);
   const virtualizer = useVirtualizer({
     count: fields.length,
@@ -25,7 +27,7 @@ export function GroupByFieldList({
   if (fields.length === 0) {
     return (
       <Text size="xs" c="dimmed" py="xs" ta="center">
-        No fields found
+        {t('groupBy.noFields')}
       </Text>
     );
   }

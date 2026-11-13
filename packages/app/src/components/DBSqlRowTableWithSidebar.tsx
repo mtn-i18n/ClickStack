@@ -1,4 +1,5 @@
 import { useCallback, useState } from 'react';
+import { useTranslation } from 'next-i18next/pages';
 import { useQueryState } from 'nuqs';
 import {
   ClickHouseQueryError,
@@ -85,6 +86,7 @@ export default function DBSqlRowTableWithSideBar({
   closeOnClickOutside = true,
   keepOpenSelector = DEFAULT_KEEP_OPEN_SELECTOR,
 }: Props) {
+  const { t } = useTranslation('common');
   const { data: sourceData } = useSource({ id: sourceId });
   const [rowId, setRowId] = useQueryState('rowWhere', parseAsStringEncoded);
   const [rowSource, setRowSource] = useQueryState('rowSource');
@@ -107,7 +109,7 @@ export default function DBSqlRowTableWithSideBar({
   const renderRowDetails = useCallback(
     (r: { id: string; aliasWith?: WithClause[]; [key: string]: unknown }) => {
       if (!sourceData) {
-        return <div className="p-3 text-muted">Loading...</div>;
+        return <div className="p-3 text-muted">{t('states.loading')}</div>;
       }
       return (
         <RowOverviewPanelWrapper
@@ -117,7 +119,7 @@ export default function DBSqlRowTableWithSideBar({
         />
       );
     },
-    [sourceData],
+    [sourceData, t],
   );
 
   // `rowWhere`/`rowSource` survive a source switch, so a stale `rowWhere` can
@@ -182,6 +184,7 @@ function RowOverviewPanelWrapper({
   rowId: string;
   aliasWith?: WithClause[];
 }) {
+  const { t } = useTranslation('search');
   // Use localStorage to persist the selected tab
   const [activeTab, setActiveTab] = useLocalStorage<InlineTab>(
     'hdx-expanded-row-default-tab',
@@ -211,11 +214,11 @@ function RowOverviewPanelWrapper({
           className="fs-8"
           items={[
             {
-              text: 'Overview',
+              text: t('sidePanel.tabs.overview'),
               value: InlineTab.Overview,
             },
             {
-              text: 'Column Values',
+              text: t('sidePanel.tabs.columnValues'),
               value: InlineTab.ColumnValues,
             },
           ]}

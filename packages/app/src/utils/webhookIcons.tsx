@@ -9,6 +9,8 @@ import { IncidentIOIcon } from '@/SVGIcons';
 
 interface ServiceConfig {
   name: string;
+  /** Translation key for the display name, when it is not a product name. */
+  nameKey?: string;
   icon: React.ReactElement;
   order: number;
 }
@@ -27,6 +29,7 @@ const WEBHOOK_SERVICE_CONFIG: Record<WebhookService, ServiceConfig> = {
   },
   [WebhookService.Generic]: {
     name: 'Generic',
+    nameKey: 'webhooks.generic',
     icon: <IconLink size={16} />,
     order: 5,
   },

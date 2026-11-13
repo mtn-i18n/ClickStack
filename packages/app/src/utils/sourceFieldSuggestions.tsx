@@ -1,4 +1,5 @@
 import { JSX } from 'react';
+import { Trans } from 'next-i18next/pages';
 import {
   ColumnMetaType,
   convertCHDataTypeToJSType,
@@ -257,11 +258,10 @@ export function getSourceConfigPairingWarnings(
     warnings.push({
       field: 'implicitColumnExpression',
       message: (
-        <>
-          <strong>Body Expression</strong> is set but{' '}
-          <strong>Implicit Column Expression</strong> is empty. Bare-text Lucene
-          search will fall back to <strong>Body Expression</strong>.
-        </>
+        <Trans
+          i18nKey="settings:sourceForm.pairing.bodySetImplicitEmpty"
+          components={{ strong: <strong /> }}
+        />
       ),
       recommendation: 'Body Expression value',
       suggestedFix: { field: 'implicitColumnExpression', value: body },
@@ -270,11 +270,10 @@ export function getSourceConfigPairingWarnings(
     warnings.push({
       field: 'bodyExpression',
       message: (
-        <>
-          <strong>Implicit Column Expression</strong> is set but{' '}
-          <strong>Body Expression</strong> is empty. Row-panel body display will
-          fall back to <strong>Implicit Column Expression</strong>.
-        </>
+        <Trans
+          i18nKey="settings:sourceForm.pairing.implicitSetBodyEmpty"
+          components={{ strong: <strong /> }}
+        />
       ),
       recommendation: 'Implicit Column Expression value',
       suggestedFix: { field: 'bodyExpression', value: implicit },

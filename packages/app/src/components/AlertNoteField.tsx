@@ -1,3 +1,4 @@
+import { useTranslation } from 'next-i18next/pages';
 import { Control, Controller, FieldValues, Path } from 'react-hook-form';
 import { Text, Textarea } from '@mantine/core';
 
@@ -10,10 +11,11 @@ export function AlertNoteField<T extends FieldValues>({
   name: Path<T>;
   labelMarginTop?: string;
 }) {
+  const { t } = useTranslation('alerts');
   return (
     <>
       <Text size="xxs" opacity={0.5} mb={4} mt={labelMarginTop}>
-        Note
+        {t('note')}
       </Text>
       <Controller
         control={control}
@@ -25,7 +27,7 @@ export function AlertNoteField<T extends FieldValues>({
             minRows={2}
             maxRows={6}
             autosize
-            placeholder="Why does this alert exist? Threshold history, links to runbooks, etc. Supports markdown."
+            placeholder={t('notePlaceholder')}
             {...field}
             value={field.value ?? ''}
             onChange={e => field.onChange(e.target.value || null)}

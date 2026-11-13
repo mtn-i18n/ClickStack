@@ -1,4 +1,5 @@
 import { useCallback, useMemo, useState } from 'react';
+import { useTranslation } from 'next-i18next/pages';
 import { parseAsJson, useQueryState } from 'nuqs';
 import {
   DashboardContainer,
@@ -219,6 +220,7 @@ export function useDashboard({
   dashboardId?: string;
   presetConfig?: Dashboard;
 }) {
+  const { t } = useTranslation('dashboards');
   const defaultDashboard = useMemo(() => {
     return (
       presetConfig ?? {
@@ -303,7 +305,7 @@ export function useDashboard({
             setIsSettingDashboard(false);
             notifications.show({
               color: 'red',
-              title: 'Unable to save dashboard',
+              title: t('dashboard.saveFailed'),
               message: e.message.slice(0, 100),
               autoClose: 5000,
             });
@@ -318,6 +320,7 @@ export function useDashboard({
       updateDashboard,
       completeOnboardingTask,
       hasBuiltDashboard,
+      t,
     ],
   );
 

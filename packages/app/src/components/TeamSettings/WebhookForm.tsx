@@ -1,4 +1,5 @@
 import { useEffect, useMemo } from 'react';
+import { useTranslation } from 'next-i18next/pages';
 import { HTTPError } from 'ky';
 import { Controller, SubmitHandler, useForm, useWatch } from 'react-hook-form';
 import { ZodIssue } from 'zod';
@@ -44,36 +45,42 @@ import { isValidUrl } from '@/utils';
 // Keyed by WebhookTemplateVariable so a variable added in common-utils cannot
 // reach the transports without a description here.
 const describeTemplateVariable = (
+  t: (key: string, options?: Record<string, string>) => string,
   brandName: string,
 ): Record<WebhookTemplateVariable, string> => ({
-  title: 'Alert title',
-  body: 'Rendered message body (markdown)',
-  link: `Deep link back into ${brandName}`,
-  state: 'Raw internal alert state',
-  status: 'firing, resolved, no_data, pending or error',
-  eventId: 'Unique id for this firing',
-  alertId: 'Stable id of the alert — the key to dedupe on',
-  alertType: 'search, dashboard_chart or inline_query',
-  comparator: '>=, >, <, <=, =, !=, between or outside',
-  threshold: 'The configured threshold (number)',
-  thresholdMax: 'Upper bound of a between/outside range (number)',
-  value: 'Value that triggered or resolved the alert (number)',
-  groupKey: 'The breaching group, if grouped',
-  var: 'Group-by values by column, e.g. {{var.customer_id}}',
-  sourceQuery: 'Search expression or SQL behind the alert',
-  startTime: 'Window start, Unix ms (number)',
-  endTime: 'Window end, Unix ms (number)',
-  startTimeISO: 'Window start, ISO-8601',
-  endTimeISO: 'Window end, ISO-8601',
-  teamId: 'Team the alert belongs to',
-  note: "Alert's note, commonly a runbook link",
-  tags: "Alert's tags, comma-separated; iterate with {{#each tags}}",
+  title: t('webhookForm.templateVariables.title'),
+  body: t('webhookForm.templateVariables.body'),
+  link: t('webhookForm.templateVariables.link', { brandName }),
+  state: t('webhookForm.templateVariables.state'),
+  status: t('webhookForm.templateVariables.status'),
+  eventId: t('webhookForm.templateVariables.eventId'),
+  alertId: t('webhookForm.templateVariables.alertId'),
+  alertType: t('webhookForm.templateVariables.alertType'),
+  comparator: t('webhookForm.templateVariables.comparator'),
+  threshold: t('webhookForm.templateVariables.threshold'),
+  thresholdMax: t('webhookForm.templateVariables.thresholdMax'),
+  value: t('webhookForm.templateVariables.value'),
+  groupKey: t('webhookForm.templateVariables.groupKey'),
+  var: t('webhookForm.templateVariables.var', {
+    example: '{{var.customer_id}}',
+  }),
+  sourceQuery: t('webhookForm.templateVariables.sourceQuery'),
+  startTime: t('webhookForm.templateVariables.startTime'),
+  endTime: t('webhookForm.templateVariables.endTime'),
+  startTimeISO: t('webhookForm.templateVariables.startTimeISO'),
+  endTimeISO: t('webhookForm.templateVariables.endTimeISO'),
+  teamId: t('webhookForm.templateVariables.teamId'),
+  note: t('webhookForm.templateVariables.note'),
+  tags: t('webhookForm.templateVariables.tags', {
+    example: '{{#each tags}}',
+  }),
 });
 
 export const getWebhookTemplateVariables = (
+  t: (key: string, options?: Record<string, string>) => string,
   brandName: string,
 ): { name: string; description: string }[] => {
-  const descriptions = describeTemplateVariable(brandName);
+  const descriptions = describeTemplateVariable(t, brandName);
   return WEBHOOK_TEMPLATE_VARIABLES.map(name => ({
     name: `{{${name}}}`,
     description: descriptions[name],
@@ -105,6 +112,7 @@ export function WebhookForm({
   onClose: VoidFunction;
   onSuccess: (webhookId?: string) => void;
 }) {
+  const { t } = useTranslation('settings');
   const brandName = useBrandDisplayName();
   const saveWebhook = api.useSaveWebhook();
   const updateWebhook = api.useUpdateWebhook();
@@ -167,9 +175,9 @@ export function WebhookForm({
         const errorMessage =
           parseError instanceof Error
             ? parseError.message
-            : 'Invalid JSON format';
+            : t('webhookForm.invalidJsonFormat');
         notifications.show({
-          message: `Invalid JSON in headers: ${errorMessage}`,
+          message: t('webhookForm.invalidHeaders', { message: errorMessage }),
           color: 'red',
           autoClose: 5000,
         });
@@ -192,12 +200,11 @@ export function WebhookForm({
       });
       notifications.show({
         color: 'green',
-        message: 'Test webhook sent successfully',
+        message: t('webhookForm.testSent'),
       });
     } catch (e) {
       console.error(e);
-      let message =
-        'Failed to send test webhook. Please check your webhook configuration.';
+      let message = t('webhookForm.testFailed');
 
       if (e instanceof HTTPError) {
         try {
@@ -232,9 +239,9 @@ export function WebhookForm({
           const errorMessage =
             parseError instanceof Error
               ? parseError.message
-              : 'Invalid JSON format';
+              : t('webhookForm.invalidJsonFormat');
           notifications.show({
-            message: `Invalid JSON in headers: ${errorMessage}`,
+            message: t('webhookForm.invalidHeaders', { message: errorMessage }),
             color: 'red',
             autoClose: 5000,
           });
@@ -266,13 +273,15 @@ export function WebhookForm({
 
       notifications.show({
         color: 'green',
-        message: `Webhook ${isEditing ? 'updated' : 'created'} successfully`,
+        message: isEditing
+          ? t('webhookForm.savedUpdated')
+          : t('webhookForm.savedCreated'),
       });
       onSuccess(response.data?._id);
       onClose();
     } catch (e) {
       console.error(e);
-      let message = `Something went wrong. Please contact ${brandName} team.`;
+      let message = t('webhookForm.contactSupport', { brandName });
 
       if (e instanceof HTTPError) {
         try {
@@ -291,7 +300,9 @@ export function WebhookForm({
                 return `${path}: ${issue.message}`;
               })
               .join(', ');
-            message = `Validation error: ${validationErrors}`;
+            message = t('webhookForm.validationError', {
+              message: validationErrors,
+            });
           } else if (errorData.message) {
             message = errorData.message;
           } else {
@@ -322,17 +333,21 @@ export function WebhookForm({
     }
     form.setValue('service', next);
   };
-  const templateVariables = getWebhookTemplateVariables(brandName);
+  const templateVariables = getWebhookTemplateVariables(t, brandName);
   const headersText = useWatch({ control: form.control, name: 'headers' });
   const hasMaskedHeaders = isEditing && !!headersText?.includes('****');
 
   return (
     <form onSubmit={form.handleSubmit(onSubmit)}>
       <Stack mt="sm">
-        <Text>{isEditing ? 'Edit Webhook' : 'Create Webhook'}</Text>
+        <Text>
+          {isEditing
+            ? t('webhookForm.editTitle')
+            : t('webhookForm.createTitle')}
+        </Text>
         <Radio.Group
           data-testid="service-type-radio-group"
-          label="Service Type"
+          label={t('webhookForm.serviceType')}
           required
           value={service}
           onChange={value => onServiceChange(value as WebhookService)}
@@ -340,26 +355,25 @@ export function WebhookForm({
           <Group mt="xs">
             <Radio value={WebhookService.Slack} label="Slack" />
             <Radio value={WebhookService.IncidentIO} label="incident.io" />
-            <Radio value={WebhookService.Generic} label="Generic" />
+            <Radio
+              value={WebhookService.Generic}
+              label={t('webhookForm.generic')}
+            />
           </Group>
         </Radio.Group>
         <TextInput
-          label="Webhook Name"
+          label={t('webhookForm.name')}
           data-testid="webhook-name-input"
-          placeholder="Post to #dev-alerts"
+          placeholder={t('webhookForm.namePlaceholder')}
           required
           error={form.formState.errors.name?.message}
           {...form.register('name', { required: true })}
         />
 
         <TextInput
-          label="Webhook URL"
+          label={t('webhookForm.url')}
           data-testid="webhook-url-input"
-          description={
-            isEditing
-              ? 'URL is masked for security. Enter a new URL to update.'
-              : undefined
-          }
+          description={isEditing ? t('webhookForm.urlMasked') : undefined}
           placeholder={
             service === WebhookService.Slack
               ? 'https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX'
@@ -374,31 +388,29 @@ export function WebhookForm({
             required: true,
             validate: (value, formValues) =>
               formValues.service === WebhookService.Slack
-                ? isValidSlackUrl(value) ||
-                  'URL must be valid and have a slack.com domain'
-                : isValidUrl(value) || 'URL must be valid',
+                ? isValidSlackUrl(value) || t('webhookForm.urlSlackError')
+                : isValidUrl(value) || t('webhookForm.urlError'),
           })}
         />
 
         <TextInput
-          label="Webhook Description (optional)"
-          placeholder="To be used for dev alerts"
+          label={t('webhookForm.description')}
+          placeholder={t('webhookForm.descriptionPlaceholder')}
           error={form.formState.errors.description?.message}
           {...form.register('description')}
         />
         <Checkbox
-          label="Show state emoji in notification titles"
+          label={t('webhookForm.titleEmoji')}
           data-testid="webhook-title-emoji-checkbox"
           {...form.register('titleEmoji')}
         />
         {service === WebhookService.Generic && [
           <label className=".mantine-TextInput-label" key="1">
-            Webhook Headers (optional)
+            {t('webhookForm.headers')}
           </label>,
           hasMaskedHeaders && (
             <Text key="1a" size="xs" c="dimmed" mt={-4}>
-              Header values are masked. Enter new values to update or remove
-              keys to delete them.
+              {t('webhookForm.headersMasked')}
             </Text>
           ),
           <div className="mb-2" key="2">
@@ -425,7 +437,7 @@ export function WebhookForm({
         ]}
         {service !== WebhookService.Slack && [
           <label className=".mantine-TextInput-label" key="3">
-            Webhook Body (optional)
+            {t('webhookForm.body')}
           </label>,
           <div className="mb-2" key="4">
             <Controller
@@ -455,9 +467,7 @@ export function WebhookForm({
             className="mb-4"
             color="gray"
           >
-            <Text size="sm">
-              The body supports the following template variables:
-            </Text>
+            <Text size="sm">{t('webhookForm.bodyVariables')}</Text>
             <SimpleGrid
               cols={{ base: 1, sm: 2 }}
               spacing="xs"
@@ -475,9 +485,7 @@ export function WebhookForm({
               ))}
             </SimpleGrid>
             <Text size="xs" c="dimmed" mt="xs">
-              Strings are JSON-escaped, so they are safe inside quotes. Numbers
-              are emitted raw for unquoted slots. A variable the alert
-              doesn&apos;t carry renders as an empty string.
+              {t('webhookForm.bodyEscapeNote')}
             </Text>
           </Alert>,
         ]}
@@ -489,7 +497,7 @@ export function WebhookForm({
               data-testid="add-webhook-button"
               loading={saveWebhook.isPending || updateWebhook.isPending}
             >
-              {isEditing ? 'Update Webhook' : 'Add Webhook'}
+              {isEditing ? t('webhookForm.update') : t('webhookForm.add')}
             </Button>
             <Button
               variant="secondary"
@@ -497,11 +505,11 @@ export function WebhookForm({
               loading={testWebhook.isPending}
               type="button"
             >
-              Test Webhook
+              {t('webhookForm.test')}
             </Button>
           </Group>
           <Button variant="secondary" onClick={onClose} type="reset">
-            Cancel
+            {t('webhookForm.cancel')}
           </Button>
         </Group>
       </Stack>

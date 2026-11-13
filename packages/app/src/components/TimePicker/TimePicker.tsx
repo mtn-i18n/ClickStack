@@ -1,4 +1,5 @@
 import React, { memo, useMemo, useState } from 'react';
+import { useTranslation } from 'next-i18next/pages';
 import { add, Duration, sub } from 'date-fns';
 import { useAtom } from 'jotai';
 import { atomWithStorage } from 'jotai/utils';
@@ -56,6 +57,26 @@ const modeAtom = atomWithStorage<TimePickerMode>(
 
 const DATE_INPUT_PLACEHOLDER = 'YYYY-MM-DD HH:mm:ss';
 const DATE_INPUT_FORMAT = 'YYYY-MM-DD HH:mm:ss';
+
+// Display labels for presets. The English label remains the persisted value
+// (it is parsed as a time range), so only the rendered text is translated.
+const RELATIVE_TIME_LABEL_KEYS: Record<string, string> = {
+  'Live Tail': 'liveTail',
+  'Last 1 minute': 'last1Minute',
+  'Last 5 minutes': 'last5Minutes',
+  'Last 15 minutes': 'last15Minutes',
+  'Last 30 minutes': 'last30Minutes',
+  'Last 45 minutes': 'last45Minutes',
+  'Last 1 hour': 'last1Hour',
+  'Last 3 hours': 'last3Hours',
+  'Last 6 hours': 'last6Hours',
+  'Last 12 hours': 'last12Hours',
+  'Last 1 days': 'last1Day',
+  'Last 2 days': 'last2Days',
+  'Last 7 days': 'last7Days',
+  'Last 14 days': 'last14Days',
+  'Last 30 days': 'last30Days',
+};
 
 /** Ensure a value is a Date object (Mantine v9 DateInput returns strings). */
 const toDate = (v: Date | string | null): Date | null =>
@@ -145,6 +166,7 @@ const TimePickerComponent = ({
   width?: number | string;
   size?: 'xs' | 'sm';
 }) => {
+  const { t } = useTranslation('common');
   const {
     userPreferences: { timeFormat },
   } = useUserPreferences();
@@ -336,7 +358,7 @@ const TimePickerComponent = ({
           value={value}
           onChange={event => onChange(event.currentTarget.value)}
           onClick={toggle}
-          placeholder="Time Range"
+          placeholder={t('timePicker.placeholder')}
           size={size}
           w={width}
           onKeyDown={e => {
@@ -359,16 +381,13 @@ const TimePickerComponent = ({
         <Group justify="space-between" gap={4} px="xs" py={4}>
           <Group gap={4}>
             {typeof onRelativeSearch === 'function' && (
-              <Tooltip
-                label="Set how far back Live Tail begins streaming logs."
-                refProp="rootRef"
-              >
+              <Tooltip label={t('timePicker.liveTailHint')} refProp="rootRef">
                 <Switch
                   data-testid="time-picker-relative-switch"
                   size="xs"
                   checked={isRelative}
                   onChange={e => setIsRelative(e.currentTarget.checked)}
-                  label="Live tail ranges"
+                  label={t('timePicker.liveTailRanges')}
                   labelPosition="right"
                   styles={{
                     label: {
@@ -387,7 +406,7 @@ const TimePickerComponent = ({
               onClick={handleMove.bind(null, { hours: -1 })}
               disabled={isLiveMode || isRelative}
             >
-              1h back
+              {t('timePicker.back1h')}
             </Button>
             <Button
               data-testid="time-picker-1h-forward"
@@ -396,7 +415,7 @@ const TimePickerComponent = ({
               onClick={handleMove.bind(null, { hours: 1 })}
               disabled={isLiveMode || isRelative}
             >
-              1h forward
+              {t('timePicker.forward1h')}
             </Button>
             <CloseButton data-testid="time-picker-close" onClick={close} />
           </Group>
@@ -438,14 +457,16 @@ const TimePickerComponent = ({
                       fullWidth
                       justify="space-between"
                     >
-                      {item[0]}
+                      {RELATIVE_TIME_LABEL_KEYS[item[0]]
+                        ? t(`timeRanges.${RELATIVE_TIME_LABEL_KEYS[item[0]]}`)
+                        : item[0]}
                     </Button>
                   );
                   if (isDisabledForLiveTail) {
                     return (
                       <Tooltip
                         key={item[0]}
-                        label="Not available for Live Tail"
+                        label={t('timePicker.notAvailableForLiveTail')}
                         position="right"
                         withArrow
                         openDelay={0}
@@ -507,7 +528,7 @@ const TimePickerComponent = ({
               />
               {mode === TimePickerMode.Range ? (
                 <>
-                  <H>Start time</H>
+                  <H>{t('timePicker.startTime')}</H>
                   <DateInputCmp
                     timeZone={timeZone}
                     disabled={isRelative}
@@ -516,7 +537,7 @@ const TimePickerComponent = ({
                     mb="xs"
                     {...form.getInputProps('startDate')}
                   />
-                  <H>End time</H>
+                  <H>{t('timePicker.endTime')}</H>
                   <DateInputCmp
                     timeZone={timeZone}
                     popoverProps={dateComponentPopoverProps}
@@ -528,7 +549,7 @@ const TimePickerComponent = ({
                 </>
               ) : (
                 <>
-                  <H>Time</H>
+                  <H>{t('timePicker.time')}</H>
                   <DateInputCmp
                     timeZone={timeZone}
                     disabled={isRelative}
@@ -537,9 +558,9 @@ const TimePickerComponent = ({
                     mb="xs"
                     {...form.getInputProps('startDate')}
                   />
-                  <H>Duration ±</H>
+                  <H>{t('timePicker.duration')}</H>
                   <Select
-                    placeholder="Pick value"
+                    placeholder={t('timePicker.pickValue')}
                     data={DURATION_OPTIONS}
                     comboboxProps={dateComponentPopoverProps}
                     searchable
@@ -552,8 +573,7 @@ const TimePickerComponent = ({
               )}
             </Stack>
             <Text size="xxs" lh={1.2}>
-              You can use natural language to select dates (e.g. yesterday, last
-              monday at 5pm)
+              {t('timePicker.naturalLanguageHint')}
             </Text>
             <Space flex={1} />
             <Group
@@ -569,7 +589,7 @@ const TimePickerComponent = ({
                 disabled={!form.isValid() || isRelative}
                 onClick={handleApply}
               >
-                Apply
+                {t('actions.apply')}
               </Button>
             </Group>
           </Card>

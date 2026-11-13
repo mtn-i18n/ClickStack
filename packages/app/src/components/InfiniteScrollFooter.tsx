@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { useTranslation } from 'next-i18next/pages';
 import { Button, Center, Group, Loader, Text } from '@mantine/core';
 import { useInViewport } from '@mantine/hooks';
 
@@ -70,6 +71,8 @@ export function InfiniteScrollFooter({
   sentinelTestId,
   errorTestId,
 }: InfiniteScrollFooterProps) {
+  const { t } = useTranslation('common');
+
   if (!hasNextPage) {
     return null;
   }
@@ -90,7 +93,7 @@ export function InfiniteScrollFooter({
             loading={isFetchingNextPage}
             onClick={onLoadMore}
           >
-            Retry
+            {t('actions.retry')}
           </Button>
         </Group>
       </Center>

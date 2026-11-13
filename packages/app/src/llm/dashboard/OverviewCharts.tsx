@@ -1,3 +1,4 @@
+import { useTranslation } from 'next-i18next/pages';
 import { DisplayType, NumberFormat } from '@hyperdx/common-utils/dist/types';
 import { Grid } from '@mantine/core';
 
@@ -46,6 +47,7 @@ const COST_PER_CALL_NUMBER_FORMAT: NumberFormat = {
  * resolves the forward alias references.
  */
 export function OverviewCharts(props: LLMChartProps) {
+  const { t } = useTranslation('llm');
   const { expressions } = props;
   const base = baseLLMChartConfig(props);
 
@@ -68,7 +70,7 @@ export function OverviewCharts(props: LLMChartProps) {
       <Grid.Col span={tileSpan}>
         <ChartCard style={{ height: NUMBER_TILE_HEIGHT }}>
           <DBNumberChart
-            title="LLM Calls"
+            title={t('overview.llmCalls')}
             config={{
               ...base,
               select: [gatedCount('llm_calls')],
@@ -80,7 +82,7 @@ export function OverviewCharts(props: LLMChartProps) {
       <Grid.Col span={tileSpan}>
         <ChartCard style={{ height: NUMBER_TILE_HEIGHT }}>
           <DBNumberChart
-            title="Total Tokens"
+            title={t('overview.totalTokens')}
             config={{
               ...base,
               select: [gatedSum(expressions.totalTokens, 'total_tokens')],
@@ -93,7 +95,7 @@ export function OverviewCharts(props: LLMChartProps) {
         <Grid.Col span={tileSpan}>
           <ChartCard style={{ height: NUMBER_TILE_HEIGHT }}>
             <DBNumberChart
-              title="Est. Cost"
+              title={t('overview.estimatedCost')}
               config={{
                 ...base,
                 select: [gatedSum(LLM_COST_SQL_ALIAS, 'total_cost')],
@@ -107,7 +109,7 @@ export function OverviewCharts(props: LLMChartProps) {
         <Grid.Col span={tileSpan}>
           <ChartCard style={{ height: NUMBER_TILE_HEIGHT }}>
             <DBNumberChart
-              title="Avg Cost / Call"
+              title={t('overview.avgCostPerCall')}
               config={{
                 ...base,
                 select: [
@@ -127,7 +129,7 @@ export function OverviewCharts(props: LLMChartProps) {
       <Grid.Col span={tileSpan}>
         <ChartCard style={{ height: NUMBER_TILE_HEIGHT }}>
           <DBNumberChart
-            title="Cache Hit Rate"
+            title={t('overview.cacheHitRate')}
             config={{
               ...base,
               select: [
@@ -146,7 +148,7 @@ export function OverviewCharts(props: LLMChartProps) {
       <Grid.Col span={tileSpan}>
         <ChartCard style={{ height: NUMBER_TILE_HEIGHT }}>
           <DBNumberChart
-            title="Error Rate"
+            title={t('overview.errorRate')}
             config={{
               ...base,
               select: [
@@ -171,7 +173,7 @@ export function OverviewCharts(props: LLMChartProps) {
       <Grid.Col span={6}>
         <ChartCard style={{ height: CHART_HEIGHT }}>
           <DBTimeChart
-            title="LLM Calls by Model"
+            title={t('overview.llmCallsByModel')}
             sourceId={props.source.id}
             config={{
               ...base,
@@ -186,7 +188,7 @@ export function OverviewCharts(props: LLMChartProps) {
       <Grid.Col span={6}>
         <ChartCard style={{ height: CHART_HEIGHT }}>
           <DBTimeChart
-            title="Error Rate"
+            title={t('overview.errorRate')}
             sourceId={props.source.id}
             config={{
               ...base,

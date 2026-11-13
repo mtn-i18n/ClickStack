@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'next-i18next/pages';
 import { Button, Group, Select, Stack } from '@mantine/core';
 import { useDebouncedValue } from '@mantine/hooks';
 
@@ -48,12 +49,11 @@ export type FilterConditionEditorProps<TOperator extends string = string> = {
 };
 
 const KEY_DEBOUNCE_MS = 300;
-const SUGGESTIONS_ERROR = "Couldn't load suggestions";
 
 // Database errors can run to several lines; the first says what went wrong.
-const suggestionsError = (message: string | undefined) => {
+const suggestionsError = (message: string | undefined, prefix: string) => {
   const firstLine = message?.trim().split('\n')[0];
-  return firstLine ? `${SUGGESTIONS_ERROR}: ${firstLine}` : SUGGESTIONS_ERROR;
+  return firstLine ? `${prefix}: ${firstLine}` : prefix;
 };
 
 /** Pick a key, an operator, and a value. Free text is accepted for both inputs. */
@@ -69,11 +69,12 @@ export function FilterConditionEditor<TOperator extends string = string>({
   isValuesError,
   valuesErrorMessage,
   onKeyChange,
-  keyLabel = 'Key',
-  keyPlaceholder = 'Select a key',
+  keyLabel,
+  keyPlaceholder,
   onSubmit,
   'data-testid': testId = 'filter-condition-editor',
 }: FilterConditionEditorProps<TOperator>) {
+  const { t } = useTranslation('search');
   const [key, setKey] = useState(initial?.key ?? '');
   const [operator, setOperator] = useState<TOperator | undefined>(
     initial?.operator ?? operators[0]?.value,
@@ -108,13 +109,16 @@ export function FilterConditionEditor<TOperator extends string = string>({
   return (
     <Stack gap="xs" w={320} data-testid={testId}>
       <FilterAutocomplete
-        label={keyLabel}
-        placeholder={keyPlaceholder}
+        label={keyLabel ?? t('filterCondition.keyLabel')}
+        placeholder={keyPlaceholder ?? t('filterCondition.keyPlaceholder')}
         options={keyOptions}
         isLoading={isLoadingKeys}
         error={
           !isLoadingKeys && isKeysError
-            ? suggestionsError(keysErrorMessage)
+            ? suggestionsError(
+                keysErrorMessage,
+                t('filterCondition.suggestionsError'),
+              )
             : undefined
         }
         value={key}
@@ -130,7 +134,7 @@ export function FilterConditionEditor<TOperator extends string = string>({
       />
       <Select<TOperator>
         size="xs"
-        label="Operator"
+        label={t('filterCondition.operator')}
         data={operators.map(op => ({ value: op.value, label: op.label }))}
         value={operator ?? null}
         onChange={next => next != null && setOperator(next)}
@@ -139,12 +143,20 @@ export function FilterConditionEditor<TOperator extends string = string>({
         data-testid={`${testId}-operator`}
       />
       <FilterAutocomplete
-        label={selectedOperator?.valueLabel ?? 'Value'}
-        placeholder={selectedOperator?.valuePlaceholder ?? 'Select a value'}
+        label={selectedOperator?.valueLabel ?? t('filterCondition.valueLabel')}
+        placeholder={
+          selectedOperator?.valuePlaceholder ??
+          t('filterCondition.valuePlaceholder')
+        }
         options={valueOptions}
         isLoading={isValueLoading}
         error={
-          isValuesErrorShown ? suggestionsError(valuesErrorMessage) : undefined
+          isValuesErrorShown
+            ? suggestionsError(
+                valuesErrorMessage,
+                t('filterCondition.suggestionsError'),
+              )
+            : undefined
         }
         value={value}
         onChange={setValue}
@@ -160,7 +172,7 @@ export function FilterConditionEditor<TOperator extends string = string>({
           disabled={!canSubmit}
           data-testid={`${testId}-apply`}
         >
-          Apply
+          {t('filterCondition.apply')}
         </Button>
       </Group>
     </Stack>

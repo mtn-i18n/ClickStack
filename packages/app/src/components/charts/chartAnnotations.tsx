@@ -1,4 +1,5 @@
 import { type ReactElement } from 'react';
+import { i18n } from 'next-i18next/pages';
 import { Label, ReferenceLine } from 'recharts';
 
 /**
@@ -198,7 +199,11 @@ function collapseLabels(
   const collapsed: PositionedAnnotation[] = [];
   for (const bucket of byKind.values()) {
     const sorted = [...bucket].sort((a, b) => a.x - b.x);
-    const noun = sorted[0].groupNoun ?? 'events';
+    const noun =
+      sorted[0].groupNoun ??
+      (i18n?.isInitialized
+        ? i18n.t('annotationEvents', { ns: 'charts' })
+        : 'events');
     let start = 0;
     while (start < sorted.length) {
       const anchor = sorted[start];

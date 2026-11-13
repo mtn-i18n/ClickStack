@@ -1,5 +1,6 @@
 import { useCallback, useMemo, useState } from 'react';
 import Link from 'next/link';
+import { useTranslation } from 'next-i18next/pages';
 import { parseAsString, useQueryState } from 'nuqs';
 import SqlString from 'sqlstring';
 import { Badge } from '@clickhouse/click-ui';
@@ -109,6 +110,7 @@ function SessionSpanItem({
  * the sessions table via the `llmSession` query param.
  */
 export function LLMSessionPanel(props: LLMChartProps) {
+  const { t } = useTranslation('llm');
   const { source, expressions, dateRange } = props;
   const [sessionId, setSessionId] = useQueryState('llmSession', parseAsString);
   const [, setDashboardSessionId] = useQueryState('sessionId', parseAsString);
@@ -263,7 +265,7 @@ export function LLMSessionPanel(props: LLMChartProps) {
                   />
                 )}
                 <Button variant="link" size="xs" onClick={onFilterDashboard}>
-                  Filter dashboard
+                  {t('sessions.filterDashboard')}
                 </Button>
                 <Anchor
                   component={Link}
@@ -275,7 +277,7 @@ export function LLMSessionPanel(props: LLMChartProps) {
                     extraConditions: [sessionCondition],
                   })}
                 >
-                  Open in search
+                  {t('sessions.openInSearch')}
                 </Anchor>
               </Group>
             }
@@ -284,8 +286,10 @@ export function LLMSessionPanel(props: LLMChartProps) {
           <DrawerBody>
             {totals.spanCount > MAX_SESSION_SPANS && (
               <Text size="xs" c="dimmed" px="md" pt="xs">
-                Showing the first {MAX_SESSION_SPANS} of {totals.spanCount}{' '}
-                spans.
+                {t('sessions.showingFirstSpans', {
+                  displayed: MAX_SESSION_SPANS,
+                  total: totals.spanCount,
+                })}
               </Text>
             )}
             {isLoading ? (
@@ -311,7 +315,7 @@ export function LLMSessionPanel(props: LLMChartProps) {
               </Accordion>
             ) : (
               <Text size="sm" c="dimmed" p="md">
-                No LLM spans found for this session in the selected time range.
+                {t('sessions.noSpans')}
               </Text>
             )}
           </DrawerBody>

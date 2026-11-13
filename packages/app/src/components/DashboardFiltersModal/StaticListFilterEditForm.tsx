@@ -1,3 +1,4 @@
+import { useTranslation } from 'next-i18next/pages';
 import { Controller, useFormState } from 'react-hook-form';
 import { DashboardFilter } from '@hyperdx/common-utils/dist/types';
 import { TagsInput } from '@mantine/core';
@@ -17,15 +18,16 @@ export const StaticListFilterEditForm = ({
   control,
   otherFilters,
 }: StaticListFilterEditFormProps) => {
+  const { t } = useTranslation('dashboards');
   const { errors } = useFormState({ control });
   const validateAtLeastOneOption = (value: string[]) =>
-    (value?.length ?? 0) > 0 || 'Add at least one option';
+    (value?.length ?? 0) > 0 || t('filtersModal.staticList.addAtLeastOne');
 
   return (
     <>
       <CustomInputWrapper
-        label="Options"
-        tooltipText="The values available in the dropdown."
+        label={t('filtersModal.staticList.options')}
+        tooltipText={t('filtersModal.staticList.optionsTooltip')}
         error={errors.options}
       >
         <Controller
@@ -38,7 +40,7 @@ export const StaticListFilterEditForm = ({
             <TagsInput
               value={value ?? []}
               onChange={onChange}
-              placeholder="Type a value and press Enter"
+              placeholder={t('filtersModal.staticList.optionsPlaceholder')}
               data-testid="filter-options-input"
               clearable
               splitChars={[',', '\n']}

@@ -1,3 +1,4 @@
+import { useTranslation } from 'next-i18next/pages';
 import { TTraceSource } from '@hyperdx/common-utils/dist/types';
 import { SelectProps } from '@mantine/core';
 
@@ -23,6 +24,7 @@ export function SessionSelect({
   value: string;
   onChange: (sessionId: string) => void;
 } & Omit<SelectProps, 'data' | 'value' | 'onChange'>) {
+  const { t } = useTranslation('llm');
   return (
     <DistinctValueSelect
       {...props}
@@ -33,7 +35,7 @@ export function SessionSelect({
         `${expressions.isLLMSpan} AND ${expressions.hasSessionId}`
       }
       queryKey="llm-session-select"
-      allLabel="All sessions"
+      allLabel={t('filters.allSessions')}
     />
   );
 }

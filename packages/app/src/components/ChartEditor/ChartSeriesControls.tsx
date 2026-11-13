@@ -1,4 +1,5 @@
 import { ReactNode } from 'react';
+import { useTranslation } from 'next-i18next/pages';
 import { Control, Path } from 'react-hook-form';
 import { NumberFormat } from '@hyperdx/common-utils/dist/types';
 import {
@@ -53,6 +54,7 @@ export function ChartSeriesControls({
   /** Rendered after the format button (the builder's color picker). */
   trailingSection?: ReactNode;
 }) {
+  const { t } = useTranslation('dashboards');
   const isFirst = index <= 0;
   const isLast = index >= length - 1;
 
@@ -61,7 +63,7 @@ export function ChartSeriesControls({
       label={
         <Group gap="xs">
           {leadingSection}
-          <Text size="xxs">Alias</Text>
+          <Text size="xxs">{t('chartEditor.alias')}</Text>
 
           <div style={{ width: 150 }}>
             <TextInputControlled
@@ -79,7 +81,7 @@ export function ChartSeriesControls({
               color="gray"
               size="xxs"
               onClick={() => onSwap(index, index - 1)}
-              title="Move up"
+              title={t('chartEditor.moveUp')}
             >
               <IconArrowUp size={14} />
             </Button>
@@ -90,7 +92,7 @@ export function ChartSeriesControls({
               color="gray"
               size="xxs"
               onClick={() => onSwap(index, index + 1)}
-              title="Move down"
+              title={t('chartEditor.moveDown')}
             >
               <IconArrowDown size={14} />
             </Button>
@@ -101,7 +103,7 @@ export function ChartSeriesControls({
               color="gray"
               size="xxs"
               onClick={() => onDuplicate(index)}
-              title="Duplicate"
+              title={t('chartEditor.duplicate')}
               data-testid="series-duplicate-button"
             >
               <IconCopy size={14} />
@@ -116,17 +118,17 @@ export function ChartSeriesControls({
               data-testid="series-remove-button"
             >
               <IconTrash size={14} className="me-2" />
-              Remove
+              {t('chartEditor.remove')}
             </Button>
           )}
           {onOpenNumberFormat && (
-            <Tooltip label="Edit display format">
+            <Tooltip label={t('chartEditor.editDisplayFormat')}>
               <ActionIcon
                 variant="subtle"
                 color="gray"
                 size="xs"
                 onClick={onOpenNumberFormat}
-                aria-label="Edit display format"
+                aria-label={t('chartEditor.editDisplayFormat')}
               >
                 {FORMAT_ICONS[numberFormat?.output ?? 'number']}
               </ActionIcon>

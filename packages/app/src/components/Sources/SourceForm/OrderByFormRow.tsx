@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'next-i18next/pages';
 import { Control, useWatch } from 'react-hook-form';
 import { ClickHouseQueryError } from '@hyperdx/common-utils/dist/clickhouse';
 import { TSource } from '@hyperdx/common-utils/dist/types';
@@ -24,6 +25,7 @@ export function OrderByFormRow({
   tableName: string;
   connectionId: string;
 }) {
+  const { t } = useTranslation('settings');
   const orderByInput = useWatch({
     control,
     name: 'orderByExpression',
@@ -71,8 +73,8 @@ export function OrderByFormRow({
   return (
     <>
       <FormRow
-        label="Default Order By"
-        helpText="Custom ORDER BY expression that overrides the default ordering. Leave empty to use the auto-detected default. (This can be customized per search later)"
+        label={t('sourceForm.orderBy.label')}
+        helpText={t('sourceForm.orderBy.help')}
       >
         <Flex align="flex-start" gap="sm">
           <Box flex={1}>
@@ -89,7 +91,7 @@ export function OrderByFormRow({
             />
           </Box>
           <Flex h={`${EDITOR_INPUT_HEIGHTS.sm}px`} align="center">
-            <Tooltip label="Validate expression">
+            <Tooltip label={t('sourceForm.validateExpression')}>
               <ActionIcon
                 size="xs"
                 variant="subtle"
@@ -107,12 +109,12 @@ export function OrderByFormRow({
           <Box>
             {isExpressionValid && (
               <Text c="green" size="xs">
-                Expression is valid.
+                {t('sourceForm.expressionValid')}
               </Text>
             )}
             {isExpressionInvalid && (
               <ErrorCollapse
-                summary="Expression is invalid"
+                summary={t('sourceForm.expressionInvalid')}
                 details={explainError?.message}
               />
             )}

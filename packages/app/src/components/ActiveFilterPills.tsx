@@ -1,4 +1,5 @@
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'next-i18next/pages';
 import type { BuilderChartConfigWithDateRange } from '@hyperdx/common-utils/dist/types';
 import { Flex, FlexProps, Text } from '@mantine/core';
 
@@ -180,6 +181,7 @@ export const ActiveFilterPills = memo(function ActiveFilterPills({
    */
   chartConfig: BuilderChartConfigWithDateRange;
 } & FlexProps) {
+  const { t } = useTranslation('common');
   const {
     filters,
     setFilterValue,
@@ -296,7 +298,7 @@ export const ActiveFilterPills = memo(function ActiveFilterPills({
           td="underline"
           onClick={() => setExpanded(true)}
         >
-          +{hiddenCount} more
+          {t('showMore', { count: hiddenCount })}
         </Text>
       )}
       {expanded && hiddenCount > 0 && (
@@ -307,7 +309,7 @@ export const ActiveFilterPills = memo(function ActiveFilterPills({
           td="underline"
           onClick={() => setExpanded(false)}
         >
-          Show less
+          {t('showLess')}
         </Text>
       )}
       {pills.length >= 2 && (
@@ -319,7 +321,7 @@ export const ActiveFilterPills = memo(function ActiveFilterPills({
           onClick={handleClearAll}
           onMouseLeave={() => setConfirmClear(false)}
         >
-          {confirmClear ? 'Confirm clear all?' : 'Clear all'}
+          {confirmClear ? t('confirmClearAll') : t('clearAll')}
         </Text>
       )}
     </Flex>

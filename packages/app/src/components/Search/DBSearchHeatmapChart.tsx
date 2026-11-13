@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'next-i18next/pages';
 import { parseAsFloat, parseAsString, useQueryStates } from 'nuqs';
 import { tcFromSource } from '@hyperdx/common-utils/dist/core/metadata';
 import {
@@ -46,6 +47,7 @@ export function DBSearchHeatmapChart({
   /** Select list for the delta sampling queries (defaults to '*'). */
   deltaSelectExpression?: string;
 }) {
+  const { t } = useTranslation('search');
   const [fields, setFields] = useQueryStates({
     value: parseAsString.withDefault(getDurationMsExpression(source)),
     count: parseAsString.withDefault('count()'),
@@ -163,7 +165,7 @@ export function DBSearchHeatmapChart({
           }}
         />
         {/* Gear icon overlaid on chart top-right */}
-        <Tooltip label="Display settings">
+        <Tooltip label={t('heatmap.displaySettings')}>
           <ActionIcon
             variant="subtle"
             size="sm"

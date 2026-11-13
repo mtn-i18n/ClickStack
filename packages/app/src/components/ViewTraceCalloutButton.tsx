@@ -1,4 +1,5 @@
 import { useCallback, useEffect } from 'react';
+import { useTranslation } from 'next-i18next/pages';
 import { Button, Popover, Stack, Text } from '@mantine/core';
 import { IconArrowRight, IconConnection } from '@tabler/icons-react';
 
@@ -46,6 +47,7 @@ export function ViewTraceCalloutButton({
   autoOpened,
   onAutoOpen,
 }: ViewTraceCalloutButtonProps) {
+  const { t } = useTranslation('search');
   const [dismissed, setDismissed] = useLocalStorage(
     VIEW_TRACE_CALLOUT_DISMISSED_KEY,
     false,
@@ -91,7 +93,7 @@ export function ViewTraceCalloutButton({
           }}
           disabled={disabled}
         >
-          View Trace
+          {t('viewTrace.viewTrace')}
         </Button>
       </Popover.Target>
       <Popover.Dropdown
@@ -101,10 +103,10 @@ export function ViewTraceCalloutButton({
       >
         <Stack gap="xs">
           <Text size="sm" fw={600}>
-            Jump to this log&apos;s full trace
+            {t('viewTrace.jumpToFullTrace')}
           </Text>
           <Text size="xs" c="dimmed">
-            Open the correlated trace in one click.
+            {t('viewTrace.openCorrelatedTrace')}
           </Text>
           <Button
             variant="primary"
@@ -112,7 +114,7 @@ export function ViewTraceCalloutButton({
             ml="auto"
             onClick={dismiss}
           >
-            Got it
+            {t('viewTrace.gotIt')}
           </Button>
         </Stack>
       </Popover.Dropdown>

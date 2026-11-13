@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
+import { Trans, useTranslation } from 'next-i18next/pages';
 import { add, min, sub } from 'date-fns';
 import {
   convertDateRangeToGranularityString,
@@ -116,10 +117,12 @@ const InfraCorrelationGroup = ({
   resourceAttributes: Record<string, any> | undefined;
   timestamp: number;
 }) => {
+  const { t } = useTranslation('search');
   const [range, setRange] = useState<'30m' | '1h' | '1d'>('30m');
   const [size, setSize] = useState<'sm' | 'md' | 'lg'>('sm');
-  const { charts, fieldPrefix, requiresMetricAvailability, title } =
+  const { charts, fieldPrefix, requiresMetricAvailability, title, titleKey } =
     correlation;
+  const displayTitle = titleKey != null ? t(titleKey) : title;
 
   const correlateValue = resourceAttributes?.[correlation.correlateAttribute];
   // `getActiveInfraCorrelations` already rejects a falsy *detect* attribute,
@@ -218,7 +221,7 @@ const InfraCorrelationGroup = ({
         <div data-testid={`infra-subpanel-${fieldPrefix}`}>
           <Group justify="space-between" align="center">
             <Group align="center">
-              <h4 className="fs-6 m-0">{title}</h4>
+              <h4 className="fs-6 m-0">{displayTitle}</h4>
               <SegmentedControl
                 size="xs"
                 data={[
@@ -248,7 +251,7 @@ const InfraCorrelationGroup = ({
               <Card key={chart.cardTestId} data-testid={chart.cardTestId}>
                 <Card.Section py={8} px={8} h={height}>
                   <DBTimeChart
-                    title={chart.title}
+                    title={t(chart.titleKey)}
                     config={buildChartConfig({
                       chart,
                       fieldPrefix,
@@ -269,7 +272,7 @@ const InfraCorrelationGroup = ({
       {showTimeline && correlation.timeline && (
         <Card p="md" mt="xl">
           <Card.Section p="md" py="xs">
-            {title} Timeline
+            {t('infra.timeline', { title: displayTitle })}
           </Card.Section>
           <Card.Section>
             <ScrollArea viewportProps={{ style: { maxHeight: 280 } }}>
@@ -282,7 +285,9 @@ const InfraCorrelationGroup = ({
                     add(new Date(timestamp), { days: 1 }),
                   ]}
                   anchorEvent={{
-                    label: <div className="text-brand">This Event</div>,
+                    label: (
+                      <div className="text-brand">{t('infra.thisEvent')}</div>
+                    ),
                     timestamp: new Date(timestamp).toISOString(),
                   }}
                 />
@@ -302,6 +307,7 @@ export default ({
   rowData?: Record<string, any>;
   source: TSource;
 }) => {
+  const { t } = useTranslation('search');
   const [editModalOpened, { open: openEditModal, close: closeEditModal }] =
     useDisclosure(false);
 
@@ -322,27 +328,32 @@ export default ({
 
   const timestamp = new Date(rowData?.__hdx_timestamp).getTime();
 
+  const infraMessageKey = metricSourceId
+    ? IS_LOCAL_MODE
+      ? 'infra.notFoundLocal'
+      : 'infra.notFoundTeam'
+    : IS_LOCAL_MODE
+      ? 'infra.notConfiguredLocal'
+      : 'infra.notConfiguredTeam';
+
   return (
     <Stack my="md" gap={40}>
       {!metricSource && !isLoadingMetricSource && (
         <>
-          <Alert color="yellow" title="No correlated metric source">
+          <Alert color="yellow" title={t('infra.noCorrelatedMetricSource')}>
             <Text size="sm">
-              {metricSourceId
-                ? `The correlated metric source for "${source.name}" could not be found.`
-                : `Source "${source.name}" does not have a correlated metric source.`}{' '}
-              Infrastructure metrics can be displayed when a metric source is
-              configured in{' '}
-              {IS_LOCAL_MODE ? (
-                <Anchor component="button" onClick={openEditModal}>
-                  Source Settings
-                </Anchor>
-              ) : (
-                <Anchor component={Link} href="/team">
-                  Team Settings
-                </Anchor>
-              )}
-              .
+              <Trans
+                ns="search"
+                i18nKey={infraMessageKey}
+                values={{ name: source.name }}
+                components={{
+                  link: IS_LOCAL_MODE ? (
+                    <Anchor component="button" onClick={openEditModal} />
+                  ) : (
+                    <Anchor component={Link} href="/team" />
+                  ),
+                }}
+              />
             </Text>
           </Alert>
           {IS_LOCAL_MODE && (
@@ -350,7 +361,7 @@ export default ({
               size="xl"
               opened={editModalOpened}
               onClose={closeEditModal}
-              title="Edit Source"
+              title={t('sourceModal.editTitle')}
             >
               <TableSourceForm sourceId={source.id} />
             </Modal>

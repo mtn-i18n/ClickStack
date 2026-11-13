@@ -1,3 +1,4 @@
+import { useTranslation } from 'next-i18next/pages';
 import { tcFromSource } from '@hyperdx/common-utils/dist/core/metadata';
 import { Box } from '@mantine/core';
 
@@ -31,13 +32,16 @@ export function PatternColumnSelector({
   bodyValueExpression?: string;
 }) {
   const { data: source } = useSource({ id: sourceId });
+  const { t } = useTranslation('search');
   const tableConnection = tcFromSource(source);
 
   if (!onChange) return null;
 
   const placeholder = bodyValueExpression
-    ? `Default (${bodyValueExpression}) — column name or expression`
-    : 'Default — column name or expression';
+    ? t('pattern.columnPlaceholderDefault', {
+        expression: bodyValueExpression,
+      })
+    : t('pattern.columnPlaceholder');
 
   return (
     <Box py="xs" maw={600}>
@@ -47,7 +51,7 @@ export function PatternColumnSelector({
         onChange={onChange}
         onSubmit={onSubmit}
         enableHotkey
-        label="Pattern Expression"
+        label={t('pattern.expression')}
         placeholder={placeholder}
         size="xs"
         allowMultiline={false}

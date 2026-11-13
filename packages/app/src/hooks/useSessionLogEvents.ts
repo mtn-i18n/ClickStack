@@ -1,4 +1,5 @@
 import { useCallback, useMemo } from 'react';
+import { useTranslation } from 'next-i18next/pages';
 import sortBy from 'lodash/sortBy';
 import {
   BuilderChartConfigWithDateRange,
@@ -64,6 +65,7 @@ export function useSessionLogEvents({
   searchedQuery: string;
   onEventNavigate: SessionEventNavigate | undefined;
 }): SessionLogEvents {
+  const { t } = useTranslation('sessions');
   const isOtelSession = sessionIdKey === 'session.id';
   const { data: logSource, isLoading: isSourceLoading } = useSource({
     id: isOtelSession ? traceSource.logSourceId : null,
@@ -122,8 +124,8 @@ export function useSessionLogEvents({
   const result = query != null && !isError ? data : undefined;
   const rows = result?.data;
   const events = useMemo(
-    () => (rows?.length ? toSessionLogEvents(rows) : NO_LOG_EVENTS),
-    [rows],
+    () => (rows?.length ? toSessionLogEvents(rows, t) : NO_LOG_EVENTS),
+    [rows, t],
   );
 
   const getRowWhere = useRowWhere({
@@ -176,6 +178,7 @@ export function useLogEventRows<T extends { timestamp: Date }>(
   showRelativeTime: boolean,
   minTs: number,
 ) {
+  const { t } = useTranslation('sessions');
   const formatTime = useFormatTime();
   return useMemo(() => {
     if (events.length === 0) {
@@ -189,7 +192,7 @@ export function useLogEventRows<T extends { timestamp: Date }>(
         isError: event.isError,
         isSuccess: false,
         eventSource: event.eventSource,
-        title: event.title,
+        title: event.titleKey ? t(event.titleKey) : event.title,
         description: event.description,
         timestamp: event.timestamp,
         formattedTimestamp: showRelativeTime
@@ -199,5 +202,5 @@ export function useLogEventRows<T extends { timestamp: Date }>(
       };
     });
     return sortBy([...logRows, ...spanRows], row => row.timestamp.getTime());
-  }, [spanRows, events, showRelativeTime, minTs, formatTime]);
+  }, [spanRows, events, showRelativeTime, minTs, formatTime, t]);
 }

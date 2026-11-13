@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { useTranslation } from 'next-i18next/pages';
 import cx from 'classnames';
 import { ChartConfigWithOptDateRange } from '@hyperdx/common-utils/dist/types';
 import { ScrollArea, Skeleton, Stack } from '@mantine/core';
@@ -120,6 +121,7 @@ export const SessionEventList = ({
   onTimeClick: (ts: number) => void;
   eventsFollowPlayerPosition: boolean;
 }) => {
+  const { t } = useTranslation('sessions');
   const { data, isLoading } = useQueriedChartConfig(queriedConfig, {
     placeholderData: (prev: any) => prev,
     queryKey: ['SessionEventList', queriedConfig],
@@ -187,7 +189,7 @@ export const SessionEventList = ({
                   ? 'chat'
                   : 'log',
           title: isNavigation
-            ? `Navigated`
+            ? t('navigated')
             : spanName === 'console.error'
               ? 'console.error'
               : spanName === 'console.log'
@@ -222,7 +224,7 @@ export const SessionEventList = ({
         } satisfies SessionEvent;
       }) ?? []
     );
-  }, [events, showRelativeTime, minTs, formatTime]);
+  }, [events, showRelativeTime, minTs, formatTime, t]);
   const rows = useLogEventRows(spanRows, logEvents, showRelativeTime, minTs);
 
   const parentRef = React.useRef<HTMLDivElement>(null);

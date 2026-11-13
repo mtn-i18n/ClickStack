@@ -1,3 +1,4 @@
+import { useTranslation } from 'next-i18next/pages';
 import { useFormState, useWatch } from 'react-hook-form';
 import {
   deriveVariableName,
@@ -18,14 +19,15 @@ export const VariableNameInput = ({
   control,
   otherFilters,
 }: VariableNameInputProps) => {
+  const { t } = useTranslation('dashboards');
   const { errors } = useFormState({ control });
   const filterName = useWatch({ control, name: 'name' });
   const derivedVariableName = deriveVariableName(filterName ?? '');
 
   return (
     <CustomInputWrapper
-      label="Variable name"
-      tooltipText="The name by which the variable is referenced"
+      label={t('filtersModal.variableName.label')}
+      tooltipText={t('filtersModal.variableName.tooltip')}
       error={errors.variableName}
     >
       <TextInput

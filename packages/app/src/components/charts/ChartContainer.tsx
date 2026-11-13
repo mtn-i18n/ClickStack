@@ -1,4 +1,5 @@
 import { createContext, use } from 'react';
+import { useTranslation } from 'next-i18next/pages';
 import { ActionIcon, Group, Menu, Stack, Tooltip } from '@mantine/core';
 import { IconDotsVertical } from '@tabler/icons-react';
 
@@ -82,6 +83,7 @@ function ChartContainer({
   children,
   disableReactiveContainer,
 }: ChartContainerProps) {
+  const { t } = useTranslation('charts');
   const cardHeader = use(ChartContainerCardHeaderContext);
   const collapsedToolbar = use(CollapsedToolbarContext);
   const hasToolbar = !!toolbarItems?.length;
@@ -181,7 +183,11 @@ function ChartContainer({
                   <div className={styles.toolbarCollapsed}>
                     <Menu width={220} position="bottom-end">
                       <Menu.Target>
-                        <Tooltip label="Tile actions" position="top" withArrow>
+                        <Tooltip
+                          label={t('tileActions')}
+                          position="top"
+                          withArrow
+                        >
                           <ActionIcon variant="subtle" size="sm">
                             <IconDotsVertical size={16} />
                           </ActionIcon>

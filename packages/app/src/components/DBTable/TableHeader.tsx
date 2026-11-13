@@ -1,3 +1,4 @@
+import { useTranslation } from 'next-i18next/pages';
 import cx from 'classnames';
 import { Group, Text, UnstyledButton } from '@mantine/core';
 import { IconArrowDown, IconArrowUp, IconX } from '@tabler/icons-react';
@@ -21,6 +22,7 @@ export default function TableHeader({
   onRemoveColumn?: () => void;
 }) {
   'use no memo'; // todo: table headers arent being resized properly with the react compiler
+  const { t } = useTranslation('common');
   return (
     <th
       className={cx('overflow-hidden', {
@@ -83,7 +85,7 @@ export default function TableHeader({
             <div className={headerStyles.headerRemoveButton}>
               <DBRowTableIconButton
                 onClick={onRemoveColumn}
-                title="Remove column"
+                title={t('table.removeColumn')}
                 variant="copy"
                 iconSize={10}
               >

@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { useTranslation } from 'next-i18next/pages';
 import { Controller, UseFormSetValue, useWatch } from 'react-hook-form';
 import { Separator } from '@clickhouse/click-ui';
 import { tcFromSource } from '@hyperdx/common-utils/dist/core/metadata';
@@ -39,6 +40,7 @@ export const AdhocFilterEditForm = ({
   setValue,
   otherFilters,
 }: AdhocFilterEditFormProps) => {
+  const { t } = useTranslation('dashboards');
   const { data: allSources } = useSources();
   const [sourceType, isBroadcastEnabled, sourceIds] = useWatch({
     control,
@@ -68,8 +70,8 @@ export const AdhocFilterEditForm = ({
     return (
       !hasOtherKind ||
       (sourceType === 'promql'
-        ? 'Select only PromQL sources'
-        : 'Select only log, trace, or session sources')
+        ? t('filtersModal.adhoc.selectOnlyPromql')
+        : t('filtersModal.adhoc.selectOnlyLogTraceSession'))
     );
   };
 
@@ -77,8 +79,8 @@ export const AdhocFilterEditForm = ({
     <>
       {showSourceType && (
         <CustomInputWrapper
-          label="Source type"
-          tooltipText="Keys come from the columns and map keys of SQL sources, or from the labels of PromQL sources"
+          label={t('filtersModal.adhoc.sourceType')}
+          tooltipText={t('filtersModal.adhoc.sourceTypeTooltip')}
         >
           <Controller
             control={control}
@@ -101,28 +103,28 @@ export const AdhocFilterEditForm = ({
         </CustomInputWrapper>
       )}
       <CustomInputWrapper
-        label="Data sources"
-        tooltipText="The sources whose keys and values the filter offers"
+        label={t('filtersModal.adhoc.dataSources')}
+        tooltipText={t('filtersModal.adhoc.dataSourcesTooltip')}
       >
         <SourceMultiSelectControlled
           control={control}
           name="sources"
           data-testid="adhoc-filter-sources"
           comboboxProps={{ withinPortal: true }}
-          placeholder="Select sources"
+          placeholder={t('filtersModal.adhoc.selectSources')}
           allowedSourceKinds={allowedSourceKinds}
           rules={{
             validate: (value: string[] | undefined) =>
               !value?.length
-                ? 'Select at least one source'
+                ? t('filtersModal.adhoc.selectAtLeastOneSource')
                 : validateSourceKinds(value),
           }}
         />
       </CustomInputWrapper>
       {sourceType === 'sql' && (
         <CustomInputWrapper
-          label="Keys and values filter"
-          tooltipText="Optional condition used to filter the rows from which keys and values are suggested. May reference the dashboard's other variables."
+          label={t('filtersModal.adhoc.keysValuesFilter')}
+          tooltipText={t('filtersModal.adhoc.keysValuesTooltip')}
         >
           <SearchWhereInput
             tableConnections={tableConnections}
@@ -130,8 +132,8 @@ export const AdhocFilterEditForm = ({
             name="where"
             languageName="whereLanguage"
             allowMultiline={true}
-            sqlPlaceholder="Filter for keys and values"
-            lucenePlaceholder="Filter for keys and values"
+            sqlPlaceholder={t('filtersModal.adhoc.keysValuesPlaceholder')}
+            lucenePlaceholder={t('filtersModal.adhoc.keysValuesPlaceholder')}
             enableVariables
             parentRef={TOOLTIP_PORTAL_TARGET}
           />
@@ -143,26 +145,26 @@ export const AdhocFilterEditForm = ({
         control={control}
         name="isBroadcastEnabled"
         size="xs"
-        label="Broadcast filter conditions"
+        label={t('filtersModal.adhoc.broadcast')}
         description={
           sourceType === 'promql'
-            ? 'Automatically add the selected conditions as label matchers to every selector in PromQL tiles. Optionally, specify which sources to broadcast to.'
-            : 'Automatically apply the selected conditions to every tile based on the selected data sources. Optionally, specify which sources to broadcast to.'
+            ? t('filtersModal.adhoc.broadcastPromqlDescription')
+            : t('filtersModal.adhoc.broadcastDescription')
         }
         data-testid="filter-broadcast-checkbox"
       />
       {isBroadcastEnabled && (
         <Box ml="xl">
           <CustomInputWrapper
-            label="Applies to sources"
-            tooltipText="Which tiles the broadcast reaches. Leave empty to broadcast to all tiles using the filter's data sources."
+            label={t('filtersModal.adhoc.appliesToSources')}
+            tooltipText={t('filtersModal.adhoc.appliesToTooltip')}
           >
             <SourceMultiSelectControlled
               control={control}
               name="appliesToSourceIds"
               data-testid="applies-to-source-selector"
               comboboxProps={{ withinPortal: true }}
-              placeholder="Same as data sources"
+              placeholder={t('filtersModal.adhoc.sameAsDataSources')}
               allowedSourceKinds={allowedSourceKinds}
               rules={{ validate: validateSourceKinds }}
             />

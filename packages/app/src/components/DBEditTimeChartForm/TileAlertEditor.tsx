@@ -1,3 +1,4 @@
+import { useTranslation } from 'next-i18next/pages';
 import {
   Control,
   Controller,
@@ -71,6 +72,7 @@ export function TileAlertEditor({
   warning?: string;
   tooltip?: string;
 }) {
+  const { t } = useTranslation('dashboards');
   const alertPanel = useAlertPanel();
   const confirm = useConfirm();
 
@@ -78,9 +80,13 @@ export function TileAlertEditor({
   // can't be undone from there the way other alert edits can.
   const handleRemove = async () => {
     if (
-      await confirm('Remove this alert and its settings?', 'Remove', {
-        variant: 'danger',
-      })
+      await confirm(
+        t('chartEditor.tileAlert.removeConfirm'),
+        t('chartEditor.tileAlert.remove'),
+        {
+          variant: 'danger',
+        },
+      )
     ) {
       onRemove?.();
     }
@@ -124,7 +130,7 @@ export function TileAlertEditor({
         <Group justify="space-between" wrap="nowrap" px="sm" pt="sm" pb="sm">
           <Group gap={4} align="center">
             <Text size="sm" fw={500} mt={2}>
-              Alert
+              {t('chartEditor.tileAlert.title')}
             </Text>
             {tooltip && (
               <Tooltip label={tooltip} withArrow>
@@ -135,7 +141,7 @@ export function TileAlertEditor({
               <Tooltip label={error} withArrow>
                 <Badge
                   size="sm"
-                  text="Invalid query"
+                  text={t('chartEditor.tileAlert.invalidQuery')}
                   state="danger"
                   style={{ marginLeft: 'var(--mantine-spacing-xs)' }}
                 />
@@ -145,7 +151,7 @@ export function TileAlertEditor({
               <Tooltip label={warning} withArrow>
                 <Badge
                   size="sm"
-                  text="Warning"
+                  text={t('chartEditor.tileAlert.warning')}
                   state="warning"
                   style={{ marginLeft: 'var(--mantine-spacing-xs)' }}
                 />
@@ -156,7 +162,7 @@ export function TileAlertEditor({
             {alertItem && <AlertHistoryCardList alert={alertItem} />}
             {alertItem && <AckAlert alert={alertItem} />}
             {onRemove && (
-              <Tooltip label="Remove alert">
+              <Tooltip label={t('chartEditor.tileAlert.removeAlert')}>
                 <ActionIcon
                   variant="danger"
                   color="red"
@@ -170,14 +176,20 @@ export function TileAlertEditor({
             )}
             {alertPanel && (
               <Tooltip
-                label={alertPanel.isDraft ? 'Discard alert' : 'Discard changes'}
+                label={
+                  alertPanel.isDraft
+                    ? t('chartEditor.tileAlert.discardAlert')
+                    : t('chartEditor.tileAlert.discardChanges')
+                }
               >
                 <ActionIcon
                   variant="subtle"
                   size="sm"
                   onClick={alertPanel.close}
                   aria-label={
-                    alertPanel.isDraft ? 'Discard alert' : 'Discard changes'
+                    alertPanel.isDraft
+                      ? t('chartEditor.tileAlert.discardAlert')
+                      : t('chartEditor.tileAlert.discardChanges')
                   }
                   data-testid="close-alert-panel-button"
                 >
@@ -190,7 +202,7 @@ export function TileAlertEditor({
         <Box px="sm" pb="sm">
           <Group gap="xs">
             <Text size="sm" opacity={0.7}>
-              Trigger when the value
+              {t('chartEditor.tileAlert.triggerWhenValue')}
             </Text>
             <Controller
               control={control}
@@ -222,7 +234,7 @@ export function TileAlertEditor({
             {isRangeThresholdType(alertThresholdType as AlertThresholdType) && (
               <>
                 <Text size="sm" opacity={0.7}>
-                  and
+                  {t('chartEditor.tileAlert.and')}
                 </Text>
                 <Controller
                   control={control}
@@ -238,7 +250,7 @@ export function TileAlertEditor({
                 />
               </>
             )}
-            over
+            {t('chartEditor.tileAlert.over')}
             <Controller
               control={control}
               name="alert.interval"
@@ -251,7 +263,7 @@ export function TileAlertEditor({
               )}
             />
             <Text size="sm" opacity={0.7}>
-              via
+              {t('chartEditor.tileAlert.via')}
             </Text>
             <Controller
               control={control}
@@ -267,7 +279,9 @@ export function TileAlertEditor({
           </Group>
           {alert?.createdBy && (
             <Text size="xs" opacity={0.6} mt="xs">
-              Created by {alert.createdBy.name || alert.createdBy.email}
+              {t('chartEditor.tileAlert.createdBy', {
+                name: alert.createdBy.name || alert.createdBy.email,
+              })}
             </Text>
           )}
           <AlertDisplayFields
@@ -287,14 +301,16 @@ export function TileAlertEditor({
             maxScheduleOffsetMinutes={maxAlertScheduleOffsetMinutes}
             offsetWindowLabel={
               alertIntervalLabel
-                ? `from each ${alertIntervalLabel} window`
-                : 'from each alert window'
+                ? t('chartEditor.tileAlert.windowFromInterval', {
+                    interval: alertIntervalLabel,
+                  })
+                : t('chartEditor.tileAlert.windowFromAlert')
             }
             numConsecutiveWindowsName="alert.numConsecutiveWindows"
             numConsecutiveWindows={alertnumConsecutiveWindows ?? undefined}
           />
           <Text size="xxs" opacity={0.5} mb={4} mt="sm">
-            Send to
+            {t('chartEditor.tileAlert.sendTo')}
           </Text>
           <AlertChannelForm control={control} channelsName="alert.channels" />
           <AlertNoteField
@@ -310,8 +326,7 @@ export function TileAlertEditor({
               py="xs"
               mt="md"
             >
-              Note: Floating-point query results are not rounded during equality
-              comparison.
+              {t('chartEditor.tileAlert.equalityNote')}
             </Alert>
           )}
           <AlertPanelActions />

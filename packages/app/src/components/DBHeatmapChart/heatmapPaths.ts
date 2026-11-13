@@ -133,7 +133,7 @@ export const baseHeatmapOptions: uPlot.Options = {
   series: [
     {},
     {
-      label: 'Latency',
+      // The label is translated at the render site (charts:axisLatency).
       // paths and fill colors are set dynamically per theme in the
       // HeatmapPlot component's useMemo — see buildSeriesForPalette().
       facets: [
@@ -155,8 +155,10 @@ export const baseHeatmapOptions: uPlot.Options = {
 export function buildSeriesForPalette(
   colors: string[],
   cellKind: HeatmapCellKind,
+  label: string,
 ): Partial<uPlot.Series> {
   return {
+    label,
     paths: heatmapPaths({
       disp: {
         fill: {

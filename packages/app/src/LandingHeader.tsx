@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { useTranslation } from 'next-i18next/pages';
 import { Anchor, Burger, Button, Container, Group } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 
@@ -12,6 +13,8 @@ export default function LandingHeader({
   activeKey: string;
   fixed?: boolean;
 }) {
+  const { t } = useTranslation('settings');
+  const { t: tNav } = useTranslation('nav');
   const brandName = useBrandDisplayName();
   const wordmark = useWordmark();
   const { data: me } = api.useMe();
@@ -55,7 +58,7 @@ export default function LandingHeader({
                 style={{ fontWeight: activeKey === 'cloud' ? 600 : 400 }}
                 size="sm"
               >
-                {brandName} Cloud
+                {t('landing.cloud', { brandName })}
               </Anchor>
               <Anchor
                 href="https://clickhouse.com/docs/use-cases/observability/clickstack"
@@ -64,7 +67,7 @@ export default function LandingHeader({
                 style={{ fontWeight: activeKey === 'docs' ? 600 : 400 }}
                 size="sm"
               >
-                Docs
+                {t('landing.docs')}
               </Anchor>
               {!isLoggedIn && installation?.isTeamExisting === true && (
                 <Anchor
@@ -78,7 +81,7 @@ export default function LandingHeader({
                   style={{ fontWeight: activeKey === '/login' ? 600 : 400 }}
                   size="sm"
                 >
-                  Login
+                  {tNav('pages.login')}
                 </Anchor>
               )}
               {!isLoggedIn &&
@@ -86,14 +89,14 @@ export default function LandingHeader({
                 installation?.isTeamExisting === false && (
                   <Link href="/register">
                     <Button variant="primary" size="sm">
-                      Setup Account
+                      {t('landing.setupAccount')}
                     </Button>
                   </Link>
                 )}
               {isLoggedIn && (
                 <Link href="/search">
                   <Button variant="primary" size="sm">
-                    Go to Search
+                    {t('landing.goToSearch')}
                   </Button>
                 </Link>
               )}
@@ -108,14 +111,14 @@ export default function LandingHeader({
                 underline="never"
                 style={{ fontWeight: activeKey === 'cloud' ? 600 : 400 }}
               >
-                {brandName} Cloud
+                {t('landing.cloud', { brandName })}
               </Anchor>
               <Anchor
                 href="https://clickhouse.com/docs/use-cases/observability/clickstack"
                 underline="never"
                 style={{ fontWeight: activeKey === 'docs' ? 600 : 400 }}
               >
-                Docs
+                {t('landing.docs')}
               </Anchor>
               {!isLoggedIn && installation?.isTeamExisting === true && (
                 <Anchor
@@ -123,7 +126,7 @@ export default function LandingHeader({
                   underline="never"
                   style={{ fontWeight: activeKey === '/login' ? 600 : 400 }}
                 >
-                  Login
+                  {tNav('pages.login')}
                 </Anchor>
               )}
               {!isLoggedIn &&
@@ -131,14 +134,14 @@ export default function LandingHeader({
                 installation?.isTeamExisting === false && (
                   <Link href="/register">
                     <Button variant="primary" size="sm" fullWidth>
-                      Setup Account
+                      {t('landing.setupAccount')}
                     </Button>
                   </Link>
                 )}
               {isLoggedIn && (
                 <Link href="/search">
                   <Button variant="primary" size="sm" fullWidth>
-                    Go to Search
+                    {t('landing.goToSearch')}
                   </Button>
                 </Link>
               )}
